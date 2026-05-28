@@ -1,5 +1,6 @@
 import React, { Suspense } from "react";
 import AppContent from "./AppContent";
+import { SidebarProvider } from "./components/navigation/SidebarContext";
 
 export default function Home() {
   return (
@@ -8,7 +9,9 @@ export default function Home() {
         Initializing Engine...
       </div>
     }>
-      <AppContent />
+      <SidebarProvider>
+        <AppContent />
+      </SidebarProvider>
     </Suspense>
   );
 }

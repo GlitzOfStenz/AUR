@@ -3,6 +3,13 @@
 @theme {
   --font-sans: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: var(--font-serif), Georgia, serif;
+  
+  --color-cyber-yellow: #eab308; /* yellow-600 */
+  --color-cyber-yellow-bright: #facc15; /* yellow-400 */
+  --color-cyber-black: #050506;
+  --color-cyber-dark: #0d0d11;
+  --color-cyber-gray: #18181f;
+  --color-cyber-border: rgba(234, 179, 8, 0.15);
 }
 
 :root {
@@ -10,23 +17,163 @@
   --foreground: #0f172a;
 }
 
+/* Update variables when document has .dark class */
+html.dark {
+  --background: #050506;
+  --foreground: #f8fafc;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Custom scrollbar matching high-contrast editorial rules */
+/* Premium futuristic glassmorphism utilities */
+.cyber-glass {
+  background: rgba(13, 13, 17, 0.7);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(234, 179, 8, 0.1);
+}
+
+.cyber-glass-light {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+}
+
+/* Glowing micro-interaction effects */
+.glow-yellow-sm {
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.1);
+}
+
+.glow-yellow {
+  box-shadow: 0 0 20px rgba(234, 179, 8, 0.2);
+}
+
+.glow-yellow-hover:hover {
+  box-shadow: 0 0 25px rgba(234, 179, 8, 0.4);
+  border-color: rgba(234, 179, 8, 0.35);
+}
+
+/* Animated futuristic scanning line / accent pulse */
+@keyframes cyber-pulse {
+  0%, 100% { opacity: 0.2; }
+  50% { opacity: 0.6; }
+}
+
+.cyber-pulse-glow {
+  animation: cyber-pulse 3s infinite ease-in-out;
+}
+
+/* Custom scrollbar matching high-contrast editorial and dark futuristic rules */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
+
+/* Light mode scrollbar */
 ::-webkit-scrollbar-track {
   background: #f8fafc;
 }
 ::-webkit-scrollbar-thumb {
   background: #cbd5e1;
+  border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
 
+/* Dark mode scrollbar rules */
+html.dark ::-webkit-scrollbar-track {
+  background: #0d0d11;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: rgba(234, 179, 8, 0.2);
+  border: 1px solid rgba(234, 179, 8, 0.05);
+}
+html.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(234, 179, 8, 0.4);
+}
+
+/* Dark mode automatic overrides for existing light elements */
+html.dark .bg-white {
+  background-color: var(--color-cyber-dark) !important;
+}
+
+html.dark .text-slate-900 {
+  color: #f8fafc !important;
+}
+
+html.dark .border-slate-200 {
+  border-color: rgba(234, 179, 8, 0.15) !important;
+}
+
+html.dark .bg-slate-50 {
+  background-color: var(--color-cyber-gray) !important;
+}
+
+html.dark .text-slate-750 {
+  color: #f1f5f9 !important;
+}
+
+html.dark .text-slate-700 {
+  color: #cbd5e1 !important;
+}
+
+html.dark .text-slate-600 {
+  color: #94a3b8 !important;
+}
+
+html.dark .text-slate-500 {
+  color: #64748b !important;
+}
+
+html.dark .text-slate-400 {
+  color: #475569 !important;
+}
+
+html.dark .border-slate-100 {
+  border-color: rgba(234, 179, 8, 0.1) !important;
+}
+
+html.dark .hover\:bg-slate-50:hover {
+  background-color: rgba(234, 179, 8, 0.05) !important;
+}
+
+html.dark .hover\:border-slate-300:hover {
+  border-color: rgba(234, 179, 8, 0.3) !important;
+}
+
+html.dark .text-amber-700 {
+  color: #eab308 !important;
+}
+
+html.dark .bg-amber-50 {
+  background-color: rgba(234, 179, 8, 0.05) !important;
+}
+
+html.dark .border-amber-200 {
+  border-color: rgba(234, 179, 8, 0.2) !important;
+}
+
+html.dark .fill-amber-700 {
+  fill: #eab308 !important;
+}
+
+/* Specific component theme integration fixes */
+html.dark input.bg-white, html.dark select.bg-white {
+  background-color: var(--color-cyber-gray) !important;
+  color: #f8fafc !important;
+  border-color: rgba(234, 179, 8, 0.2) !important;
+}
+
+html.dark input.bg-white:focus, html.dark select.bg-white:focus {
+  border-color: #eab308 !important;
+}
+
+html.dark button.border-slate-900 {
+  border-color: #eab308 !important;
+}

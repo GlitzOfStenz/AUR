@@ -29,6 +29,7 @@ import {
   X
 } from "lucide-react";
 import { MOCK_UNIVERSITIES, University } from "../data";
+import { useSidebar } from "./navigation/SidebarContext";
 
 interface RankingsEngineProps {
   searchQuery: string;
@@ -56,6 +57,7 @@ export default function RankingsEngine({
 }: RankingsEngineProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { filters } = useSidebar();
 
   // 1. Core State
   const [sorting, setSorting] = useState<SortingState>([{ id: "calculatedRank", desc: false }]);
@@ -209,28 +211,62 @@ export default function RankingsEngine({
   // 5. Apply filters
   const filteredData = useMemo(() => {
     return processedData.filter((uni) => {
-      // Search query filter
+      // 1. Search Query (combine props.searchQuery and filters.searchQuery)
+      const query = (filters.searchQuery || searchQuery || "").toLowerCase();
       const matchesSearch =
-        searchQuery === "" ||
-        uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        uni.location.toLowerCase().includes(searchQuery.toLowerCase());
+        query === "" ||
+        uni.name.toLowerCase().includes(query) ||
+        uni.location.toLowerCase().includes(query);
 
-      // Location filter
-      const matchesLoc = locations.length === 0 || locations.includes(uni.location);
+      // 2. Location (combine locations state and filters.country)
+      const matchesLoc =
+        (locations.length === 0 || locations.includes(uni.location)) &&
+        (filters.country === "" || uni.location === filters.country);
 
-      // Subject filter
+      // 3. Subject (combine selectedSubjects state and filters.subjects)
       const matchesSub =
-        selectedSubjects.length === 0 ||
-        uni.subjects.some((sub) => selectedSubjects.includes(sub));
+        (selectedSubjects.length === 0 || uni.subjects.some((sub) => selectedSubjects.includes(sub))) &&
+        (filters.subjects.length === 0 || uni.subjects.some((sub) => filters.subjects.includes(sub)));
 
-      // Language filter
+      // 4. Language filter (keep existing local language filter)
       const matchesLang =
         selectedLanguages.length === 0 ||
         uni.languages.some((lang) => selectedLanguages.includes(lang));
 
-      return matchesSearch && matchesLoc && matchesSub && matchesLang;
+      // 5. QS Rank Range (calculatedRank is from processedData)
+      const rank = uni.calculatedRank;
+      const matchesRank = rank >= filters.qsRange[0] && rank <= filters.qsRange[1];
+
+      // 6. Tuition Range
+      const tuitionVal = parseInt(uni.tuition.replace(/[^0-9]/g, "")) || 0;
+      const matchesTuition = tuitionVal >= filters.tuitionRange[0] && tuitionVal <= filters.tuitionRange[1];
+
+      // 7. Public / Private
+      let matchesType = true;
+      if (filters.isPublic !== null) {
+        const isPublic = !["akfa-univ", "tashkent-webster", "yonsei", "korea-univ"].includes(uni.id);
+        matchesType = isPublic === filters.isPublic;
+      }
+
+      // 8. Scholarship Only
+      let matchesScholarship = true;
+      if (filters.scholarshipOnly) {
+        const hasScholarship = ["tsinghua", "nus", "peking", "tokyo", "samarkand-med", "tashkent-med", "akfa-univ", "malaya"].includes(uni.id);
+        matchesScholarship = hasScholarship;
+      }
+
+      return (
+        matchesSearch &&
+        matchesLoc &&
+        matchesSub &&
+        matchesLang &&
+        matchesRank &&
+        matchesTuition &&
+        matchesType &&
+        matchesScholarship
+      );
     });
-  }, [processedData, searchQuery, locations, selectedSubjects, selectedLanguages]);
+  }, [processedData, searchQuery, locations, selectedSubjects, selectedLanguages, filters]);
 
   // 6. Extract unique values for filter dropdown options
   const uniqueLocations = useMemo(() => Array.from(new Set(MOCK_UNIVERSITIES.map((u) => u.location))).sort(), []);
@@ -352,12 +388,12 @@ export default function RankingsEngine({
     <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 font-sans flex-grow">
       
       {/* Editorial Title */}
-      <div className="mb-8 border-b border-slate-900 pb-4 flex flex-col md:flex-row md:items-end md:justify-between">
+      <div className="mb-8 border-b border-slate-900 dark:border-cyber-border pb-4 flex flex-col md:flex-row md:items-end md:justify-between">
         <div>
-          <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700">
+          <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 dark:text-cyber-yellow">
             Engine & Analytics Database
           </span>
-          <h2 className="font-serif text-3xl font-semibold tracking-tight text-slate-900 leading-tight mt-1">
+          <h2 className="font-serif text-3xl font-semibold tracking-tight text-slate-900 dark:text-white leading-tight mt-1">
             Asia Institutional Ranking Table
           </h2>
         </div>
@@ -365,7 +401,7 @@ export default function RankingsEngine({
         {/* Recalculator Drawer Trigger button */}
         <button
           onClick={() => setIsWeightsDrawerOpen(true)}
-          className="mt-4 md:mt-0 inline-flex items-center justify-center border border-amber-700 bg-amber-50 hover:bg-amber-100 text-amber-900 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors"
+          className="mt-4 md:mt-0 inline-flex items-center justify-center border border-amber-700 bg-amber-50 dark:bg-cyber-gray dark:text-cyber-yellow dark:border-cyber-yellow/40 hover:bg-amber-100 dark:hover:bg-cyber-yellow dark:hover:text-cyber-black text-amber-900 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors"
         >
           <SlidersHorizontal className="h-4 w-4 mr-2 text-amber-700" />
           Weights Recalculator
@@ -373,7 +409,7 @@ export default function RankingsEngine({
       </div>
 
       {/* 9. Elite Filtering Bar Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 bg-slate-50 border border-slate-200 p-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 bg-slate-50 dark:bg-cyber-gray border border-slate-200 dark:border-slate-800 p-4">
         
         {/* Search Field */}
         <div className="relative">
@@ -518,11 +554,11 @@ export default function RankingsEngine({
       </div>
 
       {/* 10. Table System Container with Sticky Header & Pinned Column rules */}
-      <div className="relative border border-slate-200 overflow-x-auto select-none bg-white">
+      <div className="relative border border-slate-200 dark:border-cyber-border overflow-x-auto select-none bg-white dark:bg-cyber-dark">
         <table className="w-full table-auto border-collapse text-xs">
-          <thead className="sticky top-0 z-10 bg-slate-900 text-white font-sans uppercase tracking-wider font-semibold">
+          <thead className="sticky top-0 z-10 bg-slate-900 dark:bg-cyber-gray text-white dark:text-cyber-yellow font-sans uppercase tracking-wider font-semibold">
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b border-slate-200">
+              <tr key={headerGroup.id} className="border-b border-slate-200 dark:border-slate-800">
                 {headerGroup.headers.map((header, idx) => {
                   const isPinnedCol = idx < 2; // rank and name columns pinned
                   return (
@@ -530,9 +566,9 @@ export default function RankingsEngine({
                       key={header.id}
                       className={`px-4 py-3 text-left font-bold select-none ${
                         isPinnedCol
-                          ? "sticky left-0 bg-slate-900 z-20 border-r border-slate-800"
+                          ? "sticky left-0 bg-slate-900 dark:bg-cyber-gray z-20 border-r border-slate-800 dark:border-slate-700"
                           : ""
-                      } ${header.column.getCanSort() ? "cursor-pointer hover:text-amber-300" : ""}`}
+                      } ${header.column.getCanSort() ? "cursor-pointer hover:text-amber-300 dark:hover:text-cyber-yellow-bright" : ""}`}
                       onClick={header.column.getToggleSortingHandler()}
                     >
                       <div className="flex items-center space-x-1.5">
@@ -555,11 +591,11 @@ export default function RankingsEngine({
               </tr>
             ))}
           </thead>
-          <tbody className="divide-y divide-slate-250 font-sans text-slate-700">
+          <tbody className="divide-y divide-slate-250 dark:divide-slate-850 font-sans text-slate-700 dark:text-slate-300">
             {table.getRowModel().rows.map((row) => (
               <tr
                 key={row.id}
-                className="hover:bg-slate-50 transition-colors"
+                className="hover:bg-slate-50 dark:hover:bg-cyber-gray/25 transition-colors"
               >
                 {row.getVisibleCells().map((cell, idx) => {
                   const isPinnedCol = idx < 2;
@@ -568,7 +604,7 @@ export default function RankingsEngine({
                       key={cell.id}
                       className={`px-4 py-3 align-middle ${
                         isPinnedCol
-                          ? "sticky left-0 bg-white hover:bg-slate-50 z-10 border-r border-slate-200 font-bold"
+                          ? "sticky left-0 bg-white dark:bg-cyber-black hover:bg-slate-50 dark:hover:bg-cyber-gray/30 z-10 border-r border-slate-200 dark:border-slate-800 font-bold text-slate-900 dark:text-white"
                           : ""
                       }`}
                     >
