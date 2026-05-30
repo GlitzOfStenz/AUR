@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   useReactTable,
   getCoreRowModel,
@@ -281,9 +282,15 @@ export default function RankingsEngine({
         header: "Rank",
         accessorKey: "calculatedRank",
         cell: ({ row }) => (
-          <span className="flex h-6 w-6 items-center justify-center border border-slate-900 bg-slate-900 text-white font-mono text-xs font-bold">
+          <motion.span
+            key={`rank-${row.original.id}`}
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="flex h-6 w-6 items-center justify-center border border-slate-900 bg-slate-900 text-white font-mono text-xs font-bold"
+          >
             {row.original.calculatedRank}
-          </span>
+          </motion.span>
         ),
       },
       {
@@ -292,7 +299,7 @@ export default function RankingsEngine({
         accessorKey: "name",
         cell: ({ row }) => (
           <div className="text-left font-sans font-bold text-slate-900 hover:text-amber-700 transition-colors cursor-pointer" onClick={() => onUniversitySelect(row.original.id)}>
-            <div className="truncate max-w-[200px] sm:max-w-xs">{row.original.name}</div>
+            <div className="truncate max-w-50">{row.original.name}</div>
             <div className="flex items-center text-[10px] text-slate-400 font-mono font-medium uppercase mt-0.5">
               <Globe className="h-3 w-3 mr-1" />
               {row.original.location}
@@ -342,8 +349,11 @@ export default function RankingsEngine({
         cell: ({ row }) => {
           const isSelected = selectedUniIds.includes(row.original.id);
           return (
-            <button
+            <motion.button
               onClick={() => onToggleCompare(row.original.id)}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: "spring", stiffness: 400, damping: 25 }}
               className="flex items-center space-x-1.5 text-xs font-semibold uppercase tracking-wider text-slate-900 border border-slate-900 px-2.5 py-1 hover:bg-slate-50 transition-colors"
             >
               {isSelected ? (
@@ -357,7 +367,7 @@ export default function RankingsEngine({
                   <span className="text-[10px]">Compare</span>
                 </>
               )}
-            </button>
+            </motion.button>
           );
         },
       },
@@ -385,7 +395,7 @@ export default function RankingsEngine({
   });
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 font-sans flex-grow">
+    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 font-sans grow">
       
       {/* Editorial Title */}
       <div className="mb-8 border-b border-slate-900 dark:border-cyber-border pb-4 flex flex-col md:flex-row md:items-end md:justify-between">
@@ -452,15 +462,21 @@ export default function RankingsEngine({
           {/* Active Locations tags */}
           {locations.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1.5">
-              {locations.map((loc) => (
-                <span
-                  key={loc}
-                  onClick={() => handleLocationToggle(loc)}
-                  className="inline-flex items-center text-[9px] font-mono border border-slate-350 bg-white text-slate-700 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
-                >
-                  {loc} <X className="h-2 w-2 ml-1" />
-                </span>
-              ))}
+              <AnimatePresence>
+                {locations.map((loc) => (
+                  <motion.span
+                    key={loc}
+                    onClick={() => handleLocationToggle(loc)}
+                    initial={{ opacity: 0, scale: 0.8, x: -10 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, x: -10 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="inline-flex items-center text-[9px] font-mono border border-slate-350 bg-white text-slate-700 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
+                  >
+                    {loc} <X className="h-2 w-2 ml-1" />
+                  </motion.span>
+                ))}
+              </AnimatePresence>
             </div>
           )}
         </div>
@@ -489,15 +505,21 @@ export default function RankingsEngine({
           {/* Active Subjects tags */}
           {selectedSubjects.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1.5">
-              {selectedSubjects.map((sub) => (
-                <span
-                  key={sub}
-                  onClick={() => handleSubjectToggle(sub)}
-                  className="inline-flex items-center text-[9px] font-mono border border-slate-350 bg-white text-slate-700 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
-                >
-                  {sub} <X className="h-2 w-2 ml-1" />
-                </span>
-              ))}
+              <AnimatePresence>
+                {selectedSubjects.map((sub) => (
+                  <motion.span
+                    key={sub}
+                    onClick={() => handleSubjectToggle(sub)}
+                    initial={{ opacity: 0, scale: 0.8, x: -10 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, x: -10 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="inline-flex items-center text-[9px] font-mono border border-slate-350 bg-white text-slate-700 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
+                  >
+                    {sub} <X className="h-2 w-2 ml-1" />
+                  </motion.span>
+                ))}
+              </AnimatePresence>
             </div>
           )}
         </div>
@@ -526,15 +548,21 @@ export default function RankingsEngine({
           {/* Active Language tags */}
           {selectedLanguages.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1.5">
-              {selectedLanguages.map((lang) => (
-                <span
-                  key={lang}
-                  onClick={() => handleLanguageToggle(lang)}
-                  className="inline-flex items-center text-[9px] font-mono border border-slate-350 bg-white text-slate-700 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
-                >
-                  {lang} <X className="h-2 w-2 ml-1" />
-                </span>
-              ))}
+              <AnimatePresence>
+                {selectedLanguages.map((lang) => (
+                  <motion.span
+                    key={lang}
+                    onClick={() => handleLanguageToggle(lang)}
+                    initial={{ opacity: 0, scale: 0.8, x: -10 }}
+                    animate={{ opacity: 1, scale: 1, x: 0 }}
+                    exit={{ opacity: 0, scale: 0.8, x: -10 }}
+                    transition={{ duration: 0.2, ease: "easeOut" }}
+                    className="inline-flex items-center text-[9px] font-mono border border-slate-350 bg-white text-slate-700 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
+                  >
+                    {lang} <X className="h-2 w-2 ml-1" />
+                  </motion.span>
+                ))}
+              </AnimatePresence>
             </div>
           )}
         </div>
@@ -574,7 +602,13 @@ export default function RankingsEngine({
                       <div className="flex items-center space-x-1.5">
                         <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
                         {header.column.getCanSort() && (
-                          <span className="shrink-0">
+                          <motion.span
+                            className="shrink-0"
+                            animate={{
+                              rotate: header.column.getIsSorted() === "desc" ? 180 : 0,
+                            }}
+                            transition={{ duration: 0.3, ease: "easeOut" }}
+                          >
                             {header.column.getIsSorted() === "asc" ? (
                               <ChevronUp className="h-3 w-3" />
                             ) : header.column.getIsSorted() === "desc" ? (
@@ -582,7 +616,7 @@ export default function RankingsEngine({
                             ) : (
                               <div className="w-3" />
                             )}
-                          </span>
+                          </motion.span>
                         )}
                       </div>
                     </th>
@@ -592,11 +626,17 @@ export default function RankingsEngine({
             ))}
           </thead>
           <tbody className="divide-y divide-slate-250 dark:divide-slate-850 font-sans text-slate-700 dark:text-slate-300">
-            {table.getRowModel().rows.map((row) => (
-              <tr
-                key={row.id}
-                className="hover:bg-slate-50 dark:hover:bg-cyber-gray/25 transition-colors"
-              >
+            <AnimatePresence>
+              {table.getRowModel().rows.map((row, idx) => (
+                <motion.tr
+                  key={row.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.3, ease: "easeOut", delay: idx * 0.05 }}
+                  whileHover={{ y: -2, boxShadow: "0 4px 12px rgba(15,23,42,0.08)" }}
+                  className="hover:bg-slate-50 dark:hover:bg-cyber-gray/25 transition-colors"
+                >
                 {row.getVisibleCells().map((cell, idx) => {
                   const isPinnedCol = idx < 2;
                   return (
@@ -612,15 +652,20 @@ export default function RankingsEngine({
                     </td>
                   );
                 })}
-              </tr>
-            ))}
-            {filteredData.length === 0 && (
-              <tr>
-                <td colSpan={columns.length} className="text-center py-12 text-slate-400 italic">
-                  No universities match the current search filters.
-                </td>
-              </tr>
-            )}
+              </motion.tr>
+              ))}
+              {filteredData.length === 0 && (
+                <motion.tr
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <td colSpan={columns.length} className="text-center py-12 text-slate-400 italic">
+                    No universities match the current search filters.
+                  </td>
+                </motion.tr>
+              )}
+            </AnimatePresence>
           </tbody>
         </table>
       </div>
@@ -672,11 +717,28 @@ export default function RankingsEngine({
       </div>
 
       {/* 11. Custom Recalculation Weights Slide-Out Drawer */}
-      {isWeightsDrawerOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden font-sans">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onClick={() => setIsWeightsDrawerOpen(false)} />
-          <div className="fixed inset-y-0 right-0 pl-10 max-w-full flex">
-            <div className="w-screen max-w-md bg-white border-l border-slate-900 flex flex-col justify-between shadow-2xl">
+      <AnimatePresence>
+        {isWeightsDrawerOpen && (
+          <motion.div
+            key="weights-drawer"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+            className="fixed inset-0 z-50 overflow-hidden font-sans"
+          >
+            <div
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+              onClick={() => setIsWeightsDrawerOpen(false)}
+            />
+            <motion.div
+              className="fixed inset-y-0 right-0 pl-10 max-w-full flex"
+              initial={{ x: "100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            >
+              <div className="w-screen max-w-md bg-white border-l border-slate-900 flex flex-col justify-between shadow-2xl">
               
               {/* Drawer Header */}
               <div className="p-6 border-b border-slate-200">
@@ -757,9 +819,10 @@ export default function RankingsEngine({
               </div>
 
             </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
