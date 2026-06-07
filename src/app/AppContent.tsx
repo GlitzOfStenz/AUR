@@ -9,7 +9,9 @@ import Homepage from "./components/Homepage";
 import RankingsEngine from "./components/RankingsEngine";
 import ComparisonDock from "./components/ComparisonDock";
 import UniversityProfile from "./components/UniversityProfile";
+import UniversitiesList from "./components/UniversitiesList";
 import FloatingChatAssistant from "./components/FloatingChatAssistant";
+import AnalyticsDashboard from "./components/AnalyticsDashboard";
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { Article, MOCK_UNIVERSITIES } from "./data";
 import { BarChart3, Bookmark, Settings, Award, GraduationCap, CheckCircle, ShieldAlert } from "lucide-react";
@@ -18,10 +20,13 @@ export default function AppContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const { activeView, handleViewChange, selectedUniId, setSelectedUniId, theme } = useSidebar();
+  const { activeView, handleViewChange, selectedUniId, setSelectedUniId, theme, filters, setFilters } = useSidebar();
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const searchQuery = filters.searchQuery;
+  const setSearchQuery = (q: string) => setFilters(prev => ({ ...prev, searchQuery: q }));
+
   const [selectedUniIds, setSelectedUniIds] = useState<string[]>([]);
+  const [savedUniIds, setSavedUniIds] = useState<string[]>([]);
 
   // Local settings toggles state
   const [settingsAutoRecalc, setSettingsAutoRecalc] = useState(true);
@@ -57,6 +62,13 @@ export default function AppContent() {
     setSelectedUniIds([]);
   };
 
+  const handleToggleSave = (uniId: string) => {
+    setSavedUniIds((prev) => {
+      if (prev.includes(uniId)) return prev.filter((id) => id !== uniId);
+      return [...prev, uniId];
+    });
+  };
+
   const handleUniversitySelect = (uniId: string) => {
     setSelectedUniId(uniId);
   };
@@ -70,7 +82,7 @@ export default function AppContent() {
   };
 
   // Get selected universities for Saved view
-  const savedUniversities = MOCK_UNIVERSITIES.filter((u) => selectedUniIds.includes(u.id));
+  const savedUniversities = MOCK_UNIVERSITIES.filter((u) => savedUniIds.includes(u.id));
 
   return (
     <div className={`flex min-h-screen flex-col transition-colors duration-300 ${
@@ -80,7 +92,7 @@ export default function AppContent() {
       <Navbar />
 
       {/* Main Core Layout Layout */}
-      <div className="flex-grow flex w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-8">
+      <div className="flex-grow flex w-full w-full mx-auto px-0 sm:px-4 lg:px-8 mt-6">
         
         {/* Collapsible Left Sidebar */}
         <Sidebar />
@@ -97,12 +109,23 @@ export default function AppContent() {
             />
           )}
 
+          {view === "universities" && (
+            <UniversitiesList
+              onUniversitySelect={handleUniversitySelect}
+              onViewChange={handleViewChange}
+              savedUniIds={savedUniIds}
+              onToggleSave={handleToggleSave}
+            />
+          )}
+
           {view === "rankings" && (
             <RankingsEngine
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
               selectedUniIds={selectedUniIds}
               onToggleCompare={handleToggleCompare}
+              savedUniIds={savedUniIds}
+              onToggleSave={handleToggleSave}
               onUniversitySelect={handleUniversitySelect}
             />
           )}
@@ -112,89 +135,26 @@ export default function AppContent() {
               universityId={id}
               onBack={handleBackToRankings}
               onViewChange={handleViewChange}
+              savedUniIds={savedUniIds}
+              onToggleSave={handleToggleSave}
             />
           )}
 
-          {/* 1. Analytics Mock Panel */}
-          {view === "analytics" && (
-            <div className="p-6 border border-slate-200 dark:border-cyber-border rounded-xl bg-slate-50/50 dark:bg-cyber-dark/40 shadow-sm space-y-6 animate-fadeIn">
-              <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 dark:text-cyber-yellow">
-                  Academic Intelligence
-                </span>
-                <h2 className="font-serif text-2xl font-bold text-slate-900 dark:text-white mt-0.5">
-                  Institutional Analytics Hub
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Real-time telemetric aggregation across audited South, East, and Central Asian university databases.
-                </p>
-              </div>
-
-              {/* Statistics Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {[
-                  { title: "Index Institutions", val: "45", desc: "Audited & Verified", icon: GraduationCap },
-                  { title: "Average Score", val: "84.6%", desc: "Calculated overall metrics", icon: BarChart3 },
-                  { title: "Top Region", val: "China / Japan", desc: "Highest citation output", icon: Award },
-                  { title: "Medicine Programs", val: "62%", desc: "Offer English MD courses", icon: CheckCircle },
-                ].map((stat) => (
-                  <div
-                    key={stat.title}
-                    className="p-4 border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-cyber-gray rounded-lg flex items-center justify-between shadow-xs hover:border-slate-350 dark:hover:border-cyber-yellow/40 transition-colors"
-                  >
-                    <div>
-                      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider block">
-                        {stat.title}
-                      </span>
-                      <span className="text-xl font-bold text-slate-900 dark:text-white block mt-1">
-                        {stat.val}
-                      </span>
-                      <span className="text-[9px] text-slate-400 dark:text-slate-550 block mt-0.5">
-                        {stat.desc}
-                      </span>
-                    </div>
-                    <stat.icon className="h-8 w-8 text-slate-300 dark:text-cyber-yellow/20" />
-                  </div>
-                ))}
-              </div>
-
-              {/* Mock Chart Section */}
-              <div className="p-4 border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-cyber-gray rounded-lg">
-                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider block mb-4">
-                  Citation Density Output Index (5-Year Progression)
-                </span>
-                <div className="h-48 w-full flex items-end justify-between gap-2 pt-4">
-                  {[45, 62, 58, 80, 95].map((h, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-                      <div className="text-[9px] font-mono text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {h}%
-                      </div>
-                      <div
-                        className="w-full bg-slate-900 dark:bg-cyber-yellow rounded-t transition-all duration-500 hover:brightness-110"
-                        style={{ height: `${h}%` }}
-                      />
-                      <span className="text-[10px] font-mono text-slate-400 dark:text-slate-550 mt-1">
-                        {2022 + i}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
+          {/* Analytics Dashboard */}
+          {view === "analytics" && <AnalyticsDashboard />}
 
           {/* 2. Saved Items Mock Panel */}
           {view === "saved" && (
-            <div className="p-6 border border-slate-200 dark:border-cyber-border rounded-xl bg-slate-50/50 dark:bg-cyber-dark/40 shadow-sm space-y-6 animate-fadeIn">
+            <div className="w-full mx-auto w-full p-6 border border-slate-200 dark:border-cyber-border rounded-xl bg-slate-50/50 dark:bg-cyber-dark/40 shadow-sm space-y-6 animate-fadeIn">
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 dark:text-cyber-yellow">
                   Personal Database
                 </span>
                 <h2 className="font-serif text-2xl font-bold text-slate-900 dark:text-white mt-0.5">
-                  Saved Comparison Nodes
+                  Shortlisted Universities
                 </h2>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  List of institutions currently pinned inside the analysis comparators dock.
+                  List of institutions currently shortlisted for further analysis.
                 </p>
               </div>
 
@@ -244,7 +204,7 @@ export default function AppContent() {
 
           {/* 3. Settings Mock Panel */}
           {view === "settings" && (
-            <div className="p-6 border border-slate-200 dark:border-cyber-border rounded-xl bg-slate-50/50 dark:bg-cyber-dark/40 shadow-sm space-y-6 animate-fadeIn">
+            <div className="w-full mx-auto w-full p-6 border border-slate-200 dark:border-cyber-border rounded-xl bg-slate-50/50 dark:bg-cyber-dark/40 shadow-sm space-y-6 animate-fadeIn">
               <div>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 dark:text-cyber-yellow">
                   System Diagnostics
@@ -349,7 +309,7 @@ export default function AppContent() {
 
       {/* Universal Footer */}
       <footer className="border-t border-slate-200 dark:border-cyber-border bg-slate-50 dark:bg-cyber-dark/80 py-8 transition-colors duration-200">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center text-[10px] uppercase font-bold tracking-widest text-slate-400 dark:text-slate-500">
+        <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 text-center text-[10px] uppercase font-bold tracking-widest text-slate-400 dark:text-slate-500">
           © 2026 Asia University Rankings | Official Analytical Data Engine
         </div>
       </footer>

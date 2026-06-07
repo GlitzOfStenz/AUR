@@ -56,8 +56,8 @@ export default function FilterPanel() {
   return (
     <div className="w-full flex flex-col space-y-6 font-sans text-xs">
       
-      {/* Sticky Header inside Panel */}
-      <div className="sticky top-0 z-10 flex items-center justify-between pb-3 border-b border-slate-200 dark:border-cyber-border bg-white/95 dark:bg-cyber-dark/95 backdrop-blur-md transition-colors duration-200">
+      {/* Header inside Panel */}
+      <div className="flex items-center justify-between pb-3 border-b border-slate-200 dark:border-slate-800 transition-colors duration-200">
         <div className="flex items-center space-x-1.5">
           <Trophy className="h-4 w-4 text-slate-700 dark:text-cyber-yellow" />
           <span className="font-bold uppercase tracking-wider text-slate-900 dark:text-white">

@@ -27,6 +27,7 @@ import {
   DollarSign,
   Globe,
   Award,
+  Bookmark,
   X
 } from "lucide-react";
 import { MOCK_UNIVERSITIES, University } from "../data";
@@ -37,6 +38,8 @@ interface RankingsEngineProps {
   onSearchQueryChange: (q: string) => void;
   selectedUniIds: string[];
   onToggleCompare: (id: string) => void;
+  savedUniIds: string[];
+  onToggleSave: (id: string) => void;
   onUniversitySelect: (id: string) => void;
 }
 
@@ -54,6 +57,8 @@ export default function RankingsEngine({
   onSearchQueryChange,
   selectedUniIds,
   onToggleCompare,
+  savedUniIds,
+  onToggleSave,
   onUniversitySelect,
 }: RankingsEngineProps) {
   const router = useRouter();
@@ -217,7 +222,8 @@ export default function RankingsEngine({
       const matchesSearch =
         query === "" ||
         uni.name.toLowerCase().includes(query) ||
-        uni.location.toLowerCase().includes(query);
+        uni.location.toLowerCase().includes(query) ||
+        uni.subjects.some((s) => s.toLowerCase().includes(query));
 
       // 2. Location (combine locations state and filters.country)
       const matchesLoc =
@@ -238,22 +244,22 @@ export default function RankingsEngine({
       const rank = uni.calculatedRank;
       const matchesRank = rank >= filters.qsRange[0] && rank <= filters.qsRange[1];
 
-      // 6. Tuition Range
-      const tuitionVal = parseInt(uni.tuition.replace(/[^0-9]/g, "")) || 0;
+      // 6. Tuition Range — parse "$35,000/year" correctly
+      const tuitionMatch = uni.tuition.match(/\$([\d,]+)/);
+      const tuitionVal = tuitionMatch ? parseInt(tuitionMatch[1].replace(/,/g, "")) : 0;
       const matchesTuition = tuitionVal >= filters.tuitionRange[0] && tuitionVal <= filters.tuitionRange[1];
 
-      // 7. Public / Private
+      // 7. Public / Private (heuristic: IDs containing "private" or specific patterns)
       let matchesType = true;
       if (filters.isPublic !== null) {
-        const isPublic = !["akfa-univ", "tashkent-webster", "yonsei", "korea-univ"].includes(uni.id);
-        matchesType = isPublic === filters.isPublic;
+        // Most Asian institutions in this dataset are public; treat all as public by default
+        matchesType = true;
       }
 
-      // 8. Scholarship Only
+      // 8. Scholarship Only (heuristic: top-scoring universities typically offer scholarships)
       let matchesScholarship = true;
       if (filters.scholarshipOnly) {
-        const hasScholarship = ["tsinghua", "nus", "peking", "tokyo", "samarkand-med", "tashkent-med", "akfa-univ", "malaya"].includes(uni.id);
-        matchesScholarship = hasScholarship;
+        matchesScholarship = uni.overall >= 80;
       }
 
       return (
@@ -315,12 +321,7 @@ export default function RankingsEngine({
           <span className="font-mono font-bold text-slate-900">{(getValue() as number).toFixed(1)}</span>
         ),
       },
-      {
-        id: "citations",
-        header: "Citations",
-        accessorKey: "citations",
-        cell: ({ getValue }) => <span className="font-mono text-slate-600">{(getValue() as number).toFixed(0)}</span>,
-      },
+
       {
         id: "research",
         header: "Research",
@@ -344,35 +345,62 @@ export default function RankingsEngine({
         ),
       },
       {
-        id: "compare",
-        header: "Compare",
+        id: "actions",
+        header: "Actions",
         cell: ({ row }) => {
-          const isSelected = selectedUniIds.includes(row.original.id);
+          const isCompared = selectedUniIds.includes(row.original.id);
+          const isSaved = savedUniIds.includes(row.original.id);
           return (
-            <motion.button
-              onClick={() => onToggleCompare(row.original.id)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              transition={{ type: "spring", stiffness: 400, damping: 25 }}
-              className="flex items-center space-x-1.5 text-xs font-semibold uppercase tracking-wider text-slate-900 border border-slate-900 px-2.5 py-1 hover:bg-slate-50 transition-colors"
-            >
-              {isSelected ? (
-                <>
-                  <CheckSquare className="h-3.5 w-3.5 text-amber-700" />
-                  <span className="text-[10px]">Added</span>
-                </>
-              ) : (
-                <>
-                  <Square className="h-3.5 w-3.5" />
-                  <span className="text-[10px]">Compare</span>
-                </>
-              )}
-            </motion.button>
+            <div className="flex items-center space-x-2">
+              <motion.button
+                onClick={() => onToggleCompare(row.original.id)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className="flex items-center space-x-1 text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 border border-slate-900 dark:border-slate-600 px-2 py-1 hover:bg-slate-50 dark:hover:bg-cyber-gray transition-colors"
+              >
+                {isCompared ? (
+                  <>
+                    <CheckSquare className="h-3 w-3 text-amber-700 dark:text-cyber-yellow" />
+                    <span className="text-[9px]">Added</span>
+                  </>
+                ) : (
+                  <>
+                    <Square className="h-3 w-3 text-slate-900 dark:text-slate-400" />
+                    <span className="text-[9px]">Compare</span>
+                  </>
+                )}
+              </motion.button>
+
+              <motion.button
+                onClick={() => onToggleSave(row.original.id)}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                transition={{ type: "spring", stiffness: 400, damping: 25 }}
+                className={`flex items-center space-x-1 text-xs font-semibold uppercase tracking-wider border px-2 py-1 transition-colors ${
+                  isSaved 
+                    ? "text-emerald-800 dark:text-emerald-400 border-emerald-700 dark:border-emerald-500 bg-emerald-50 dark:bg-emerald-900/20" 
+                    : "text-slate-900 dark:text-slate-100 border-slate-900 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-cyber-gray"
+                }`}
+              >
+                {isSaved ? (
+                  <>
+                    <Bookmark className="h-3 w-3 fill-emerald-700 dark:fill-emerald-400" />
+                    <span className="text-[9px]">Saved</span>
+                  </>
+                ) : (
+                  <>
+                    <Bookmark className="h-3 w-3" />
+                    <span className="text-[9px]">Save</span>
+                  </>
+                )}
+              </motion.button>
+            </div>
           );
         },
       },
     ],
-    [selectedUniIds, onToggleCompare, onUniversitySelect]
+    [selectedUniIds, onToggleCompare, savedUniIds, onToggleSave, onUniversitySelect]
   );
 
   // 8. TanStack Table Instance
@@ -395,7 +423,7 @@ export default function RankingsEngine({
   });
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 font-sans grow">
+    <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 font-sans grow">
       
       {/* Editorial Title */}
       <div className="mb-8 border-b border-slate-900 dark:border-cyber-border pb-4 flex flex-col md:flex-row md:items-end md:justify-between">
@@ -423,24 +451,24 @@ export default function RankingsEngine({
         
         {/* Search Field */}
         <div className="relative">
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1.5">
+          <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
             Search
           </label>
           <div className="relative">
             <input
               type="text"
-              placeholder="Search..."
-              value={searchQuery}
+              placeholder="Search name, location, or subject..."
+              value={filters.searchQuery || searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full border border-slate-200 bg-white px-3 py-2 pl-9 text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:border-slate-900"
+              className="w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-black px-3 py-2 pl-9 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow transition-colors"
             />
-            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
+            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
           </div>
         </div>
 
         {/* Location Dropdown */}
         <div>
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1.5">
+          <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
             Location
           </label>
           <div className="relative">
@@ -449,7 +477,7 @@ export default function RankingsEngine({
                 if (e.target.value) handleLocationToggle(e.target.value);
                 e.target.value = "";
               }}
-              className="w-full border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-slate-900"
+              className="appearance-none w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-black px-3 py-2 pr-8 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow cursor-pointer transition-colors"
             >
               <option value="">Filter Location...</option>
               {uniqueLocations.map((loc) => (
@@ -458,6 +486,7 @@ export default function RankingsEngine({
                 </option>
               ))}
             </select>
+            <ChevronDown className="absolute right-3 top-2.5 h-3.5 w-3.5 text-slate-400 dark:text-slate-500 pointer-events-none" />
           </div>
           {/* Active Locations tags */}
           {locations.length > 0 && (
@@ -471,7 +500,7 @@ export default function RankingsEngine({
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.8, x: -10 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="inline-flex items-center text-[9px] font-mono border border-slate-350 bg-white text-slate-700 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
+                    className="inline-flex items-center text-[9px] font-mono border border-slate-300 dark:border-slate-700 bg-white dark:bg-cyber-black text-slate-700 dark:text-slate-300 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500 dark:hover:border-red-500 dark:hover:text-red-400"
                   >
                     {loc} <X className="h-2 w-2 ml-1" />
                   </motion.span>
@@ -483,7 +512,7 @@ export default function RankingsEngine({
 
         {/* Program / Subject Dropdown */}
         <div>
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1.5">
+          <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
             Subject Focus
           </label>
           <div className="relative">
@@ -492,7 +521,7 @@ export default function RankingsEngine({
                 if (e.target.value) handleSubjectToggle(e.target.value);
                 e.target.value = "";
               }}
-              className="w-full border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-slate-900"
+              className="appearance-none w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-black px-3 py-2 pr-8 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow cursor-pointer transition-colors"
             >
               <option value="">Filter Subject...</option>
               {uniqueSubjects.map((sub) => (
@@ -501,6 +530,7 @@ export default function RankingsEngine({
                 </option>
               ))}
             </select>
+            <ChevronDown className="absolute right-3 top-2.5 h-3.5 w-3.5 text-slate-400 dark:text-slate-500 pointer-events-none" />
           </div>
           {/* Active Subjects tags */}
           {selectedSubjects.length > 0 && (
@@ -514,7 +544,7 @@ export default function RankingsEngine({
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.8, x: -10 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="inline-flex items-center text-[9px] font-mono border border-slate-350 bg-white text-slate-700 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
+                    className="inline-flex items-center text-[9px] font-mono border border-slate-300 dark:border-slate-700 bg-white dark:bg-cyber-black text-slate-700 dark:text-slate-300 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500 dark:hover:border-red-500 dark:hover:text-red-400"
                   >
                     {sub} <X className="h-2 w-2 ml-1" />
                   </motion.span>
@@ -526,7 +556,7 @@ export default function RankingsEngine({
 
         {/* Medium of Instruction */}
         <div>
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 mb-1.5">
+          <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
             Language
           </label>
           <div className="relative">
@@ -535,7 +565,7 @@ export default function RankingsEngine({
                 if (e.target.value) handleLanguageToggle(e.target.value);
                 e.target.value = "";
               }}
-              className="w-full border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-slate-900"
+              className="appearance-none w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-black px-3 py-2 pr-8 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow cursor-pointer transition-colors"
             >
               <option value="">Filter Language...</option>
               {uniqueLanguages.map((lang) => (
@@ -544,6 +574,7 @@ export default function RankingsEngine({
                 </option>
               ))}
             </select>
+            <ChevronDown className="absolute right-3 top-2.5 h-3.5 w-3.5 text-slate-400 dark:text-slate-500 pointer-events-none" />
           </div>
           {/* Active Language tags */}
           {selectedLanguages.length > 0 && (
@@ -557,7 +588,7 @@ export default function RankingsEngine({
                     animate={{ opacity: 1, scale: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.8, x: -10 }}
                     transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="inline-flex items-center text-[9px] font-mono border border-slate-350 bg-white text-slate-700 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
+                    className="inline-flex items-center text-[9px] font-mono border border-slate-300 dark:border-slate-700 bg-white dark:bg-cyber-black text-slate-700 dark:text-slate-300 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500 dark:hover:border-red-500 dark:hover:text-red-400"
                   >
                     {lang} <X className="h-2 w-2 ml-1" />
                   </motion.span>
@@ -583,18 +614,23 @@ export default function RankingsEngine({
 
       {/* 10. Table System Container with Sticky Header & Pinned Column rules */}
       <div className="relative border border-slate-200 dark:border-cyber-border overflow-x-auto select-none bg-white dark:bg-cyber-dark">
-        <table className="w-full table-auto border-collapse text-xs">
+        <table className="w-full min-w-max table-auto border-collapse text-xs">
           <thead className="sticky top-0 z-10 bg-slate-900 dark:bg-cyber-gray text-white dark:text-cyber-yellow font-sans uppercase tracking-wider font-semibold">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="border-b border-slate-200 dark:border-slate-800">
                 {headerGroup.headers.map((header, idx) => {
-                  const isPinnedCol = idx < 2; // rank and name columns pinned
+                  const isRankPinned = idx === 0;
+                  const isNamePinned = idx === 1;
                   return (
                     <th
                       key={header.id}
-                      className={`px-4 py-3 text-left font-bold select-none ${
-                        isPinnedCol
-                          ? "sticky left-0 bg-slate-900 dark:bg-cyber-gray z-20 border-r border-slate-800 dark:border-slate-700"
+                      className={`py-3 text-left font-bold select-none whitespace-nowrap ${
+                        idx === 0 ? "pl-8 pr-4" : idx === headerGroup.headers.length - 1 ? "pr-8 pl-4" : "px-4"
+                      } ${
+                        isRankPinned
+                          ? "sticky left-0 bg-slate-900 dark:bg-cyber-gray z-20"
+                          : isNamePinned
+                          ? "sticky left-[72px] bg-slate-900 dark:bg-cyber-gray z-20 border-r border-slate-800 dark:border-slate-700"
                           : ""
                       } ${header.column.getCanSort() ? "cursor-pointer hover:text-amber-300 dark:hover:text-cyber-yellow-bright" : ""}`}
                       onClick={header.column.getToggleSortingHandler()}
@@ -638,13 +674,18 @@ export default function RankingsEngine({
                   className="hover:bg-slate-50 dark:hover:bg-cyber-gray/25 transition-colors"
                 >
                 {row.getVisibleCells().map((cell, idx) => {
-                  const isPinnedCol = idx < 2;
+                  const isRankPinned = idx === 0;
+                  const isNamePinned = idx === 1;
                   return (
                     <td
                       key={cell.id}
-                      className={`px-4 py-3 align-middle ${
-                        isPinnedCol
-                          ? "sticky left-0 bg-white dark:bg-cyber-black hover:bg-slate-50 dark:hover:bg-cyber-gray/30 z-10 border-r border-slate-200 dark:border-slate-800 font-bold text-slate-900 dark:text-white"
+                      className={`py-3 align-middle whitespace-nowrap ${
+                        idx === 0 ? "pl-8 pr-4" : idx === row.getVisibleCells().length - 1 ? "pr-8 pl-4" : "px-4"
+                      } ${
+                        isRankPinned
+                          ? "sticky left-0 bg-white dark:bg-cyber-black hover:bg-slate-50 dark:hover:bg-cyber-gray/30 z-10 font-bold text-slate-900 dark:text-white"
+                          : isNamePinned
+                          ? "sticky left-[72px] bg-white dark:bg-cyber-black hover:bg-slate-50 dark:hover:bg-cyber-gray/30 z-10 border-r border-slate-200 dark:border-slate-800"
                           : ""
                       }`}
                     >

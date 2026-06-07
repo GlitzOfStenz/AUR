@@ -1,14 +1,16 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
   --font-sans: var(--font-sans), system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-serif: var(--font-serif), Georgia, serif;
   
   --color-cyber-yellow: #eab308; /* yellow-600 */
   --color-cyber-yellow-bright: #facc15; /* yellow-400 */
-  --color-cyber-black: #050506;
-  --color-cyber-dark: #0d0d11;
-  --color-cyber-gray: #18181f;
+  --color-cyber-black: #000000;
+  --color-cyber-dark: #000000;
+  --color-cyber-gray: #0a0a0a;
   --color-cyber-border: rgba(234, 179, 8, 0.15);
 
   --animate-marquee: marquee 25s linear infinite;
@@ -18,13 +20,13 @@
   }
 }
 :root {
-  --background: #ffffff;
-  --foreground: #0f172a;
+  --background: #FAF9F7;
+  --foreground: #1A1815;
 }
 
 /* Update variables when document has .dark class */
 html.dark {
-  --background: #050506;
+  --background: #000000;
   --foreground: #f8fafc;
 }
 
@@ -34,9 +36,14 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Global cursor: pointer for all interactive elements */
+button, a, select, [role="button"], [onclick], label[for], summary {
+  cursor: pointer;
+}
+
 /* Premium futuristic glassmorphism utilities */
 .cyber-glass {
-  background: rgba(13, 13, 17, 0.7);
+  background: rgba(0, 0, 0, 0.7);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(234, 179, 8, 0.1);

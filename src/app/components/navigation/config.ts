@@ -26,7 +26,7 @@ export const SIDEBAR_ITEMS: NavItem[] = [
   {
     id: "universities",
     label: "Universities",
-    view: "profile",
+    view: "universities",
     icon: GraduationCap,
   },
   {
@@ -50,7 +50,7 @@ export const SIDEBAR_ITEMS: NavItem[] = [
   },
   {
     id: "saved",
-    label: "Saved Items",
+    label: "Shortlisted",
     view: "saved", // a view for saved universities or comparing ones
     icon: Bookmark,
   },

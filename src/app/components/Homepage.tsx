@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search, BookOpen, GraduationCap, ChevronRight, MapPin, Star } from "lucide-react";
+import Image from "next/image";
 import { MOCK_UNIVERSITIES, FEATURED_ARTICLES, University, Article } from "../data";
 
 interface HomepageProps {
@@ -83,13 +84,13 @@ export default function Homepage({
   };
 
   return (
-    <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 font-sans grow">
+    <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 pt-0 pb-8 font-sans grow -mt-2">
       
       {/* Split Layout Screen */}
       <div className="grid grid-cols-1 lg:grid-cols-10 gap-8 mb-16 border-b border-slate-200 pb-16">
         
         {/* Left Pane (40% - Cols 1-4): Discovery & Typographic Search */}
-        <div className="lg:col-span-4 flex flex-col justify-center pr-0 lg:pr-6">
+        <div className="lg:col-span-4 flex flex-col justify-start pt-2 lg:pt-4 pr-0 lg:pr-6">
           <div className="mb-4">
             <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700">
               Academic Intelligence Hub
@@ -108,7 +109,7 @@ export default function Homepage({
               <div className="relative grow">
                 <input
                   type="text"
-                  placeholder="Search universities, locations, subjects..."
+                  placeholder="Search universities, locations..."
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
@@ -221,7 +222,7 @@ export default function Homepage({
           {/* Quick-links / Popular Searches */}
           <div className="mt-4 flex flex-wrap gap-2 items-center">
             <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Trending:</span>
-            {["Uzbekistan", "Medicine", "National Univ Singapore", "English medium"].map((tag) => (
+            {["Uzbekistan", "Medicine", "National Univ Singapore", "English medium", "Scholarships"].map((tag) => (
               <motion.button
                 key={tag}
                 whileHover={{ y: -1, scale: 1.02 }}
@@ -412,6 +413,37 @@ export default function Homepage({
             </div>
           </motion.div>
         ))}
+      </div>
+
+      {/* Global Partner Universities Grid (QS Style) */}
+      <div className="mt-16 pt-16 border-t border-slate-200 text-center">
+        <h2 className="text-3xl font-bold font-sans tracking-tight text-slate-900 mb-10">
+          Over 650 global partner universities
+        </h2>
+        
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+          {MOCK_UNIVERSITIES.slice(0, 8).map((uni, idx) => (
+            <motion.div
+              key={`partner-${uni.id}`}
+              whileHover={{ scale: 1.02 }}
+              onClick={() => onUniversitySelect(uni.id)}
+              className="bg-white border border-slate-100 p-6 flex items-center justify-center cursor-pointer hover:shadow-lg transition-all h-32 group"
+            >
+              <div className="relative w-full h-full grayscale group-hover:grayscale-0 transition-all opacity-70 group-hover:opacity-100 flex items-center justify-center flex-col">
+                <div className="h-10 w-10 relative mb-2">
+                  <img
+                    src={uni.campusPhoto}
+                    alt={`${uni.name} Logo`}
+                    className="object-cover rounded-md w-full h-full"
+                  />
+                </div>
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-800 text-center line-clamp-2">
+                  {uni.name}
+                </span>
+              </div>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </div>
   );

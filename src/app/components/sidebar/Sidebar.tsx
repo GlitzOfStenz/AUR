@@ -16,7 +16,7 @@ export default function Sidebar() {
     theme,
   } = useSidebar();
 
-  const [isFilterExpanded, setIsFilterExpanded] = useState(true);
+  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
 
   // Helper to check if a navigation item matches the active view
   const isItemActive = (item: NavItem) => {
@@ -44,11 +44,11 @@ export default function Sidebar() {
       } ${
         theme === "dark"
           ? "bg-cyber-dark/40 border-cyber-border/40 cyber-glass"
-          : "bg-slate-50 border-slate-200"
+          : "bg-white border-slate-200"
       }`}
     >
       {/* 1. Sidebar Links Section */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-1.5 scrollbar-thin">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 flex flex-col justify-center space-y-1.5 scrollbar-thin">
         {SIDEBAR_ITEMS.map((item) => {
           const Icon = item.icon;
           const isActive = isItemActive(item);
@@ -57,7 +57,7 @@ export default function Sidebar() {
             <div key={item.id} className="relative group">
               <button
                 onClick={() => handleItemClick(item)}
-                className={`w-full flex items-center p-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 relative z-10 ${
+                className={`w-full flex items-center p-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 relative z-10 cursor-pointer ${
                   isActive
                     ? "text-slate-900 dark:text-cyber-black"
                     : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200/40 dark:hover:bg-cyber-gray/30"
@@ -113,7 +113,7 @@ export default function Sidebar() {
         <div className="pt-4 border-t border-slate-200 dark:border-cyber-border/40 mt-4">
           <button
             onClick={handleFilterAccordionClick}
-            className={`w-full flex items-center p-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 ${
+            className={`w-full flex items-center p-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
               isFilterExpanded && !isCollapsed
                 ? "text-slate-900 dark:text-cyber-yellow-bright"
                 : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
@@ -167,10 +167,10 @@ export default function Sidebar() {
       </div>
 
       {/* 3. Bottom Expand / Collapse Toggle Button */}
-      <div className="p-4 border-t border-slate-200 dark:border-cyber-border/40 flex justify-center">
+      <div className="p-4 pb-12 border-t border-slate-200 dark:border-cyber-border/40 flex justify-center">
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className={`p-2 rounded-lg border transition-all duration-150 ${
+          className={`p-2 rounded-lg border transition-all duration-150 cursor-pointer ${
             theme === "dark"
               ? "bg-cyber-gray border-cyber-border/30 text-cyber-yellow hover:bg-cyber-yellow hover:text-cyber-black"
               : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
