@@ -10,6 +10,7 @@ import RankingsEngine from "./components/RankingsEngine";
 import ComparisonDock from "./components/ComparisonDock";
 import UniversityProfile from "./components/UniversityProfile";
 import FloatingChatAssistant from "./components/FloatingChatAssistant";
+import UniversityRankingVisuals from "./components/UniversityRankingVisuals";
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { Article, MOCK_UNIVERSITIES } from "./data";
 import { BarChart3, Bookmark, Settings, Award, GraduationCap, CheckCircle, ShieldAlert } from "lucide-react";
@@ -115,72 +116,9 @@ export default function AppContent() {
             />
           )}
 
-          {/* 1. Analytics Mock Panel */}
+          {/* 1. Analytics Panel — UniversityRankingVisuals */}
           {view === "analytics" && (
-            <div className="p-6 border border-slate-200 dark:border-cyber-border rounded-xl bg-slate-50/50 dark:bg-cyber-dark/40 shadow-sm space-y-6 animate-fadeIn">
-              <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 dark:text-cyber-yellow">
-                  Academic Intelligence
-                </span>
-                <h2 className="font-serif text-2xl font-bold text-slate-900 dark:text-white mt-0.5">
-                  Institutional Analytics Hub
-                </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
-                  Real-time telemetric aggregation across audited South, East, and Central Asian university databases.
-                </p>
-              </div>
-
-              {/* Statistics Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {[
-                  { title: "Index Institutions", val: "45", desc: "Audited & Verified", icon: GraduationCap },
-                  { title: "Average Score", val: "84.6%", desc: "Calculated overall metrics", icon: BarChart3 },
-                  { title: "Top Region", val: "China / Japan", desc: "Highest citation output", icon: Award },
-                  { title: "Medicine Programs", val: "62%", desc: "Offer English MD courses", icon: CheckCircle },
-                ].map((stat) => (
-                  <div
-                    key={stat.title}
-                    className="p-4 border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-cyber-gray rounded-lg flex items-center justify-between shadow-xs hover:border-slate-350 dark:hover:border-cyber-yellow/40 transition-colors"
-                  >
-                    <div>
-                      <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider block">
-                        {stat.title}
-                      </span>
-                      <span className="text-xl font-bold text-slate-900 dark:text-white block mt-1">
-                        {stat.val}
-                      </span>
-                      <span className="text-[9px] text-slate-400 dark:text-slate-550 block mt-0.5">
-                        {stat.desc}
-                      </span>
-                    </div>
-                    <stat.icon className="h-8 w-8 text-slate-300 dark:text-cyber-yellow/20" />
-                  </div>
-                ))}
-              </div>
-
-              {/* Mock Chart Section */}
-              <div className="p-4 border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-cyber-gray rounded-lg">
-                <span className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-wider block mb-4">
-                  Citation Density Output Index (5-Year Progression)
-                </span>
-                <div className="h-48 w-full flex items-end justify-between gap-2 pt-4">
-                  {[45, 62, 58, 80, 95].map((h, i) => (
-                    <div key={i} className="flex-1 flex flex-col items-center gap-2 group">
-                      <div className="text-[9px] font-mono text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100 transition-opacity">
-                        {h}%
-                      </div>
-                      <div
-                        className="w-full bg-slate-900 dark:bg-cyber-yellow rounded-t transition-all duration-500 hover:brightness-110"
-                        style={{ height: `${h}%` }}
-                      />
-                      <span className="text-[10px] font-mono text-slate-400 dark:text-slate-550 mt-1">
-                        {2022 + i}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+            <UniversityRankingVisuals />
           )}
 
           {/* 2. Saved Items Mock Panel */}
