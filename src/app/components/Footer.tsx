@@ -29,6 +29,7 @@ const socialLinks = [
   { label: "Twitter", imgSrc: "/twitter-logo.png", href: "https://twitter.com" },
   { label: "LinkedIn", imgSrc: "/linkedin-logo.png", href: "https://www.linkedin.com/company/asia-university-rankings/" },
   { label: "Instagram", imgSrc: "/instagram-logo.png", href: "https://www.instagram.com/asiauniversityrankings/" },
+  { label: "YouTube", imgSrc: "/youtube-logo.png", href: "https://www.youtube.com/" },
 ];
 
 export default function Footer() {
