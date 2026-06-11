@@ -25,17 +25,11 @@ export default function Navbar() {
     setIsChatOpen,
   } = useSidebar();
 
-  const [searchVal, setSearchVal] = useState(filters.searchQuery);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifMenu, setShowNotifMenu] = useState(false);
 
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
-
-  // Sync internal search state with context searchQuery
-  useEffect(() => {
-    setSearchVal(filters.searchQuery);
-  }, [filters.searchQuery]);
 
   // Click outside menus to close
   useEffect(() => {
@@ -53,13 +47,10 @@ export default function Navbar() {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setFilters((prev) => ({ ...prev, searchQuery: searchVal }));
     handleViewChange("rankings"); // Direct user to rankings to see results
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchVal(e.target.value);
-    // Instant search filtering
     setFilters((prev) => ({ ...prev, searchQuery: e.target.value }));
   };
 
@@ -144,7 +135,7 @@ export default function Navbar() {
             <div className="relative">
               <input
                 type="text"
-                value={searchVal}
+                value={filters.searchQuery}
                 onChange={handleSearchChange}
                 placeholder="Search across index..."
                 className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-cyber-gray/50 px-4 py-1.5 pl-10 rounded-full text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-slate-800 dark:focus:border-cyber-yellow transition-all duration-200"

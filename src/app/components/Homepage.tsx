@@ -3,13 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search, BookOpen, GraduationCap, ChevronRight, MapPin, Star } from "lucide-react";
-<<<<<<< HEAD
 import Link from "next/link";
 import { MOCK_UNIVERSITIES, University, Article } from "../data";
-=======
-import Image from "next/image";
-import { MOCK_UNIVERSITIES, FEATURED_ARTICLES, University, Article } from "../data";
->>>>>>> navdeep/main
 
 interface HomepageProps {
   onSearchSubmit: (query: string) => void;
@@ -25,40 +20,14 @@ export default function Homepage({
   onViewChange,
 }: HomepageProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [loadingArticles, setLoadingArticles] = useState(true);
-  const [suggestions, setSuggestions] = useState<{
-    universities: University[];
-    articles: Article[];
-  }>({ universities: [], articles: [] });
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeTab, setActiveTab] = useState<"overall" | "research" | "employability">("overall");
   
   const suggestionRef = useRef<HTMLDivElement>(null);
 
-  // Fetch articles on mount
-  useEffect(() => {
-    async function fetchArticles() {
-      try {
-        const res = await fetch("/api/blogs");
-        if (res.ok) {
-          const data = await res.json();
-          setArticles(data);
-        }
-      } catch (err) {
-        console.error("Failed to fetch articles:", err);
-      } finally {
-        setLoadingArticles(false);
-      }
-    }
-    fetchArticles();
-  }, []);
-
-  // Debounced search auto-suggestions
-  useEffect(() => {
+  const suggestions = React.useMemo(() => {
     if (searchQuery.trim().length === 0) {
-      setSuggestions({ universities: [], articles: [] });
-      return;
+      return { universities: [], articles: [] };
     }
 
     const filteredUnis = MOCK_UNIVERSITIES.filter(
@@ -75,8 +44,8 @@ export default function Homepage({
         art.contentSummary.toLowerCase().includes(searchQuery.toLowerCase())
     ).slice(0, 3);
 
-    setSuggestions({ universities: filteredUnis, articles: filteredArticles });
-  }, [searchQuery, articles]);
+    return { universities: filteredUnis, articles: filteredArticles };
+  }, [searchQuery]);
 
   // Click outside listener to close suggestions
   useEffect(() => {
@@ -130,8 +99,8 @@ export default function Homepage({
 
           {/* Search Box Container */}
           <div className="relative w-full" ref={suggestionRef}>
-            <form onSubmit={handleSearchSubmit} className="flex">
-              <div className="relative grow">
+            <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3 sm:flex-row">
+              <div className="relative w-full">
                 <input
                   type="text"
                   placeholder="Search universities, locations..."
@@ -149,7 +118,7 @@ export default function Homepage({
                 type="submit"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className="bg-slate-900 text-white text-xs font-semibold uppercase tracking-wider px-6 hover:bg-slate-800 transition-colors border-y border-r border-slate-900"
+                className="w-full sm:w-auto bg-slate-900 text-white text-xs font-semibold uppercase tracking-wider px-6 py-3 hover:bg-slate-800 transition-colors border-y border-r border-slate-900"
               >
                 Search
               </motion.button>

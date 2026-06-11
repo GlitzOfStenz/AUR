@@ -1,23 +1,23 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { useSearchParams } from "next/navigation";
+import Navbar from "./components/navbar/Navbar";
+import Sidebar from "./components/sidebar/Sidebar";
+import MobileMenu from "./components/mobile/MobileMenu";
 import Homepage from "./components/Homepage";
 import RankingsEngine from "./components/RankingsEngine";
 import UniversityProfile from "./components/UniversityProfile";
-<<<<<<< HEAD
-import AppLayout from "./components/layout/AppLayout";
-=======
-import UniversitiesList from "./components/UniversitiesList";
+import Footer from "./components/Footer";
 import FloatingChatAssistant from "./components/FloatingChatAssistant";
 import AnalyticsDashboard from "./components/AnalyticsDashboard";
 >>>>>>> navdeep/main
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { Article, MOCK_UNIVERSITIES } from "./data";
 import { BarChart3, Bookmark, Award, GraduationCap, CheckCircle, ShieldAlert } from "lucide-react";
+import { BarChart3, Bookmark, Award, GraduationCap, CheckCircle, ShieldAlert } from "lucide-react";
 
 export default function AppContent() {
-  const router = useRouter();
   const searchParams = useSearchParams();
 
 <<<<<<< HEAD
@@ -31,13 +31,7 @@ export default function AppContent() {
     handleRemoveCompare,
   } = useSidebar();
 
-  const [searchQuery, setSearchQuery] = useState("");
-=======
-  const { activeView, handleViewChange, selectedUniId, setSelectedUniId, theme, filters, setFilters } = useSidebar();
-
-  const searchQuery = filters.searchQuery;
-  const setSearchQuery = (q: string) => setFilters(prev => ({ ...prev, searchQuery: q }));
-
+  const [searchQuery, setSearchQuery] = useState(() => searchParams.get("search") ?? "");
   const [selectedUniIds, setSelectedUniIds] = useState<string[]>([]);
   const [savedUniIds, setSavedUniIds] = useState<string[]>([]);
 >>>>>>> navdeep/main
@@ -51,14 +45,6 @@ export default function AppContent() {
   const view = activeView;
   const id = selectedUniId;
 
-  // Sync initial search query if present in URL
-  useEffect(() => {
-    const q = searchParams.get("search");
-    if (q) setSearchQuery(q);
-  }, [searchParams]);
-
-<<<<<<< HEAD
-=======
   const handleToggleCompare = (uniId: string) => {
     setSelectedUniIds((prev) => {
       if (prev.includes(uniId)) return prev.filter((id) => id !== uniId);
@@ -102,15 +88,29 @@ export default function AppContent() {
   const savedUniversities = MOCK_UNIVERSITIES.filter((u) => savedUniIds.includes(u.id));
 
   return (
-    <AppLayout>
-      {view === "home" && (
-        <Homepage
-          onSearchSubmit={(q) => setSearchQuery(q)}
-          onUniversitySelect={handleUniversitySelect}
-          onArticleSelect={handleArticleSelect}
-          onViewChange={handleViewChange}
-        />
-      )}
+    <div className={`relative overflow-x-hidden flex min-h-screen flex-col transition-colors duration-300 ${
+      theme === "dark" ? "bg-cyber-black text-slate-100 dark" : "bg-white text-slate-900"
+    }`}>
+      {/* Top Navigation Bar */}
+      <Navbar />
+
+      {/* Main Core Layout Layout */}
+      <div className="flex-grow flex w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-8">
+        
+        {/* Collapsible Left Sidebar */}
+        <Sidebar />
+
+        {/* Main Content Area */}
+        <main className="flex-1 flex flex-col min-w-0 p-4 pb-28 md:pb-6">
+          
+          {view === "home" && (
+            <Homepage
+              onSearchSubmit={(q) => setSearchQuery(q)}
+              onUniversitySelect={handleUniversitySelect}
+              onArticleSelect={handleArticleSelect}
+              onViewChange={handleViewChange}
+            />
+          )}
 
 <<<<<<< HEAD
       {view === "rankings" && (
@@ -504,13 +504,7 @@ export default function AppContent() {
         onUniversitySelect={handleUniversitySelect}
       />
 
-      {/* Universal Footer */}
-      <footer className="border-t border-slate-200 dark:border-cyber-border bg-slate-50 dark:bg-cyber-dark/80 py-8 transition-colors duration-200">
-        <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 text-center text-[10px] uppercase font-bold tracking-widest text-slate-400 dark:text-slate-500">
-          © 2026 Asia University Rankings | Official Analytical Data Engine
->>>>>>> navdeep/main
-        </div>
-      )}
-    </AppLayout>
+      <Footer />
+    </div>
   );
 }
