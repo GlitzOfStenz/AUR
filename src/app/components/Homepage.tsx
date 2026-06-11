@@ -3,13 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Search, BookOpen, GraduationCap, ChevronRight, MapPin, Star } from "lucide-react";
-<<<<<<< HEAD
 import Link from "next/link";
 import { MOCK_UNIVERSITIES, University, Article } from "../data";
-=======
-import Image from "next/image";
-import { MOCK_UNIVERSITIES, FEATURED_ARTICLES, University, Article } from "../data";
->>>>>>> navdeep/main
 
 interface HomepageProps {
   onSearchSubmit: (query: string) => void;
