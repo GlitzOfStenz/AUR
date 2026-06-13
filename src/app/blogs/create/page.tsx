@@ -6,6 +6,7 @@ import { ArrowLeft, Plus, X, Upload, BookOpen, Bold, Italic, Heading, List, Code
 import Link from "next/link";
 import AppLayout from "../../components/layout/AppLayout";
 import { SidebarProvider } from "../../components/navigation/SidebarContext";
+import { ToastProvider } from "../../components/feedback/ToastContext";
 
 function CreateBlogForm() {
   const router = useRouter();
@@ -508,7 +509,9 @@ export default function CreateBlogPage() {
       </div>
     }>
       <SidebarProvider>
-        <CreateBlogForm />
+        <ToastProvider>
+          <CreateBlogForm />
+        </ToastProvider>
       </SidebarProvider>
     </React.Suspense>
   );
