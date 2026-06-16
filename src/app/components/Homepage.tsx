@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import { motion, useInView } from "framer-motion";
+
 import {
   Search,
   BookOpen,
@@ -37,23 +37,19 @@ const staggerContainer = {
 };
 const fadeUpItem = {
   hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] as [number, number, number, number] } },
 };
 
 function RevealSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
   const ref = useRef<HTMLDivElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-60px" });
+  
   return (
-    <motion.div
+    <div
       ref={ref}
-      initial="hidden"
-      animate={inView ? "visible" : "hidden"}
-      variants={fadeUp}
-      transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
       className={className}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -560,21 +556,23 @@ export default function Homepage({
   };
 
   return (
-    <div className="ref-home flex-grow w-full">
+    <div className="ref-home flex-grow w-full relative">
+
+
       {/* ── Hero ── */}
       <section className="ref-hero">
         <div className="ref-hero-grid">
-          <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          <div
+            
+            
+            
           >
-            <motion.span
+            <span
               className="ref-label"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.15, duration: 0.5 }}
-            >Asia University Rankings</motion.span>
+              
+              
+              
+            >Asia University Rankings</span>
             <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold leading-tight mt-3 mb-4">
               Asia&apos;s Most Trusted{" "}
               <span className="ref-hero-title-accent">University Intelligence</span> Platform
@@ -584,11 +582,11 @@ export default function Homepage({
               including medical careers in Central Asia — powered by live audited data.
             </p>
 
-            <motion.div
+            <div
               className="flex flex-wrap gap-3 mb-6"
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              
+              
+              
             >
               <button type="button" className="ref-btn-primary" onClick={() => onViewChange("rankings")}>
                 Explore Rankings
@@ -598,7 +596,7 @@ export default function Homepage({
                 <Play className="h-4 w-4" />
                 Watch Methodology
               </button>
-            </motion.div>
+            </div>
 
             {/* Search */}
             <div className="relative max-w-lg" ref={suggestionRef}>
@@ -711,11 +709,11 @@ export default function Homepage({
               ))}
             </div>
 
-            <motion.div
+            <div
               className="ref-stat-bar"
-              variants={staggerContainer}
-              initial="hidden"
-              animate="visible"
+              
+              
+              
             >
               {[
                 { icon: Building2, val: `${MOCK_UNIVERSITIES.length}+`, label: "Institutions" },
@@ -723,22 +721,22 @@ export default function Homepage({
                 { icon: Database, val: "1M+", label: "Data Points" },
                 { icon: Clock, val: "15+", label: "Years of Data" },
               ].map((s) => (
-                <motion.div key={s.label} className="ref-stat-item" variants={fadeUpItem}>
+                <div key={s.label} className="ref-stat-item" >
                   <s.icon className="h-5 w-5 text-amber-500 shrink-0" />
                   <div>
                     <div className="font-bold text-sm">{s.val}</div>
                     <div className="text-[10px] text-[var(--ref-muted)] uppercase tracking-wider">{s.label}</div>
                   </div>
-                </motion.div>
+                </div>
               ))}
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
 
-          <motion.div
+          <div
             className="ref-hero-visual"
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            
+            
+            
           >
             <div className="ref-map-stage">
               <AsiaMapNetwork />
@@ -777,7 +775,7 @@ export default function Homepage({
                 <ArrowRight className="h-3.5 w-3.5" />
               </button>
             </aside>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -856,11 +854,11 @@ export default function Homepage({
       <RevealSection className="ref-section pt-0 ref-country-section">
         <span className="ref-label">Regional Intelligence</span>
         <h2 className="text-2xl font-bold mt-1 mb-6">Explore by Country</h2>
-        <motion.div className="ref-country-grid" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-40px" }}>
+        <div className="ref-country-grid"    >
           {countryStats.map((c) => {
             const theme = getCountryTheme(c.country);
             return (
-              <motion.button variants={fadeUpItem}
+              <button 
                 key={c.country}
                 type="button"
                 className="ref-country-card ref-country-card--light text-left"
@@ -886,10 +884,10 @@ export default function Homepage({
                   <div className="ref-country-avg">Avg {c.avgScore.toFixed(1)}</div>
                   <div className="ref-country-top truncate">Top: {c.topUni.name}</div>
                 </div>
-              </motion.button>
+              </button>
             );
           })}
-        </motion.div>
+        </div>
       </RevealSection>
 
       {/* ── Methodology ── */}
@@ -942,12 +940,12 @@ export default function Homepage({
             </button>
           ))}
         </div>
-        <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-40px" }}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"    >
           {FEATURED_ARTICLES.map((article) => (
-            <motion.button
+            <button
               key={article.id}
               type="button"
-              variants={fadeUpItem}
+              
               onClick={() => onArticleSelect(article)}
               className="ref-card text-left overflow-hidden group hover:border-blue-300 transition-colors"
             >
@@ -967,9 +965,9 @@ export default function Homepage({
                 <p className="text-xs text-[var(--ref-muted)] line-clamp-2 mb-3">{article.contentSummary}</p>
                 <span className="text-[10px] text-[var(--ref-muted)]">{article.date} · {article.readTime}</span>
               </div>
-            </motion.button>
+            </button>
           ))}
-        </motion.div>
+        </div>
       </RevealSection>
 
       {/* ── Comparison + Analytics ── */}

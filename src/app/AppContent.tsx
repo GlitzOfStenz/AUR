@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+
 import Navbar from "./components/navbar/Navbar";
 import Sidebar from "./components/sidebar/Sidebar";
 import MobileMenu from "./components/mobile/MobileMenu";
@@ -15,6 +15,7 @@ import FloatingChatAssistant from "./components/FloatingChatAssistant";
 import AnalyticsDashboard from "./components/AnalyticsDashboard";
 import AdminConsole from "./components/AdminConsole";
 import Login from "./components/Login";
+import UserDashboard from "./components/UserDashboard";
 import UniversitiesList from "./components/UniversitiesList";
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { Article, MOCK_UNIVERSITIES } from "./data";
@@ -95,13 +96,13 @@ export default function AppContent() {
             view === "login" || view === "admin" ? "p-0" : "px-4 pt-4 lg:px-8 lg:pt-8"
           }`}
         >
-          <AnimatePresence mode="wait">
-            <motion.div
+          <>
+            <div
               key={viewKey}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -6 }}
-              transition={{ duration: 0.22, ease: "easeOut" }}
+              
+              
+              
+              
               className="flex flex-col flex-grow"
             >
           {view === "home" && (
@@ -122,7 +123,7 @@ export default function AppContent() {
             />
           )}
 
-          {view === "rankings" && (
+          {(view === "rankings" || view === "countries") && (
             <RankingsEngine
               searchQuery={searchQuery}
               onSearchQueryChange={setSearchQuery}
@@ -151,157 +152,34 @@ export default function AppContent() {
           {/* Login View */}
           {view === "login" && <Login />}
 
-          {/* 2. Saved Items Panel */}
-          {view === "saved" && (
-            <div className="w-full p-6 border border-[var(--aur-border)] rounded-xl bg-[var(--aur-surface)] shadow-sm space-y-6 animate-fadeIn">
-              <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--aur-text-muted)]">
-                  Personal Database
-                </span>
-                <h2 className="font-serif text-2xl font-bold text-[var(--aur-text)] mt-0.5">
-                  Saved Comparison Nodes
-                </h2>
-                <p className="text-xs text-[var(--aur-text-muted)] mt-1 leading-relaxed">
-                  List of institutions currently pinned inside the analysis comparators dock.
-                </p>
-              </div>
-
-              {savedUniversities.length > 0 ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {savedUniversities.map((uni) => (
-                    <div
-                      key={uni.id}
-                      onClick={() => handleUniversitySelect(uni.id)}
-                      className="p-4 border border-[var(--aur-border)] bg-[var(--aur-surface)] rounded-lg hover:border-[var(--aur-border-strong)] transition-all duration-150 cursor-pointer flex justify-between items-center group"
-                    >
-                      <div>
-                        <h4 className="font-bold text-sm text-[var(--aur-text)] group-hover:opacity-70 transition-opacity">
-                          {uni.name}
-                        </h4>
-                        <span className="text-[10px] text-[var(--aur-text-muted)] block mt-1">
-                          {uni.location} • {uni.tuition}
-                        </span>
-                      </div>
-                      <div className="text-right">
-                        <span className="font-mono text-lg font-bold text-[var(--aur-text)] block">
-                          {uni.overall.toFixed(1)}
-                        </span>
-                        <span className="text-[9px] uppercase tracking-wider text-[var(--aur-text-muted)] block">
-                          Score
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="p-8 border border-dashed border-[var(--aur-border)] rounded-lg text-center">
-                  <Bookmark className="h-8 w-8 text-[var(--aur-text-muted)] mx-auto mb-2 opacity-40" />
-                  <p className="text-xs text-[var(--aur-text-muted)]">
-                    No universities are currently added to comparison.
-                  </p>
-                  <button
-                    onClick={() => handleViewChange("rankings")}
-                    className="mt-4 inline-flex items-center justify-center border border-[var(--aur-text)] bg-[var(--aur-text)] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--background)] hover:opacity-80 transition-opacity rounded-lg"
-                  >
-                    Go to Rankings Engine
-                  </button>
-                </div>
-              )}
-            </div>
+          {/* User Dashboard (Combines Saved & Settings) */}
+          {(view === "saved" || view === "settings") && (
+            <UserDashboard
+              savedUniversities={savedUniversities}
+              onUniversitySelect={handleUniversitySelect}
+              onNavigateToRankings={() => handleViewChange("rankings")}
+              settings={{
+                autoRecalc: settingsAutoRecalc,
+                realtimeSearch: settingsRealtimeSearch,
+                analyticsTelemetry: settingsAnalyticsTelemetry,
+              }}
+              onSettingsChange={(key, val) => {
+                if (key === "autoRecalc") setSettingsAutoRecalc(val);
+                if (key === "realtimeSearch") setSettingsRealtimeSearch(val);
+                if (key === "analyticsTelemetry") setSettingsAnalyticsTelemetry(val);
+              }}
+              onResetCache={() => {
+                if (confirm("Reset  configs and clear filters?")) {
+                  localStorage.clear();
+                  window.location.reload();
+                }
+              }}
+              onSignOut={() => handleViewChange("login")}
+            />
           )}
 
-          {/* 3. Settings Panel */}
-          {view === "settings" && (
-            <div className="w-full p-6 border border-[var(--aur-border)] rounded-xl bg-[var(--aur-surface)] shadow-sm space-y-6 animate-fadeIn">
-              <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--aur-text-muted)]">
-                  System Diagnostics
-                </span>
-                <h2 className="font-serif text-2xl font-bold text-[var(--aur-text)] mt-0.5">
-                  Engine Configuration Console
-                </h2>
-                <p className="text-xs text-[var(--aur-text-muted)] mt-1 leading-relaxed">
-                  Configure real-time arithmetic models, indexing parameters, and telemetric UI modules.
-                </p>
-              </div>
-
-              {/* Toggles List */}
-              <div className="space-y-4 max-w-xl">
-                {[
-                  {
-                    title: "Automatic Recalculations",
-                    desc: "Instantly re-evaluate all institution rankings as weights variables are adjusted.",
-                    state: settingsAutoRecalc,
-                    setter: setSettingsAutoRecalc,
-                  },
-                  {
-                    title: "Real-time Search Queries",
-                    desc: "Perform dynamic matching algorithm searches as letters are keyed in.",
-                    state: settingsRealtimeSearch,
-                    setter: setSettingsRealtimeSearch,
-                  },
-                  {
-                    title: "Advanced Analytics Telemetry",
-                    desc: "Aggregate diagnostic logging data and rendering benchmarks for support.",
-                    state: settingsAnalyticsTelemetry,
-                    setter: setSettingsAnalyticsTelemetry,
-                  },
-                ].map((option) => (
-                  <div
-                    key={option.title}
-                    className="p-4 border border-[var(--aur-border)] bg-[var(--aur-surface)] rounded-lg flex items-center justify-between"
-                  >
-                    <div className="pr-4">
-                      <span className="block font-bold text-sm text-[var(--aur-text)]">
-                        {option.title}
-                      </span>
-                      <span className="block text-xs text-[var(--aur-text-muted)] mt-0.5 leading-normal">
-                        {option.desc}
-                      </span>
-                    </div>
-
-                    {/* Switch Button */}
-                    <button
-                      onClick={() => option.setter(!option.state)}
-                      className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                        option.state
-                          ? "bg-[var(--aur-text)]"
-                          : "bg-[var(--aur-border-strong)]"
-                      }`}
-                    >
-                      <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-[var(--background)] shadow-xs ring-0 transition duration-200 ease-in-out ${
-                          option.state ? "translate-x-5" : "translate-x-0"
-                        }`}
-                      />
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              {/* Reset Database Button */}
-              <div className="pt-4 border-t border-[var(--aur-border)] max-w-xl">
-                <div className="flex items-center space-x-2 text-red-500 mb-2">
-                  <ShieldAlert className="h-4.5 w-4.5" />
-                  <span className="font-bold text-xs uppercase tracking-wider">Danger Zone</span>
-                </div>
-                <button
-                  onClick={() => {
-                    if (confirm("Reset layout configs and clear filters?")) {
-                      localStorage.clear();
-                      window.location.reload();
-                    }
-                  }}
-                  className="bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 dark:bg-red-950/20 dark:hover:bg-red-950/40 dark:border-red-900 dark:text-red-400 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-lg transition-colors"
-                >
-                  Reset Local Storage Cache
-                </button>
-              </div>
             </div>
-          )}
-
-            </motion.div>
-          </AnimatePresence>
+          </>
         </main>
       </div>
 

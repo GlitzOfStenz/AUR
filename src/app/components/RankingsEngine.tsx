@@ -103,7 +103,7 @@ export default function RankingsEngine({
   }, []);
 
   // 3. Serialize state back to URL query strings smoothly
-  // We use window.history.replaceState to prevent Next.js from triggering heavy layout flushes or re-renders
+  // We use window.history.replaceState to prevent Next.js from triggering heavy  flushes or re-renders
   const serializeStateToUrl = (
     newSearch: string,
     newLocs: string[],
@@ -117,7 +117,7 @@ export default function RankingsEngine({
     if (newSubs.length > 0) params.set("subjects", newSubs.join(","));
     if (newLangs.length > 0) params.set("languages", newLangs.join(","));
     
-    // Only serialize custom weights if they differ from default
+    // Only serialize  weights if they differ from default
     if (JSON.stringify(newWeights) !== JSON.stringify(DEFAULT_WEIGHTS)) {
       params.set("w_cit", newWeights.citations.toString());
       params.set("w_res", newWeights.research.toString());
@@ -184,7 +184,7 @@ export default function RankingsEngine({
       weights.intlStudents +
       weights.teaching;
 
-    // Apply custom formula weights to recalculate scores dynamically
+    // Apply  formula weights to recalculate scores dynamically
     const recalculated = MOCK_UNIVERSITIES.map((uni) => {
       let calculatedScore = uni.overall;
       if (totalWeight > 0) {

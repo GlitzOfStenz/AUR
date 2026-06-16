@@ -5,7 +5,7 @@ import { Search, Bell, Sun, Moon, Menu, X, ChevronDown, User, Shield, LogOut } f
 import { useSidebar } from "../navigation/SidebarContext";
 import { useToast } from "../feedback/ToastContext";
 import { TOP_NAV_LINKS } from "../navigation/config";
-import { motion, AnimatePresence } from "framer-motion";
+
 
 export default function Navbar() {
   const { showToast } = useToast();
@@ -97,10 +97,10 @@ export default function Navbar() {
                 >
                   {link.label}
                   {isActive && (
-                    <motion.div
-                      layoutId="activeTabUnderline"
+                    <div
+                      
                       className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--aur-text)]"
-                      transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                      
                     />
                   )}
                 </button>
@@ -153,12 +153,12 @@ export default function Navbar() {
                 </span>
               </button>
 
-              <AnimatePresence>
+              <>
                 {showNotifMenu && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
+                  <div
+                    
+                    
+                    
                     className="absolute right-0 mt-2.5 w-80 rounded-xl border border-[var(--aur-border)] bg-[var(--aur-surface)] shadow-xl py-2 z-50 text-xs text-[var(--aur-text-secondary)]"
                   >
                     <div className="px-4 py-2 border-b border-[var(--aur-border)] flex justify-between items-center font-bold">
@@ -207,9 +207,9 @@ export default function Navbar() {
                         </div>
                       ))}
                     </div>
-                  </motion.div>
+                  </div>
                 )}
-              </AnimatePresence>
+              </>
             </div>
 
             {/* Profile Avatar Dropdown */}
@@ -226,12 +226,12 @@ export default function Navbar() {
                 <ChevronDown className="h-3 w-3 text-[var(--aur-text-muted)] group-hover:text-[var(--aur-text)] transition-colors" />
               </button>
 
-              <AnimatePresence>
+              <>
                 {showProfileMenu && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 10 }}
+                  <div
+                    
+                    
+                    
                     className="absolute right-0 mt-2.5 w-48 rounded-xl border border-[var(--aur-border)] bg-[var(--aur-surface)] shadow-xl py-1.5 z-50 text-xs text-[var(--aur-text-secondary)]"
                   >
                     <div className="px-4 py-2 border-b border-[var(--aur-border)]">
@@ -270,9 +270,9 @@ export default function Navbar() {
                       <LogOut className="h-3.5 w-3.5" />
                       <span className="font-semibold">Sign Out</span>
                     </button>
-                  </motion.div>
+                  </div>
                 )}
-              </AnimatePresence>
+              </>
             </div>
 
             {/* Mobile Hamburger menu */}

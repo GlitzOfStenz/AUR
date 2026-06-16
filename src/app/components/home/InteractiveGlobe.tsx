@@ -116,7 +116,7 @@ export default function InteractiveGlobe({ universities, onUniversitySelect }: G
           atmosphereColor="#3b82f6"
           atmosphereAltitude={0.2}
           
-          // Render custom HTML elements as university cards
+          // Render  HTML elements as university cards
           htmlElementsData={globeData}
         htmlElement={(d: any) => {
           const el = document.createElement("div");

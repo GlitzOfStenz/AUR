@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { AnimatePresence, motion } from "framer-motion";
+
 import { Search, Globe, Award, DollarSign, BookOpen, Trophy, RotateCcw, ShieldCheck, Check, ChevronDown } from "lucide-react";
 import { useSidebar } from "../navigation/SidebarContext";
 import { MOCK_UNIVERSITIES } from "../../data";
@@ -91,26 +91,26 @@ export default function FilterPanel() {
             <span className="font-bold uppercase tracking-wider text-slate-900 dark:text-white">
               Target Filters
             </span>
-            <motion.span
+            <span
               key={activeFilterCount}
-              initial={{ scale: 0.95, opacity: 0.7 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.18, ease: "easeOut" }}
+              
+              
+              
               className="inline-flex items-center justify-center rounded-full bg-amber-100 text-amber-800 dark:bg-cyber-yellow/15 dark:text-cyber-yellow text-[10px] font-semibold uppercase px-2 py-0.5"
             >
               {activeFilterCount}
-            </motion.span>
+            </span>
           </div>
         </div>
-        <motion.button
-          whileTap={{ scale: 0.96 }}
-          whileHover={{ scale: 1.02 }}
+        <button
+          
+          
           onClick={clearFilters}
           className="flex items-center text-[10px] font-bold uppercase tracking-widest text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-cyber-yellow transition-colors"
         >
           <RotateCcw className="h-3 w-3 mr-1" />
           Clear
-        </motion.button>
+        </button>
       </div>
 
       {/* 1. Search Bar */}
@@ -123,13 +123,13 @@ export default function FilterPanel() {
           Institution Search
           <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${openSections.search ? "rotate-180" : ""}`} />
         </button>
-        <AnimatePresence initial={false}>
+        <>
           {openSections.search && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
+            <div
+              
+              
+              
+              
               className="overflow-hidden"
             >
               <div className="relative">
@@ -142,9 +142,9 @@ export default function FilterPanel() {
                 />
                 <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </>
       </div>
 
       {/* 2. Country Select Dropdown */}
@@ -157,13 +157,13 @@ export default function FilterPanel() {
           Country / Territory
           <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${openSections.country ? "rotate-180" : ""}`} />
         </button>
-        <AnimatePresence initial={false}>
+        <>
           {openSections.country && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
+            <div
+              
+              
+              
+              
               className="overflow-hidden"
             >
               <div className="relative">
@@ -182,9 +182,9 @@ export default function FilterPanel() {
                 <Globe className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
                 <div className="absolute right-3 top-3 pointer-events-none border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-400 dark:border-t-slate-500 w-0 h-0" />
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </>
       </div>
 
       {/* 3. QS Ranking range slider (Dual Range) */}
@@ -197,13 +197,13 @@ export default function FilterPanel() {
           Calculated Rank
           <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${openSections.rank ? "rotate-180" : ""}`} />
         </button>
-        <AnimatePresence initial={false}>
+        <>
           {openSections.rank && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
+            <div
+              
+              
+              
+              
               className="overflow-hidden"
             >
               <div className="flex justify-between items-baseline">
@@ -245,9 +245,9 @@ export default function FilterPanel() {
                   />
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </>
       </div>
 
       {/* 4. Tuition fee range slider */}
@@ -260,13 +260,13 @@ export default function FilterPanel() {
           Tuition / Year (USD)
           <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${openSections.tuition ? "rotate-180" : ""}`} />
         </button>
-        <AnimatePresence initial={false}>
+        <>
           {openSections.tuition && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
+            <div
+              
+              
+              
+              
               className="overflow-hidden"
             >
               <div className="flex justify-between items-baseline">
@@ -310,9 +310,9 @@ export default function FilterPanel() {
                   />
                 </div>
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </>
       </div>
 
       {/* 5. Public / Private Toggle */}
@@ -325,13 +325,13 @@ export default function FilterPanel() {
           Institution Type
           <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${openSections.type ? "rotate-180" : ""}`} />
         </button>
-        <AnimatePresence initial={false}>
+        <>
           {openSections.type && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
+            <div
+              
+              
+              
+              
               className="overflow-hidden"
             >
               <div className="grid grid-cols-3 gap-1 bg-slate-100 dark:bg-cyber-gray p-0.5 rounded border border-slate-200 dark:border-slate-800">
@@ -342,12 +342,12 @@ export default function FilterPanel() {
                 ].map((typeItem) => {
                   const isSelected = filters.isPublic === typeItem.value;
                   return (
-                    <motion.button
+                    <button
                       key={typeItem.label}
                       type="button"
-                      whileTap={{ scale: 0.96 }}
-                      whileHover={{ scale: 1.02 }}
-                      transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                      
+                      
+                      
                       onClick={() => setFilters((prev) => ({ ...prev, isPublic: typeItem.value }))}
                       className={`py-1.5 text-[10px] font-bold rounded uppercase tracking-wider transition-all duration-150 ${
                         isSelected
@@ -356,13 +356,13 @@ export default function FilterPanel() {
                       }`}
                     >
                       {typeItem.label}
-                    </motion.button>
+                    </button>
                   );
                 })}
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </>
       </div>
 
       {/* 6. Course Category Multi-select (chips) */}
@@ -375,25 +375,25 @@ export default function FilterPanel() {
           Course Subjects
           <ChevronDown className={`h-3 w-3 transition-transform duration-200 ${openSections.subjects ? "rotate-180" : ""}`} />
         </button>
-        <AnimatePresence initial={false}>
+        <>
           {openSections.subjects && (
-            <motion.div
-              initial={{ height: 0, opacity: 0 }}
-              animate={{ height: "auto", opacity: 1 }}
-              exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
+            <div
+              
+              
+              
+              
               className="overflow-hidden"
             >
               <div className="flex flex-wrap gap-1 pt-1">
                 {ALL_SUBJECTS.map((subject) => {
                   const isSelected = filters.subjects.includes(subject);
                   return (
-                    <motion.button
+                    <button
                       key={subject}
                       type="button"
-                      whileTap={{ scale: 0.95 }}
-                      animate={{ scale: isSelected ? 1.02 : 1 }}
-                      transition={{ type: "spring", stiffness: 300, damping: 22 }}
+                      
+                      
+                      
                       onClick={() => toggleSubject(subject)}
                       className={`px-2 py-1 border rounded-full text-[10px] font-medium transition-all duration-150 ${
                         isSelected
@@ -402,13 +402,13 @@ export default function FilterPanel() {
                       }`}
                     >
                       {subject}
-                    </motion.button>
+                    </button>
                   );
                 })}
               </div>
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </>
       </div>
 
       {/* 7. Scholarship Availability */}

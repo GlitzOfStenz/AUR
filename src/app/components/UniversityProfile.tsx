@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
 import { ArrowLeft, MapPin, Globe, BookOpen, GraduationCap, Building2, ChevronRight, Award, LineChart, Trophy, ExternalLink, Bookmark, Square } from "lucide-react";
-import { motion } from "framer-motion";
+
 import { MOCK_UNIVERSITIES } from "../data";
 
 // Lazy load the heavy charting component
@@ -253,10 +253,10 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
                             <span className="font-mono text-[var(--aur-text)]">{metric.value.toFixed(1)}%</span>
                           </div>
                           <div className="w-full h-2.5 bg-[var(--aur-surface-hover)] rounded-full overflow-hidden border border-[var(--aur-border)]">
-                            <motion.div
-                              initial={{ width: 0 }}
-                              animate={{ width: `${metric.value}%` }}
-                              transition={{ duration: 1.2, ease: "easeOut" }}
+                            <div
+                              
+                              
+                              
                               className="h-full bg-[var(--aur-text)] rounded-full"
                             />
                           </div>

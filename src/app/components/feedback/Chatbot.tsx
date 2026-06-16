@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { Send, X, Bot, Sparkles } from "lucide-react";
 import { MOCK_UNIVERSITIES } from "../../data";
 
@@ -383,11 +383,9 @@ You can dynamically adjust these weights in the **Rankings Engine** page!`;
         aria-label={isOpen ? "Close chat assistant" : "Open chat assistant. Drag to move."}
         aria-expanded={isOpen}
       >
-        <motion.div
-          animate={isOpen || isDragging ? { y: 0 } : { y: [0, -5, 0] }}
-          transition={{
-            y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-          }}
+        <div
+          
+          
           className="w-full h-full relative"
           style={{ scale: isDragging ? 1.06 : 1 }}
         >
@@ -402,8 +400,8 @@ You can dynamically adjust these weights in the **Rankings Engine** page!`;
             }`}
           >
             <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/10 to-transparent pointer-events-none" />
-            <motion.div
-              animate={isOpen ? { rotate: 90, scale: 0.9 } : { rotate: 0, scale: 1 }}
+            <div
+              
               className="flex items-center justify-center w-full h-full relative z-10 pointer-events-none"
             >
               {isOpen ? (
@@ -414,33 +412,33 @@ You can dynamically adjust these weights in the **Rankings Engine** page!`;
                   <Sparkles className="h-3.5 w-3.5 absolute -top-1.5 -right-1.5 text-amber-400 dark:text-cyber-yellow-bright animate-bounce" />
                 </div>
               )}
-            </motion.div>
+            </div>
           </div>
-        </motion.div>
+        </div>
 
-        <AnimatePresence>
+        <>
           {showTooltip && !isOpen && !isDragging && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
+            <div
+              
+              
+              
               className="absolute left-full ml-3 top-1/2 -translate-y-1/2 w-44 bg-slate-900 border border-slate-800 dark:bg-cyber-gray dark:border-cyber-yellow/20 text-white rounded-lg p-2.5 text-[10px] font-bold uppercase tracking-wider shadow-lg text-center leading-normal pointer-events-none hidden sm:block"
             >
               Drag anywhere · Tap to chat
               <div className="absolute left-[-4px] top-1/2 -translate-y-1/2 w-2 h-2 bg-slate-900 dark:bg-cyber-gray border-l border-b border-slate-800 dark:border-cyber-yellow/20 rotate-45" />
-            </motion.div>
+            </div>
           )}
-        </AnimatePresence>
+        </>
       </div>
 
-      <AnimatePresence>
+      <>
         {isOpen && (
           <div className="fixed inset-0 z-50 pointer-events-none flex items-end justify-center sm:items-end sm:justify-end p-4 sm:p-6 md:p-8">
-            <motion.div
-              initial={{ opacity: 0, y: 50, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 30, scale: 0.95 }}
-              transition={{ duration: 0.2, ease: "easeOut" }}
+            <div
+              
+              
+              
+              
               className="pointer-events-auto w-full max-w-sm sm:max-w-md h-[min(480px,calc(100vh-120px))] bg-white/95 dark:bg-cyber-dark/95 border border-slate-200 dark:border-cyber-border rounded-2xl shadow-2xl flex flex-col overflow-hidden cyber-glass-light dark:cyber-glass mb-20 sm:mb-20 md:mb-6"
             >
               <div className="p-4 border-b border-slate-200/60 dark:border-cyber-border/40 bg-slate-50/50 dark:bg-cyber-gray/40 flex items-center justify-between">
@@ -546,10 +544,10 @@ You can dynamically adjust these weights in the **Rankings Engine** page!`;
                   <Send className="h-4 w-4" />
                 </button>
               </form>
-            </motion.div>
+            </div>
           </div>
         )}
-      </AnimatePresence>
+      </>
     </>
   );
 }

@@ -154,7 +154,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [theme]);
 
-  // Synchronize initial URL search query if exists
+  // Synchronize  URL search query if exists
   useEffect(() => {
     const q = searchParams.get("search");
     if (q) {

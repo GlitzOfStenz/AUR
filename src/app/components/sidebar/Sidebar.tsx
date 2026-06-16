@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, SlidersHorizontal, ChevronDown } from "lucid
 import { useSidebar } from "../navigation/SidebarContext";
 import { SIDEBAR_ITEMS, NavItem } from "../navigation/config";
 import FilterPanel from "../filters/FilterPanel";
-import { motion, AnimatePresence } from "framer-motion";
+
 
 export default function Sidebar() {
   const {
@@ -61,10 +61,10 @@ export default function Sidebar() {
               >
                 {/* Background highlight using Framer Motion for active state */}
                 {isActive && (
-                  <motion.div
-                    layoutId="sidebarActiveBackground"
+                  <div
+                    
                     className="absolute inset-0 bg-[var(--aur-text)] shadow-sm rounded-lg z-[-1]"
-                    transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                    
                   />
                 )}
 
@@ -135,21 +135,21 @@ export default function Sidebar() {
           </button>
 
           {/* Expandable Filter Content */}
-          <AnimatePresence initial={false}>
+          <>
             {isFilterExpanded && !isCollapsed && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: "easeInOut" }}
+              <div
+                
+                
+                
+                
                 className="overflow-hidden"
               >
                 <div className="px-3 pt-4 pb-2 border border-[var(--aur-border)] rounded-lg mt-2 bg-[var(--aur-surface-2)]">
                   <FilterPanel />
                 </div>
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
+          </>
         </div>
 
       </div>

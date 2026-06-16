@@ -4,7 +4,7 @@ import React from "react";
 import { TrendingUp } from "lucide-react";
 import { University } from "../../data";
 
-/** Pin layout on the 400×280 map viewBox */
+/** Pin  on the 400×280 map viewBox */
 const MAP_PINS: { x: number; y: number; cardStyle: React.CSSProperties }[] = [
   { x: 118, y: 98, cardStyle: { top: "6%", left: "2%", maxWidth: "168px" } },
   { x: 198, y: 188, cardStyle: { bottom: "10%", left: "28%", maxWidth: "175px" } },

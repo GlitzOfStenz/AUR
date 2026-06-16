@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSidebar } from "./navigation/SidebarContext";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { 
   Activity, Database, Shield, Users, Sliders, Globe, 
   ChevronRight, Lock, Eye, LogOut, Search, Settings, CheckCircle2, AlertCircle, Edit3
@@ -109,13 +109,13 @@ export default function AdminConsole() {
 
         {/* Main Content Area */}
         <main className="flex-1">
-          <AnimatePresence mode="wait">
-            <motion.div
+          <>
+            <div
               key={activeTab}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              transition={{ duration: 0.2 }}
+              
+              
+              
+              
             >
               
               {/* TAB 1: Live Telemetry */}
@@ -270,14 +270,14 @@ export default function AdminConsole() {
                     <div className="h-px w-full bg-[var(--aur-border)] mb-8"></div>
 
                     {successMessage && (
-                      <motion.div 
-                        initial={{ opacity: 0, y: -10 }}
-                        animate={{ opacity: 1, y: 0 }}
+                      <div 
+                        
+                        
                         className="mb-6 bg-green-500/10 border border-green-500/20 text-green-700 dark:text-green-400 p-4 rounded-xl text-sm flex items-center gap-3 font-medium"
                       >
                         <CheckCircle2 className="h-5 w-5" />
                         {successMessage}
-                      </motion.div>
+                      </div>
                     )}
 
                     <form onSubmit={handleApplyOverride} className="space-y-6">
@@ -359,8 +359,8 @@ export default function AdminConsole() {
                 </div>
               )}
 
-            </motion.div>
-          </AnimatePresence>
+            </div>
+          </>
         </main>
       </div>
     </div>

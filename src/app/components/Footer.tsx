@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useSidebar } from "./navigation/SidebarContext";
-import { motion } from "framer-motion";
+
 import {
   ArrowRight,
 } from "lucide-react";
@@ -50,11 +50,11 @@ export default function Footer() {
 
   return (
     <footer className="mt-12 bg-slate-950 text-slate-100">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.2 }}
-        transition={{ duration: 0.8, ease: "easeOut", delay: 0.1 }}
+      <div
+        
+        
+        
+        
         className="border-t border-slate-800 bg-slate-950 px-4 sm:px-6 lg:px-8 py-12"
       >
         <div className="mx-auto max-w-7xl">
@@ -82,7 +82,7 @@ export default function Footer() {
                         target="_blank"
                         rel="noreferrer"
                         aria-label={social.label}
-                        className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-slate-300 transition duration-200 hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                        className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-900 text-slate-300  duration-200 hover:bg-slate-800 hover:text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                       >
                         <img
                           src={social.imgSrc}
@@ -160,12 +160,12 @@ export default function Footer() {
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   placeholder="Enter your email"
-                  className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none transition duration-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-slate-950"
+                  className="w-full rounded-2xl border border-slate-700 bg-slate-900 px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 outline-none  duration-200 focus:border-amber-500 focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 focus:ring-offset-slate-950"
                   aria-label="Email address"
                 />
                 <button
                   type="submit"
-                  className="inline-flex w-full items-center justify-center rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-slate-950 transition duration-200 hover:bg-amber-400 hover:shadow-[0_0_30px_rgba(234,179,8,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
+                  className="inline-flex w-full items-center justify-center rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-slate-950  duration-200 hover:bg-amber-400 hover:shadow-[0_0_30px_rgba(234,179,8,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
                 >
                   Subscribe
                 </button>
@@ -178,7 +178,7 @@ export default function Footer() {
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </footer>
   );
 }

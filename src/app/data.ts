@@ -1044,7 +1044,7 @@ export const FEATURED_ARTICLES: Article[] = [
     source: "Institutional Analytics Quarterly",
     date: "March 2, 2026",
     readTime: "11 min read",
-    contentSummary: "For-hire rankings often mask true career outcomes. A breakdown of why student recruitment teams must pivot to customized metrics and how to utilize client-side custom weights to guide university advisory.",
+    contentSummary: "For-hire rankings often mask true career outcomes. A breakdown of why student recruitment teams must pivot to customized metrics and how to utilize client-side  weights to guide university advisory.",
     image: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=600&q=80"
   }
 ];

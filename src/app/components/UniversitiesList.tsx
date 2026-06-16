@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+
 import {
   Search,
   MapPin,
@@ -160,10 +160,10 @@ export default function UniversitiesList({
           {REGION_STATS.map((region) => {
             const isSelected = selectedRegion === region.region;
             return (
-              <motion.button
+              <button
                 key={region.region}
-                whileHover={{ y: -2 }}
-                whileTap={{ scale: 0.97 }}
+                
+                
                 onClick={() =>
                   setSelectedRegion(isSelected ? "" : region.region)
                 }
@@ -200,7 +200,7 @@ export default function UniversitiesList({
                 >
                   {region.countries}
                 </span>
-              </motion.button>
+              </button>
             );
           })}
         </div>
@@ -244,12 +244,12 @@ export default function UniversitiesList({
       </div>
 
       {/* Active filter indicator */}
-      <AnimatePresence>
+      <>
         {(selectedRegion || showMedicine || searchQuery) && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
+          <div
+            
+            
+            
             className="flex items-center gap-2 mb-5 flex-wrap overflow-hidden"
           >
             <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">
@@ -279,9 +279,9 @@ export default function UniversitiesList({
                 &quot;{searchQuery}&quot; <X className="h-2.5 w-2.5" />
               </button>
             )}
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      </>
 
       {/* Results count */}
       <div className="flex items-center justify-between mb-6">
@@ -301,7 +301,7 @@ export default function UniversitiesList({
 
       {/* ── University Cards Grid ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <AnimatePresence mode="popLayout">
+        <>
           {filteredUniversities.map((uni, idx) => {
             const isShortlisted = savedUniIds.includes(uni.id);
             const isCompared = compared.includes(uni.id);
@@ -309,13 +309,13 @@ export default function UniversitiesList({
             const qsRank = Math.max(1, Math.round(110 - uni.overall));
 
             return (
-              <motion.div
+              <div
                 key={uni.id}
-                layout
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.96 }}
-                transition={{ duration: 0.3, delay: Math.min(idx * 0.03, 0.25) }}
+                
+                
+                
+                
+                
                 className="group bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-2xl overflow-hidden shadow-sm hover:shadow-[var(--aur-shadow-sm)] transition-all duration-300 flex flex-col"
               >
                 {/* ── Image Banner ── */}
@@ -437,32 +437,32 @@ export default function UniversitiesList({
 
                   {/* View University CTA */}
                   <div className="mt-2 flex gap-2 border-t border-[var(--aur-border)] pt-4">
-                    <motion.button
-                      whileHover={{ scale: 1.01 }}
-                      whileTap={{ scale: 0.99 }}
+                    <button
+                      
+                      
                       onClick={() => onUniversitySelect(uni.id)}
                       className="flex-1 flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider py-2.5 rounded-lg bg-[var(--aur-text)] text-[var(--background)] hover:opacity-90 transition-opacity"
                     >
                       View Profile
                       <ChevronRight className="h-3.5 w-3.5" />
-                    </motion.button>
-                    <motion.a
+                    </button>
+                    <a
                       href={uni.website}
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
+                      
+                      
                       className="flex items-center justify-center w-10 h-10 rounded-lg border border-[var(--aur-border)] bg-[var(--aur-surface)] text-[var(--aur-text-secondary)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-surface-hover)] transition-colors"
                     >
                       <ExternalLink className="h-4 w-4" />
-                    </motion.a>
+                    </a>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             );
           })}
-        </AnimatePresence>
+        </>
       </div>
 
       {/* Empty state */}

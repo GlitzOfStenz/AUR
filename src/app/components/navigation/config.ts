@@ -39,7 +39,7 @@ export const SIDEBAR_ITEMS: NavItem[] = [
   {
     id: "countries",
     label: "Countries",
-    view: "rankings", // redirect to rankings view and apply filter
+    view: "countries", // redirect to rankings view and apply filter
     icon: Globe,
   },
   {
