@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import { motion, useInView } from "framer-motion";
 import {
   Search,
   BookOpen,
@@ -24,6 +25,37 @@ import {
 import { MOCK_UNIVERSITIES, FEATURED_ARTICLES, University, Article } from "../data";
 import { AsiaMapNetwork, MapUniversityCards } from "./home/AsiaMapHero";
 import "./home/ref-home.css";
+
+/* ── Reusable scroll-reveal wrapper ── */
+const fadeUp = {
+  hidden: { opacity: 0, y: 24 },
+  visible: { opacity: 1, y: 0 },
+};
+const staggerContainer = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.08 } },
+};
+const fadeUpItem = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } },
+};
+
+function RevealSection({ children, className = "", delay = 0 }: { children: React.ReactNode; className?: string; delay?: number }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: "-60px" });
+  return (
+    <motion.div
+      ref={ref}
+      initial="hidden"
+      animate={inView ? "visible" : "hidden"}
+      variants={fadeUp}
+      transition={{ duration: 0.55, delay, ease: [0.16, 1, 0.3, 1] }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
 
 type SuggestionPick =
   | { kind: "uni"; uni: University }
@@ -532,8 +564,17 @@ export default function Homepage({
       {/* ── Hero ── */}
       <section className="ref-hero">
         <div className="ref-hero-grid">
-          <div>
-            <span className="ref-label">Asia University Rankings</span>
+          <motion.div
+            initial={{ opacity: 0, x: -30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <motion.span
+              className="ref-label"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.15, duration: 0.5 }}
+            >Asia University Rankings</motion.span>
             <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold leading-tight mt-3 mb-4">
               Asia&apos;s Most Trusted{" "}
               <span className="ref-hero-title-accent">University Intelligence</span> Platform
@@ -543,7 +584,12 @@ export default function Homepage({
               including medical careers in Central Asia — powered by live audited data.
             </p>
 
-            <div className="flex flex-wrap gap-3 mb-6">
+            <motion.div
+              className="flex flex-wrap gap-3 mb-6"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.35, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+            >
               <button type="button" className="ref-btn-primary" onClick={() => onViewChange("rankings")}>
                 Explore Rankings
                 <ArrowRight className="h-4 w-4" />
@@ -552,7 +598,7 @@ export default function Homepage({
                 <Play className="h-4 w-4" />
                 Watch Methodology
               </button>
-            </div>
+            </motion.div>
 
             {/* Search */}
             <div className="relative max-w-lg" ref={suggestionRef}>
@@ -665,25 +711,35 @@ export default function Homepage({
               ))}
             </div>
 
-            <div className="ref-stat-bar">
+            <motion.div
+              className="ref-stat-bar"
+              variants={staggerContainer}
+              initial="hidden"
+              animate="visible"
+            >
               {[
                 { icon: Building2, val: `${MOCK_UNIVERSITIES.length}+`, label: "Institutions" },
                 { icon: Globe2, val: `${uniqueCountries}+`, label: "Countries" },
                 { icon: Database, val: "1M+", label: "Data Points" },
                 { icon: Clock, val: "15+", label: "Years of Data" },
               ].map((s) => (
-                <div key={s.label} className="ref-stat-item">
+                <motion.div key={s.label} className="ref-stat-item" variants={fadeUpItem}>
                   <s.icon className="h-5 w-5 text-amber-500 shrink-0" />
                   <div>
                     <div className="font-bold text-sm">{s.val}</div>
                     <div className="text-[10px] text-[var(--ref-muted)] uppercase tracking-wider">{s.label}</div>
                   </div>
-                </div>
+                </motion.div>
               ))}
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <div className="ref-hero-visual">
+          <motion.div
+            className="ref-hero-visual"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.7, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
+          >
             <div className="ref-map-stage">
               <AsiaMapNetwork />
               <MapUniversityCards
@@ -721,12 +777,12 @@ export default function Homepage({
                 <ArrowRight className="h-3.5 w-3.5" />
               </button>
             </aside>
-          </div>
+          </motion.div>
         </div>
       </section>
 
       {/* ── Live Top 10 ── */}
-      <section className="ref-section">
+      <RevealSection className="ref-section">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
           <div>
             <span className="ref-label">Rankings Engine</span>
@@ -794,17 +850,17 @@ export default function Homepage({
           </table>
         </div>
         <p className="text-[10px] text-[var(--ref-muted)] mt-3">* Filterable by location, program &amp; tuition in Rankings Engine.</p>
-      </section>
+      </RevealSection>
 
       {/* ── Explore by Country (light cards, per-country theme) ── */}
-      <section className="ref-section pt-0 ref-country-section">
+      <RevealSection className="ref-section pt-0 ref-country-section">
         <span className="ref-label">Regional Intelligence</span>
         <h2 className="text-2xl font-bold mt-1 mb-6">Explore by Country</h2>
-        <div className="ref-country-grid">
+        <motion.div className="ref-country-grid" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-40px" }}>
           {countryStats.map((c) => {
             const theme = getCountryTheme(c.country);
             return (
-              <button
+              <motion.button variants={fadeUpItem}
                 key={c.country}
                 type="button"
                 className="ref-country-card ref-country-card--light text-left"
@@ -830,15 +886,15 @@ export default function Homepage({
                   <div className="ref-country-avg">Avg {c.avgScore.toFixed(1)}</div>
                   <div className="ref-country-top truncate">Top: {c.topUni.name}</div>
                 </div>
-              </button>
+              </motion.button>
             );
           })}
-        </div>
-      </section>
+        </motion.div>
+      </RevealSection>
 
       {/* ── Methodology ── */}
-      <section className="ref-section pt-0" ref={methodologyRef} id="methodology">
-        <div className="ref-card p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+      <RevealSection className="ref-section pt-0">
+        <div className="ref-card p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center" ref={methodologyRef} id="methodology">
           <div className="flex justify-center">
             <div className="ref-donut" />
           </div>
@@ -862,10 +918,10 @@ export default function Homepage({
             </ul>
           </div>
         </div>
-      </section>
+      </RevealSection>
 
       {/* ── Discovery Hub ── */}
-      <section className="ref-section pt-0">
+      <RevealSection className="ref-section pt-0">
         <span className="ref-label">Discovery Hub</span>
         <h2 className="text-2xl font-bold mt-1 mb-4">Insights &amp; Analysis</h2>
         <div className="ref-article-tabs flex gap-6 border-b border-[var(--ref-border)] mb-6">
@@ -886,11 +942,12 @@ export default function Homepage({
             </button>
           ))}
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <motion.div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5" variants={staggerContainer} initial="hidden" whileInView="visible" viewport={{ once: true, margin: "-40px" }}>
           {FEATURED_ARTICLES.map((article) => (
-            <button
+            <motion.button
               key={article.id}
               type="button"
+              variants={fadeUpItem}
               onClick={() => onArticleSelect(article)}
               className="ref-card text-left overflow-hidden group hover:border-blue-300 transition-colors"
             >
@@ -910,13 +967,13 @@ export default function Homepage({
                 <p className="text-xs text-[var(--ref-muted)] line-clamp-2 mb-3">{article.contentSummary}</p>
                 <span className="text-[10px] text-[var(--ref-muted)]">{article.date} · {article.readTime}</span>
               </div>
-            </button>
+            </motion.button>
           ))}
-        </div>
-      </section>
+        </motion.div>
+      </RevealSection>
 
       {/* ── Comparison + Analytics ── */}
-      <section className="ref-section pt-0">
+      <RevealSection className="ref-section pt-0">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           <div className="ref-card p-6">
             <span className="ref-label">Comparison Tool</span>
@@ -962,7 +1019,7 @@ export default function Homepage({
             </div>
           </div>
         </div>
-      </section>
+      </RevealSection>
 
       {/* ── Pulse Ticker ── */}
       <div className="ref-pulse-ticker">
@@ -991,7 +1048,7 @@ export default function Homepage({
       </section>
 
       {/* ── CTA Banner ── */}
-      <section className="ref-section pt-0 pb-8">
+      <RevealSection className="ref-section pt-0 pb-8">
         <div className="ref-cta-banner p-8 md:p-12">
           <div className="relative z-10 max-w-xl">
             <h2 className="text-2xl md:text-3xl font-bold mb-3">
@@ -1010,7 +1067,7 @@ export default function Homepage({
             </div>
           </div>
         </div>
-      </section>
+      </RevealSection>
 
       {/* ── Footer block ── */}
       <footer className="ref-section pt-0 border-t border-[var(--ref-border)]">

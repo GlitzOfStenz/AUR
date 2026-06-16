@@ -13,6 +13,9 @@ import UniversityProfile from "./components/UniversityProfile";
 import Footer from "./components/Footer";
 import FloatingChatAssistant from "./components/FloatingChatAssistant";
 import AnalyticsDashboard from "./components/AnalyticsDashboard";
+import AdminConsole from "./components/AdminConsole";
+import Login from "./components/Login";
+import UniversitiesList from "./components/UniversitiesList";
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { Article, MOCK_UNIVERSITIES } from "./data";
 import { Bookmark, ShieldAlert } from "lucide-react";
@@ -31,6 +34,7 @@ export default function AppContent() {
     handleRemoveCompare,
     handleClearCompare,
     theme,
+    isCollapsed,
   } = useSidebar();
 
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get("search") ?? "");
@@ -69,21 +73,28 @@ export default function AppContent() {
   // Get selected universities for Saved view
   const savedUniversities = MOCK_UNIVERSITIES.filter((u) => savedUniIds.includes(u.id));
 
+  // Show sidebar for non-home views
+  const showSidebar = view !== "home" && view !== "login" && view !== "admin";
+
   return (
-    <div className={`${view === "home" ? "bg-gradient-to-b from-amber-50/50 via-white to-blue-50" : "aur-page"} flex min-h-screen flex-col transition-colors duration-300 ${
-      theme === "dark" && view !== "home" ? "text-slate-100 dark" : "text-slate-900"
+    <div className={`flex min-h-screen flex-col transition-colors duration-200 ${
+      theme === "dark" ? "bg-[#0a0a0a] text-[#e5e5e5] dark" : "bg-white text-[#171717]"
     }`}>
       {/* Top Navigation Bar */}
-      <Navbar />
+      {view !== "login" && view !== "admin" && <Navbar />}
 
-      {/* Main Core Layout Layout */}
-      <div className="flex-grow flex w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-8">
+      {/* Main Core Layout */}
+      <div className="flex-grow flex w-full">
         
-        {/* Collapsible Left Sidebar */}
-        <Sidebar />
+        {/* Collapsible Left Sidebar — shown on non-home views */}
+        {showSidebar && <Sidebar />}
 
-        {/* Main Content Area */}
-        <main className={`flex-1 flex flex-col min-w-0 pb-20 md:pb-6 w-full mx-auto ${view === "home" ? "p-0 max-w-none" : "p-4 max-w-[1600px]"}`}>
+        {/* Main Content Area — Full Width */}
+        <main
+          className={`flex-1 flex flex-col min-w-0 pb-20 md:pb-0 transition-all duration-300 ease-in-out ${
+            view === "login" || view === "admin" ? "p-0" : "px-4 pt-4 lg:px-8 lg:pt-8"
+          }`}
+        >
           <AnimatePresence mode="wait">
             <motion.div
               key={viewKey}
@@ -99,6 +110,15 @@ export default function AppContent() {
               onUniversitySelect={handleUniversitySelect}
               onArticleSelect={handleArticleSelect}
               onViewChange={handleViewChange}
+            />
+          )}
+
+          {view === "universities" && (
+            <UniversitiesList
+              onUniversitySelect={handleUniversitySelect}
+              onViewChange={handleViewChange}
+              savedUniIds={savedUniIds}
+              onToggleSave={handleToggleSave}
             />
           )}
 
@@ -125,17 +145,23 @@ export default function AppContent() {
           {/* Analytics Dashboard */}
           {view === "analytics" && <AnalyticsDashboard />}
 
-          {/* 2. Saved Items Mock Panel */}
+          {/* Admin Console */}
+          {view === "admin" && <AdminConsole />}
+
+          {/* Login View */}
+          {view === "login" && <Login />}
+
+          {/* 2. Saved Items Panel */}
           {view === "saved" && (
-            <div className="w-full mx-auto w-full p-6 border border-slate-200 dark:border-cyber-border rounded-xl bg-slate-50/50 dark:bg-cyber-dark/40 shadow-sm space-y-6 animate-fadeIn">
+            <div className="w-full p-6 border border-[var(--aur-border)] rounded-xl bg-[var(--aur-surface)] shadow-sm space-y-6 animate-fadeIn">
               <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 dark:text-cyber-yellow">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--aur-text-muted)]">
                   Personal Database
                 </span>
-                <h2 className="font-serif text-2xl font-bold text-slate-900 dark:text-white mt-0.5">
+                <h2 className="font-serif text-2xl font-bold text-[var(--aur-text)] mt-0.5">
                   Saved Comparison Nodes
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                <p className="text-xs text-[var(--aur-text-muted)] mt-1 leading-relaxed">
                   List of institutions currently pinned inside the analysis comparators dock.
                 </p>
               </div>
@@ -146,21 +172,21 @@ export default function AppContent() {
                     <div
                       key={uni.id}
                       onClick={() => handleUniversitySelect(uni.id)}
-                      className="p-4 border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-gray rounded-lg hover:border-slate-350 dark:hover:border-cyber-yellow transition-all duration-150 cursor-pointer flex justify-between items-center group"
+                      className="p-4 border border-[var(--aur-border)] bg-[var(--aur-surface)] rounded-lg hover:border-[var(--aur-border-strong)] transition-all duration-150 cursor-pointer flex justify-between items-center group"
                     >
                       <div>
-                        <h4 className="font-bold text-sm text-slate-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-cyber-yellow transition-colors">
+                        <h4 className="font-bold text-sm text-[var(--aur-text)] group-hover:opacity-70 transition-opacity">
                           {uni.name}
                         </h4>
-                        <span className="text-[10px] text-slate-450 dark:text-slate-500 block mt-1">
+                        <span className="text-[10px] text-[var(--aur-text-muted)] block mt-1">
                           {uni.location} • {uni.tuition}
                         </span>
                       </div>
                       <div className="text-right">
-                        <span className="font-mono text-lg font-bold text-slate-900 dark:text-white block">
+                        <span className="font-mono text-lg font-bold text-[var(--aur-text)] block">
                           {uni.overall.toFixed(1)}
                         </span>
-                        <span className="text-[9px] uppercase tracking-wider text-slate-400 dark:text-slate-550 block">
+                        <span className="text-[9px] uppercase tracking-wider text-[var(--aur-text-muted)] block">
                           Score
                         </span>
                       </div>
@@ -168,14 +194,14 @@ export default function AppContent() {
                   ))}
                 </div>
               ) : (
-                <div className="p-8 border border-dashed border-slate-200 dark:border-slate-800 rounded-lg text-center">
-                  <Bookmark className="h-8 w-8 text-slate-300 dark:text-slate-700 mx-auto mb-2" />
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                <div className="p-8 border border-dashed border-[var(--aur-border)] rounded-lg text-center">
+                  <Bookmark className="h-8 w-8 text-[var(--aur-text-muted)] mx-auto mb-2 opacity-40" />
+                  <p className="text-xs text-[var(--aur-text-muted)]">
                     No universities are currently added to comparison.
                   </p>
                   <button
                     onClick={() => handleViewChange("rankings")}
-                    className="mt-4 inline-flex items-center justify-center border border-slate-900 dark:border-cyber-yellow bg-slate-900 dark:bg-transparent px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white dark:text-cyber-yellow hover:bg-slate-800 dark:hover:bg-cyber-yellow dark:hover:text-cyber-black transition-colors"
+                    className="mt-4 inline-flex items-center justify-center border border-[var(--aur-text)] bg-[var(--aur-text)] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-[var(--background)] hover:opacity-80 transition-opacity rounded-lg"
                   >
                     Go to Rankings Engine
                   </button>
@@ -184,17 +210,17 @@ export default function AppContent() {
             </div>
           )}
 
-          {/* 3. Settings Mock Panel */}
+          {/* 3. Settings Panel */}
           {view === "settings" && (
-            <div className="w-full mx-auto w-full p-6 border border-slate-200 dark:border-cyber-border rounded-xl bg-slate-50/50 dark:bg-cyber-dark/40 shadow-sm space-y-6 animate-fadeIn">
+            <div className="w-full p-6 border border-[var(--aur-border)] rounded-xl bg-[var(--aur-surface)] shadow-sm space-y-6 animate-fadeIn">
               <div>
-                <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 dark:text-cyber-yellow">
+                <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--aur-text-muted)]">
                   System Diagnostics
                 </span>
-                <h2 className="font-serif text-2xl font-bold text-slate-900 dark:text-white mt-0.5">
+                <h2 className="font-serif text-2xl font-bold text-[var(--aur-text)] mt-0.5">
                   Engine Configuration Console
                 </h2>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                <p className="text-xs text-[var(--aur-text-muted)] mt-1 leading-relaxed">
                   Configure real-time arithmetic models, indexing parameters, and telemetric UI modules.
                 </p>
               </div>
@@ -223,13 +249,13 @@ export default function AppContent() {
                 ].map((option) => (
                   <div
                     key={option.title}
-                    className="p-4 border border-slate-200/60 dark:border-slate-800 bg-white dark:bg-cyber-gray rounded-lg flex items-center justify-between"
+                    className="p-4 border border-[var(--aur-border)] bg-[var(--aur-surface)] rounded-lg flex items-center justify-between"
                   >
                     <div className="pr-4">
-                      <span className="block font-bold text-sm text-slate-900 dark:text-white">
+                      <span className="block font-bold text-sm text-[var(--aur-text)]">
                         {option.title}
                       </span>
-                      <span className="block text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-normal">
+                      <span className="block text-xs text-[var(--aur-text-muted)] mt-0.5 leading-normal">
                         {option.desc}
                       </span>
                     </div>
@@ -239,12 +265,12 @@ export default function AppContent() {
                       onClick={() => option.setter(!option.state)}
                       className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
                         option.state
-                          ? "bg-slate-900 dark:bg-cyber-yellow"
-                          : "bg-slate-200 dark:bg-slate-800"
+                          ? "bg-[var(--aur-text)]"
+                          : "bg-[var(--aur-border-strong)]"
                       }`}
                     >
                       <span
-                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white dark:bg-cyber-black shadow-xs ring-0 transition duration-200 ease-in-out ${
+                        className={`pointer-events-none inline-block h-5 w-5 transform rounded-full bg-[var(--background)] shadow-xs ring-0 transition duration-200 ease-in-out ${
                           option.state ? "translate-x-5" : "translate-x-0"
                         }`}
                       />
@@ -254,8 +280,8 @@ export default function AppContent() {
               </div>
 
               {/* Reset Database Button */}
-              <div className="pt-4 border-t border-slate-200 dark:border-slate-800 max-w-xl">
-                <div className="flex items-center space-x-2 text-amber-700 dark:text-cyber-yellow mb-2">
+              <div className="pt-4 border-t border-[var(--aur-border)] max-w-xl">
+                <div className="flex items-center space-x-2 text-red-500 mb-2">
                   <ShieldAlert className="h-4.5 w-4.5" />
                   <span className="font-bold text-xs uppercase tracking-wider">Danger Zone</span>
                 </div>
@@ -266,7 +292,7 @@ export default function AppContent() {
                       window.location.reload();
                     }
                   }}
-                  className="bg-red-50 hover:bg-red-100 border border-red-200 text-red-750 dark:bg-red-950/20 dark:hover:bg-red-950/40 dark:border-red-900 dark:text-red-400 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded transition-colors"
+                  className="bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 dark:bg-red-950/20 dark:hover:bg-red-950/40 dark:border-red-900 dark:text-red-400 text-xs font-bold uppercase tracking-wider px-4 py-2 rounded-lg transition-colors"
                 >
                   Reset Local Storage Cache
                 </button>
@@ -280,22 +306,20 @@ export default function AppContent() {
       </div>
 
       {/* Mobile Responsive Navigation Drawer & Bottom Bar */}
-      <MobileMenu />
+      {view !== "login" && view !== "admin" && <MobileMenu />}
 
-      <ComparisonDock
-        selectedIds={selectedUniIds}
-        onRemove={handleRemoveCompare}
-        onClearAll={handleClearCompare}
-        onUniversitySelect={handleUniversitySelect}
-      />
+      {view !== "login" && view !== "admin" && (
+        <ComparisonDock
+          selectedIds={selectedUniIds}
+          onRemove={handleRemoveCompare}
+          onClearAll={handleClearCompare}
+          onUniversitySelect={handleUniversitySelect}
+        />
+      )}
 
-      <FloatingChatAssistant />
+      {view !== "login" && view !== "admin" && <FloatingChatAssistant />}
 
-      <footer className="border-t border-slate-200 dark:border-cyber-border bg-slate-50 dark:bg-cyber-dark/80 py-8 transition-colors duration-200">
-        <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8 text-center text-[10px] uppercase font-bold tracking-widest text-slate-400 dark:text-slate-500">
-          © 2026 Asia University Rankings | Official Analytical Data Engine
-        </div>
-      </footer>
+
     </div>
   );
 }

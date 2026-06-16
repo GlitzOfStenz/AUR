@@ -169,6 +169,12 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (view !== "profile") {
       current.delete("id");
     }
+    
+    // Auto-expand sidebar when navigating to rankings engine
+    if (view === "rankings") {
+      setIsCollapsed(false);
+    }
+
     router.push(`?${current.toString()}`);
     setIsMobileOpen(false); // Close mobile drawer when navigating
   };
