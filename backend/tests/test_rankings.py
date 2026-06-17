@@ -150,3 +150,14 @@ def test_rankings_sorted_descending():
     ]
 
     assert scores == sorted(scores, reverse=True)
+
+def test_top_one():
+    response = client.get("/api/rankings/?top=1")
+
+    assert response.status_code == 200
+    assert len(response.json()["data"]) == 1
+
+def test_max_top_limit():
+    response = client.get("/api/rankings/?top=1533")
+
+    assert response.status_code == 200
