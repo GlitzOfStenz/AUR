@@ -17,6 +17,7 @@ import AdminConsole from "./components/AdminConsole";
 import Login from "./components/Login";
 import UserDashboard from "./components/UserDashboard";
 import UniversitiesList from "./components/UniversitiesList";
+import Methodology from "./components/Methodology";
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { Article, MOCK_UNIVERSITIES } from "./data";
 import { Bookmark, ShieldAlert } from "lucide-react";
@@ -145,6 +146,9 @@ export default function AppContent() {
 
           {/* Analytics Dashboard */}
           {view === "analytics" && <AnalyticsDashboard />}
+
+          {/* Methodology */}
+          {view === "methodology" && <Methodology />}
 
           {/* Admin Console */}
           {view === "admin" && <AdminConsole />}

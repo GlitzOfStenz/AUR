@@ -3,7 +3,11 @@
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { ArrowLeft, MapPin, Globe, BookOpen, GraduationCap, Building2, ChevronRight, Award, LineChart, Trophy, ExternalLink, Bookmark, Square } from "lucide-react";
+import {
+  ArrowLeft, MapPin, Globe, BookOpen, GraduationCap, Building2,
+  ChevronRight, Award, LineChart, Trophy, ExternalLink, Bookmark,
+  Square, Users, CalendarDays, Percent, BadgeCheck, BookMarked,
+} from "lucide-react";
 
 import { MOCK_UNIVERSITIES } from "../data";
 
@@ -326,45 +330,119 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
 
           {/* Admissions & Programs Tab */}
           {activeTab === "admissions" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 animate-fadeIn max-w-5xl mx-auto">
-              <div>
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="h-12 w-12 rounded-2xl bg-[var(--aur-surface-hover)] border border-[var(--aur-border)] flex items-center justify-center">
-                    <Building2 className="h-5 w-5 text-[var(--aur-text)]" />
-                  </div>
-                  <h3 className="font-serif text-2xl font-bold text-[var(--aur-text)]">Core Faculties</h3>
+            <div className="space-y-10 animate-fadeIn max-w-5xl mx-auto">
+
+              {/* ── Key Admission Facts ── only shown when data exists ── */}
+              {(uni.acceptanceRate || uni.applicationDeadline || uni.founded || uni.studentCount || uni.scholarshipDetails) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  {uni.acceptanceRate !== undefined && (
+                    <div className="p-6 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] flex flex-col gap-2">
+                      <div className="h-9 w-9 rounded-xl bg-[var(--aur-surface-2)] border border-[var(--aur-border)] flex items-center justify-center mb-1">
+                        <Percent className="h-4 w-4 text-[var(--aur-text-secondary)]" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)]">Acceptance Rate</span>
+                      <span className="text-2xl font-black font-mono text-[var(--aur-text)]">{uni.acceptanceRate}%</span>
+                    </div>
+                  )}
+                  {uni.founded !== undefined && (
+                    <div className="p-6 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] flex flex-col gap-2">
+                      <div className="h-9 w-9 rounded-xl bg-[var(--aur-surface-2)] border border-[var(--aur-border)] flex items-center justify-center mb-1">
+                        <Award className="h-4 w-4 text-[var(--aur-text-secondary)]" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)]">Established</span>
+                      <span className="text-2xl font-black font-mono text-[var(--aur-text)]">{uni.founded}</span>
+                    </div>
+                  )}
+                  {uni.studentCount !== undefined && (
+                    <div className="p-6 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] flex flex-col gap-2">
+                      <div className="h-9 w-9 rounded-xl bg-[var(--aur-surface-2)] border border-[var(--aur-border)] flex items-center justify-center mb-1">
+                        <Users className="h-4 w-4 text-[var(--aur-text-secondary)]" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)]">Students</span>
+                      <span className="text-2xl font-black font-mono text-[var(--aur-text)]">{uni.studentCount.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {uni.applicationDeadline && (
+                    <div className="p-6 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] flex flex-col gap-2">
+                      <div className="h-9 w-9 rounded-xl bg-[var(--aur-surface-2)] border border-[var(--aur-border)] flex items-center justify-center mb-1">
+                        <CalendarDays className="h-4 w-4 text-[var(--aur-text-secondary)]" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)]">Application Deadline</span>
+                      <span className="text-sm font-bold text-[var(--aur-text)] leading-tight">{uni.applicationDeadline}</span>
+                    </div>
+                  )}
                 </div>
-                <ul className="divide-y divide-[var(--aur-border)] border border-[var(--aur-border)] rounded-3xl bg-[var(--aur-surface)] overflow-hidden shadow-sm">
-                  {uni.subjects.map((sub, idx) => (
-                    <li key={idx} className="px-6 py-5 flex items-center text-sm font-bold text-[var(--aur-text)] hover:bg-[var(--aur-surface-hover)] transition-colors">
-                      <div className="h-2 w-2 rounded-full bg-[var(--aur-text)] opacity-40 mr-4"></div>
-                      {sub}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              
-              <div>
-                <div className="flex items-center gap-4 mb-8">
-                  <div className="h-12 w-12 rounded-2xl bg-[var(--aur-surface-hover)] border border-[var(--aur-border)] flex items-center justify-center">
-                    <GraduationCap className="h-5 w-5 text-[var(--aur-text)]" />
+              )}
+
+              {/* ── Scholarship Banner ── */}
+              {uni.scholarshipDetails && (
+                <div className="flex gap-4 p-6 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface-2)]">
+                  <div className="h-10 w-10 rounded-xl bg-[var(--aur-surface)] border border-[var(--aur-border)] flex items-center justify-center shrink-0">
+                    <BadgeCheck className="h-5 w-5 text-[var(--aur-text)]" />
                   </div>
-                  <h3 className="font-serif text-2xl font-bold text-[var(--aur-text)]">Featured Programs</h3>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)] mb-1">Financial Aid & Scholarships</p>
+                    <p className="text-sm text-[var(--aur-text-secondary)] leading-relaxed">{uni.scholarshipDetails}</p>
+                  </div>
                 </div>
-                <ul className="space-y-4">
-                  {uni.programs.map((prog, idx) => (
-                    <li key={idx} className="p-6 border border-[var(--aur-border)] bg-[var(--aur-surface)] rounded-3xl flex items-center justify-between group cursor-pointer hover:border-[var(--aur-border-strong)] hover:shadow-[var(--aur-shadow-sm)] transition-all">
-                      <span className="text-sm text-[var(--aur-text)] font-bold transition-colors">
-                        {prog}
-                      </span>
-                      <span className="text-[10px] text-[var(--aur-text-muted)] uppercase tracking-widest font-bold flex items-center gap-2 group-hover:text-[var(--aur-text)] transition-colors">
-                        Details
-                        <ChevronRight className="h-3.5 w-3.5" />
-                      </span>
-                    </li>
-                  ))}
-                </ul>
+              )}
+
+              {/* ── Faculties + Programs ── */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+                <div>
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="h-12 w-12 rounded-2xl bg-[var(--aur-surface-hover)] border border-[var(--aur-border)] flex items-center justify-center">
+                      <Building2 className="h-5 w-5 text-[var(--aur-text)]" />
+                    </div>
+                    <h3 className="font-serif text-2xl font-bold text-[var(--aur-text)]">Core Faculties</h3>
+                  </div>
+                  <ul className="divide-y divide-[var(--aur-border)] border border-[var(--aur-border)] rounded-3xl bg-[var(--aur-surface)] overflow-hidden shadow-sm">
+                    {uni.subjects.map((sub, idx) => (
+                      <li key={idx} className="px-6 py-5 flex items-center text-sm font-bold text-[var(--aur-text)] hover:bg-[var(--aur-surface-hover)] transition-colors">
+                        <div className="h-2 w-2 rounded-full bg-[var(--aur-text)] opacity-40 mr-4" />
+                        {sub}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div>
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="h-12 w-12 rounded-2xl bg-[var(--aur-surface-hover)] border border-[var(--aur-border)] flex items-center justify-center">
+                      <BookMarked className="h-5 w-5 text-[var(--aur-text)]" />
+                    </div>
+                    <h3 className="font-serif text-2xl font-bold text-[var(--aur-text)]">Featured Programs</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    {uni.programs.map((prog, idx) => (
+                      <li
+                        key={idx}
+                        className="p-5 border border-[var(--aur-border)] bg-[var(--aur-surface)] rounded-2xl flex items-center justify-between group cursor-pointer hover:border-[var(--aur-border-strong)] hover:shadow-[var(--aur-shadow-sm)] transition-all"
+                      >
+                        <span className="text-sm text-[var(--aur-text)] font-bold">{prog}</span>
+                        <span className="text-[10px] text-[var(--aur-text-muted)] uppercase tracking-widest font-bold flex items-center gap-1.5 group-hover:text-[var(--aur-text)] transition-colors shrink-0 ml-4">
+                          Details <ChevronRight className="h-3.5 w-3.5" />
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
+
+              {/* ── Languages of Instruction ── */}
+              <div className="p-6 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] flex flex-wrap gap-3 items-center">
+                <Globe className="h-4 w-4 text-[var(--aur-text-muted)] shrink-0" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)] mr-2">Languages of Instruction</span>
+                {uni.languages.map((lang) => (
+                  <span
+                    key={lang}
+                    className="text-xs font-bold px-3 py-1.5 rounded-lg border border-[var(--aur-border-strong)] bg-[var(--aur-surface-2)] text-[var(--aur-text)]"
+                  >
+                    {lang}
+                  </span>
+                ))}
+              </div>
+
             </div>
           )}
         </div>

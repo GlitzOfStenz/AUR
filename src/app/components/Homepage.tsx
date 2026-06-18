@@ -14,7 +14,6 @@ import {
   Clock,
   TrendingUp,
   TrendingDown,
-  Play,
   ArrowRight,
   Bell,
   Building2,
@@ -552,7 +551,7 @@ export default function Homepage({
   const mapUniversities = topTen.slice(0, 3);
 
   const scrollToMethodology = () => {
-    methodologyRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    // Navigated via onViewChange("methodology") — scroll ref no longer needed
   };
 
   return (
@@ -592,9 +591,9 @@ export default function Homepage({
                 Explore Rankings
                 <ArrowRight className="h-4 w-4" />
               </button>
-              <button type="button" className="ref-btn-outline" onClick={scrollToMethodology}>
-                <Play className="h-4 w-4" />
-                Watch Methodology
+              <button type="button" className="ref-btn-outline" onClick={() => onViewChange("methodology")}>
+                <BookOpen className="h-4 w-4" />
+                Our Methodology
               </button>
             </div>
 
