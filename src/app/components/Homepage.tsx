@@ -21,6 +21,7 @@ import {
   Activity,
   Mail,
 } from "lucide-react";
+import Link from "next/link";
 import { MOCK_UNIVERSITIES, FEATURED_ARTICLES, University, Article } from "../data";
 import { AsiaMapNetwork, MapUniversityCards } from "./home/AsiaMapHero";
 import "./home/ref-home.css";
@@ -419,6 +420,8 @@ export default function Homepage({
   onViewChange,
 }: HomepageProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [articles, setArticles] = useState<Article[]>(FEATURED_ARTICLES);
+  const [loadingArticles, setLoadingArticles] = useState(true);
   const [suggestions, setSuggestions] = useState<{ universities: University[]; articles: Article[] }>({
     universities: [],
     articles: [],
@@ -431,6 +434,23 @@ export default function Homepage({
   const methodologyRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    async function fetchArticles() {
+      try {
+        const res = await fetch("/api/blogs");
+        if (res.ok) {
+          const data = await res.json();
+          setArticles(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch articles:", err);
+      } finally {
+        setLoadingArticles(false);
+      }
+    }
+    fetchArticles();
+  }, []);
+
+  useEffect(() => {
     if (searchQuery.trim().length === 0) {
       setSuggestions({ universities: [], articles: [] });
       return;
@@ -441,13 +461,13 @@ export default function Homepage({
         uni.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
         uni.subjects.some((sub) => sub.toLowerCase().includes(searchQuery.toLowerCase()))
     ).slice(0, 5);
-    const filteredArticles = FEATURED_ARTICLES.filter(
+    const filteredArticles = articles.filter(
       (art) =>
         art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        art.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
+        (art.subtitle && art.subtitle.toLowerCase().includes(searchQuery.toLowerCase()))
     ).slice(0, 3);
     setSuggestions({ universities: filteredUnis, articles: filteredArticles });
-  }, [searchQuery]);
+  }, [searchQuery, articles]);
 
   const flatSuggestions = useMemo((): SuggestionPick[] => {
     const items: SuggestionPick[] = [];
@@ -866,8 +886,18 @@ export default function Homepage({
 
       {/* ── Discovery Hub ── */}
       <section className="ref-section pt-0">
-        <span className="ref-label">Discovery Hub</span>
-        <h2 className="text-2xl font-bold mt-1 mb-4">Insights &amp; Analysis</h2>
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
+          <div>
+            <span className="ref-label">Discovery Hub</span>
+            <h2 className="text-2xl font-bold mt-1">Insights &amp; Analysis</h2>
+          </div>
+          <Link
+            href="/blogs/create"
+            className="ref-btn-primary text-[11px] font-bold uppercase tracking-wider inline-flex items-center justify-center gap-1.5"
+          >
+            Create Blog
+          </Link>
+        </div>
         <div className="ref-article-tabs flex gap-6 border-b border-[var(--ref-border)] mb-6">
           {(
             [
@@ -887,7 +917,7 @@ export default function Homepage({
           ))}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {FEATURED_ARTICLES.map((article) => (
+          {articles.map((article) => (
             <button
               key={article.id}
               type="button"
@@ -903,12 +933,14 @@ export default function Homepage({
                 />
               </div>
               <div className="p-4">
-                <span className="ref-label text-[9px]">Insight</span>
+                <span className="ref-label text-[9px]">{article.category || "Insight"}</span>
                 <h3 className="font-bold text-sm mt-2 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
                   {article.title}
                 </h3>
                 <p className="text-xs text-[var(--ref-muted)] line-clamp-2 mb-3">{article.contentSummary}</p>
-                <span className="text-[10px] text-[var(--ref-muted)]">{article.date} · {article.readTime}</span>
+                <span className="text-[10px] text-[var(--ref-muted)]">
+                  {article.date}{article.readTime ? ` · ${article.readTime}` : ""}
+                </span>
               </div>
             </button>
           ))}
