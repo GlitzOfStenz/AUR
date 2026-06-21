@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey
+from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 
@@ -15,6 +15,7 @@ class User(Base):
     password_hash = Column(Text, nullable=False)
     role = Column(String, default="user")  # "user" or "admin"
     created_at = Column(DateTime, server_default=func.now())
+    preferences = Column(JSON, nullable=True, default=dict)
 
 
 class SavedUniversity(Base):
