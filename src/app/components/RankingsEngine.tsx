@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useDeferredValue } from "react";
+import { motion } from "framer-motion";
 import { useSearchParams, useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   useReactTable,
   getCoreRowModel,
@@ -27,19 +27,16 @@ import {
   DollarSign,
   Globe,
   Award,
-  Bookmark,
-  X
+  X,
+  FilterX,
 } from "lucide-react";
 import { MOCK_UNIVERSITIES, University } from "../data";
-import { useSidebar } from "./navigation/SidebarContext";
 
 interface RankingsEngineProps {
   searchQuery: string;
   onSearchQueryChange: (q: string) => void;
   selectedUniIds: string[];
   onToggleCompare: (id: string) => void;
-  savedUniIds: string[];
-  onToggleSave: (id: string) => void;
   onUniversitySelect: (id: string) => void;
 }
 
@@ -57,13 +54,12 @@ export default function RankingsEngine({
   onSearchQueryChange,
   selectedUniIds,
   onToggleCompare,
-  savedUniIds,
-  onToggleSave,
   onUniversitySelect,
 }: RankingsEngineProps) {
+  const focusRing =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyber-yellow dark:focus-visible:ring-offset-cyber-black";
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { filters } = useSidebar();
 
   // 1. Core State
   const [sorting, setSorting] = useState<SortingState>([{ id: "calculatedRank", desc: false }]);
@@ -215,65 +211,28 @@ export default function RankingsEngine({
   }, [weights]);
 
   // 5. Apply filters
+  const deferredSearchQuery = useDeferredValue(searchQuery);
   const filteredData = useMemo(() => {
     return processedData.filter((uni) => {
-      // 1. Search Query (combine props.searchQuery and filters.searchQuery)
-      const query = (filters.searchQuery || searchQuery || "").toLowerCase();
+      const query = (deferredSearchQuery || "").toLowerCase();
       const matchesSearch =
         query === "" ||
         uni.name.toLowerCase().includes(query) ||
-        uni.location.toLowerCase().includes(query) ||
-        uni.subjects.some((s) => s.toLowerCase().includes(query));
+        uni.location.toLowerCase().includes(query);
 
-      // 2. Location (combine locations state and filters.country)
       const matchesLoc =
-        (locations.length === 0 || locations.includes(uni.location)) &&
-        (filters.country === "" || uni.location === filters.country);
+        locations.length === 0 || locations.includes(uni.location);
 
-      // 3. Subject (combine selectedSubjects state and filters.subjects)
       const matchesSub =
-        (selectedSubjects.length === 0 || uni.subjects.some((sub) => selectedSubjects.includes(sub))) &&
-        (filters.subjects.length === 0 || uni.subjects.some((sub) => filters.subjects.includes(sub)));
+        selectedSubjects.length === 0 || uni.subjects.some((sub) => selectedSubjects.includes(sub));
 
-      // 4. Language filter (keep existing local language filter)
       const matchesLang =
         selectedLanguages.length === 0 ||
         uni.languages.some((lang) => selectedLanguages.includes(lang));
 
-      // 5. QS Rank Range (calculatedRank is from processedData)
-      const rank = uni.calculatedRank;
-      const matchesRank = rank >= filters.qsRange[0] && rank <= filters.qsRange[1];
-
-      // 6. Tuition Range — parse "$35,000/year" correctly
-      const tuitionMatch = uni.tuition.match(/\$([\d,]+)/);
-      const tuitionVal = tuitionMatch ? parseInt(tuitionMatch[1].replace(/,/g, "")) : 0;
-      const matchesTuition = tuitionVal >= filters.tuitionRange[0] && tuitionVal <= filters.tuitionRange[1];
-
-      // 7. Public / Private (heuristic: IDs containing "private" or specific patterns)
-      let matchesType = true;
-      if (filters.isPublic !== null) {
-        // Most Asian institutions in this dataset are public; treat all as public by default
-        matchesType = true;
-      }
-
-      // 8. Scholarship Only (heuristic: top-scoring universities typically offer scholarships)
-      let matchesScholarship = true;
-      if (filters.scholarshipOnly) {
-        matchesScholarship = uni.overall >= 80;
-      }
-
-      return (
-        matchesSearch &&
-        matchesLoc &&
-        matchesSub &&
-        matchesLang &&
-        matchesRank &&
-        matchesTuition &&
-        matchesType &&
-        matchesScholarship
-      );
+      return matchesSearch && matchesLoc && matchesSub && matchesLang;
     });
-  }, [processedData, searchQuery, locations, selectedSubjects, selectedLanguages, filters]);
+  }, [processedData, deferredSearchQuery, locations, selectedSubjects, selectedLanguages]);
 
   // 6. Extract unique values for filter dropdown options
   const uniqueLocations = useMemo(() => Array.from(new Set(MOCK_UNIVERSITIES.map((u) => u.location))).sort(), []);
@@ -288,15 +247,13 @@ export default function RankingsEngine({
         header: "Rank",
         accessorKey: "calculatedRank",
         cell: ({ row }) => (
-          <motion.span
-            key={`rank-${row.original.id}`}
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
-            className="flex h-6 w-6 items-center justify-center border border-slate-900 bg-slate-900 text-white font-mono text-xs font-bold"
+          <span
+            className={`aur-rank-badge aur-tabular ${
+              row.original.calculatedRank <= 3 ? "aur-rank-badge--elite" : ""
+            }`}
           >
             {row.original.calculatedRank}
-          </motion.span>
+          </span>
         ),
       },
       {
@@ -304,9 +261,9 @@ export default function RankingsEngine({
         header: "University Name",
         accessorKey: "name",
         cell: ({ row }) => (
-          <div className="text-left font-sans font-bold text-slate-900 dark:text-slate-100 hover:text-amber-700 transition-colors cursor-pointer" onClick={() => onUniversitySelect(row.original.id)}>
-            <div className="truncate max-w-50">{row.original.name}</div>
-            <div className="flex items-center text-[10px] text-slate-400 dark:text-slate-300 font-mono font-medium uppercase mt-0.5">
+          <div className="text-left font-sans font-bold text-slate-900 hover:text-amber-700 transition-colors cursor-pointer" onClick={() => onUniversitySelect(row.original.id)}>
+            <div className="truncate max-w-[200px] sm:max-w-xs">{row.original.name}</div>
+            <div className="flex items-center text-[10px] text-slate-400 font-mono font-medium uppercase mt-0.5">
               <Globe className="h-3 w-3 mr-1" />
               {row.original.location}
             </div>
@@ -318,43 +275,50 @@ export default function RankingsEngine({
         header: "Score",
         accessorKey: "calculatedScore",
         cell: ({ getValue }) => (
-          <span className="font-mono font-bold text-slate-900 dark:text-slate-100">{(getValue() as number).toFixed(1)}</span>
+          <span className="aur-score-pill aur-tabular text-slate-900 dark:text-slate-100">
+            {(getValue() as number).toFixed(1)}
+          </span>
         ),
       },
       {
         id: "citations",
         header: "Citations",
         accessorKey: "citations",
-        cell: ({ getValue }) => <span className="font-mono text-slate-700 dark:text-slate-400">{(getValue() as number).toFixed(0)}</span>,
+        cell: ({ getValue }) => (
+          <span className="font-mono text-slate-600 aur-tabular">{(getValue() as number).toFixed(0)}</span>
+        ),
       },
       {
         id: "research",
         header: "Research",
         accessorKey: "research",
-        cell: ({ getValue }) => <span className="font-mono text-slate-700 dark:text-slate-400">{(getValue() as number).toFixed(0)}</span>,
+        cell: ({ getValue }) => (
+          <span className="font-mono text-slate-600 aur-tabular">{(getValue() as number).toFixed(0)}</span>
+        ),
       },
       {
         id: "employability",
         header: "Employability",
         accessorKey: "employability",
-        cell: ({ getValue }) => <span className="font-mono text-slate-700 dark:text-slate-400">{(getValue() as number).toFixed(0)}</span>,
+        cell: ({ getValue }) => (
+          <span className="font-mono text-slate-600 aur-tabular">{(getValue() as number).toFixed(0)}</span>
+        ),
       },
       {
         id: "tuition",
         header: "Tuition / Yr",
         accessorKey: "tuition",
         cell: ({ row }) => (
-          <span className="font-mono text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-cyber-gray border border-slate-200 dark:border-slate-800 px-1.5 py-0.5">
+          <span className="font-mono text-xs text-slate-500 bg-slate-50 border border-slate-200 px-1.5 py-0.5">
             {row.original.tuition}
           </span>
         ),
       },
       {
-        id: "actions",
-        header: "Actions",
+        id: "compare",
+        header: "Compare",
         cell: ({ row }) => {
-          const isCompared = selectedUniIds.includes(row.original.id);
-          const isSaved = savedUniIds.includes(row.original.id);
+          const isSelected = selectedUniIds.includes(row.original.id);
           return (
             <div className="flex items-center space-x-2">
               <motion.button
@@ -364,7 +328,7 @@ export default function RankingsEngine({
                 transition={{ type: "spring", stiffness: 400, damping: 25 }}
                 className="flex items-center space-x-1 text-xs font-semibold uppercase tracking-wider text-slate-900 dark:text-slate-100 border border-slate-900 dark:border-slate-600 px-2 py-1 hover:bg-slate-50 dark:hover:bg-cyber-gray transition-colors"
               >
-                {isCompared ? (
+                {isSelected ? (
                   <>
                     <CheckSquare className="h-3 w-3 text-amber-700 dark:text-cyber-yellow" />
                     <span className="text-[9px]">Added</span>
@@ -377,7 +341,7 @@ export default function RankingsEngine({
                 )}
               </motion.button>
 
-              <motion.button
+              {/* <motion.button
                 onClick={() => onToggleSave(row.original.id)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -399,13 +363,13 @@ export default function RankingsEngine({
                     <span className="text-[9px]">Save</span>
                   </>
                 )}
-              </motion.button>
+              </motion.button> */}
             </div>
           );
         },
       },
     ],
-    [selectedUniIds, onToggleCompare, savedUniIds, onToggleSave, onUniversitySelect]
+    [selectedUniIds, onToggleCompare, onUniversitySelect]
   );
 
   // 8. TanStack Table Instance
@@ -428,23 +392,25 @@ export default function RankingsEngine({
   });
 
   return (
-    <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 font-sans grow">
+    <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8 py-8 font-sans flex-grow">
       
       {/* Editorial Title */}
-      <div className="mb-8 border-b border-slate-900 dark:border-cyber-border pb-4 flex flex-col md:flex-row md:items-end md:justify-between">
+      <div className="mb-8 aur-hero-accent flex flex-col md:flex-row md:items-end md:justify-between gap-6">
         <div>
-          <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700 dark:text-cyber-yellow">
-            Engine & Analytics Database
-          </span>
-          <h2 className="font-serif text-3xl font-semibold tracking-tight text-slate-900 dark:text-white leading-tight mt-1">
+          <span className="aur-caption">Engine & Analytics Database</span>
+          <h2 className="aur-section-title text-3xl md:text-4xl leading-tight mt-2">
             Asia Institutional Ranking Table
           </h2>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-3 tracking-wide">
+            Index refreshed · Jun 2026 · {filteredData.length} institutions indexed
+          </p>
         </div>
         
         {/* Recalculator Drawer Trigger button */}
         <button
+          type="button"
           onClick={() => setIsWeightsDrawerOpen(true)}
-          className="mt-4 md:mt-0 inline-flex items-center justify-center border border-amber-700 bg-amber-50 dark:bg-cyber-gray dark:text-cyber-yellow dark:border-cyber-yellow/40 hover:bg-amber-100 dark:hover:bg-cyber-yellow dark:hover:text-cyber-black text-amber-900 px-4 py-2 text-xs font-bold uppercase tracking-wider transition-colors"
+          className={`mt-2 md:mt-0 inline-flex items-center justify-center border border-amber-600/30 bg-gradient-to-b from-amber-50 to-white dark:from-cyber-gray dark:to-cyber-dark dark:text-cyber-yellow dark:border-cyber-yellow/30 hover:border-amber-700 hover:shadow-md text-amber-900 px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider transition-all aur-focus-ring ${focusRing}`}
         >
           <SlidersHorizontal className="h-4 w-4 mr-2 text-amber-700" />
           Weights Recalculator
@@ -452,28 +418,31 @@ export default function RankingsEngine({
       </div>
 
       {/* 9. Elite Filtering Bar Layout */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 bg-slate-50 dark:bg-cyber-gray border border-slate-200 dark:border-slate-800 p-4">
+      <div className="aur-filter-deck grid grid-cols-1 md:grid-cols-4 gap-5 mb-8">
+        <p className="md:col-span-4 aur-caption text-slate-400 dark:text-slate-500 -mb-2">
+          Refine index
+        </p>
         
         {/* Search Field */}
         <div className="relative">
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
+          <label className="aur-caption block text-slate-400 dark:text-slate-500 mb-2">
             Search
           </label>
           <div className="relative">
             <input
               type="text"
-              placeholder="Search name, location, or subject..."
-              value={filters.searchQuery || searchQuery}
+              placeholder="Search..."
+              value={searchQuery}
               onChange={(e) => handleSearchChange(e.target.value)}
-              className="w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-black px-3 py-2 pl-9 text-xs text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-600 focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow transition-colors"
+              className="aur-input pl-9"
             />
-            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400 dark:text-slate-500" />
+            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
           </div>
         </div>
 
         {/* Location Dropdown */}
         <div>
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
+          <label className="aur-caption block text-slate-400 dark:text-slate-500 mb-2">
             Location
           </label>
           <div className="relative">
@@ -482,7 +451,7 @@ export default function RankingsEngine({
                 if (e.target.value) handleLocationToggle(e.target.value);
                 e.target.value = "";
               }}
-              className="appearance-none w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-black px-3 py-2 pr-8 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow cursor-pointer transition-colors"
+              className="aur-input"
             >
               <option value="">Filter Location...</option>
               {uniqueLocations.map((loc) => (
@@ -491,33 +460,26 @@ export default function RankingsEngine({
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-2.5 h-3.5 w-3.5 text-slate-400 dark:text-slate-500 pointer-events-none" />
           </div>
           {/* Active Locations tags */}
           {locations.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1.5">
-              <AnimatePresence>
-                {locations.map((loc) => (
-                  <motion.span
-                    key={loc}
-                    onClick={() => handleLocationToggle(loc)}
-                    initial={{ opacity: 0, scale: 0.8, x: -10 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.8, x: -10 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="inline-flex items-center text-[9px] font-mono border border-slate-300 dark:border-slate-700 bg-white dark:bg-cyber-black text-slate-700 dark:text-slate-300 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500 dark:hover:border-red-500 dark:hover:text-red-400"
-                  >
-                    {loc} <X className="h-2 w-2 ml-1" />
-                  </motion.span>
-                ))}
-              </AnimatePresence>
+              {locations.map((loc) => (
+                <span
+                  key={loc}
+                  onClick={() => handleLocationToggle(loc)}
+                  className="inline-flex items-center text-[9px] font-mono border border-slate-350 bg-white text-slate-700 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
+                >
+                  {loc} <X className="h-2 w-2 ml-1" />
+                </span>
+              ))}
             </div>
           )}
         </div>
 
         {/* Program / Subject Dropdown */}
         <div>
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
+          <label className="aur-caption block text-slate-400 dark:text-slate-500 mb-2">
             Subject Focus
           </label>
           <div className="relative">
@@ -526,7 +488,7 @@ export default function RankingsEngine({
                 if (e.target.value) handleSubjectToggle(e.target.value);
                 e.target.value = "";
               }}
-              className="appearance-none w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-black px-3 py-2 pr-8 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow cursor-pointer transition-colors"
+              className="aur-input"
             >
               <option value="">Filter Subject...</option>
               {uniqueSubjects.map((sub) => (
@@ -535,33 +497,26 @@ export default function RankingsEngine({
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-2.5 h-3.5 w-3.5 text-slate-400 dark:text-slate-500 pointer-events-none" />
           </div>
           {/* Active Subjects tags */}
           {selectedSubjects.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1.5">
-              <AnimatePresence>
-                {selectedSubjects.map((sub) => (
-                  <motion.span
-                    key={sub}
-                    onClick={() => handleSubjectToggle(sub)}
-                    initial={{ opacity: 0, scale: 0.8, x: -10 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.8, x: -10 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="inline-flex items-center text-[9px] font-mono border border-slate-300 dark:border-slate-700 bg-white dark:bg-cyber-black text-slate-700 dark:text-slate-300 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500 dark:hover:border-red-500 dark:hover:text-red-400"
-                  >
-                    {sub} <X className="h-2 w-2 ml-1" />
-                  </motion.span>
-                ))}
-              </AnimatePresence>
+              {selectedSubjects.map((sub) => (
+                <span
+                  key={sub}
+                  onClick={() => handleSubjectToggle(sub)}
+                  className="inline-flex items-center text-[9px] font-mono border border-slate-350 bg-white text-slate-700 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
+                >
+                  {sub} <X className="h-2 w-2 ml-1" />
+                </span>
+              ))}
             </div>
           )}
         </div>
 
         {/* Medium of Instruction */}
         <div>
-          <label className="block text-[10px] uppercase font-bold tracking-wider text-slate-400 dark:text-slate-500 mb-1.5">
+          <label className="aur-caption block text-slate-400 dark:text-slate-500 mb-2">
             Language
           </label>
           <div className="relative">
@@ -570,7 +525,7 @@ export default function RankingsEngine({
                 if (e.target.value) handleLanguageToggle(e.target.value);
                 e.target.value = "";
               }}
-              className="appearance-none w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-black px-3 py-2 pr-8 text-xs text-slate-800 dark:text-slate-100 focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow cursor-pointer transition-colors"
+              className="aur-input"
             >
               <option value="">Filter Language...</option>
               {uniqueLanguages.map((lang) => (
@@ -579,26 +534,19 @@ export default function RankingsEngine({
                 </option>
               ))}
             </select>
-            <ChevronDown className="absolute right-3 top-2.5 h-3.5 w-3.5 text-slate-400 dark:text-slate-500 pointer-events-none" />
           </div>
           {/* Active Language tags */}
           {selectedLanguages.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-1.5">
-              <AnimatePresence>
-                {selectedLanguages.map((lang) => (
-                  <motion.span
-                    key={lang}
-                    onClick={() => handleLanguageToggle(lang)}
-                    initial={{ opacity: 0, scale: 0.8, x: -10 }}
-                    animate={{ opacity: 1, scale: 1, x: 0 }}
-                    exit={{ opacity: 0, scale: 0.8, x: -10 }}
-                    transition={{ duration: 0.2, ease: "easeOut" }}
-                    className="inline-flex items-center text-[9px] font-mono border border-slate-300 dark:border-slate-700 bg-white dark:bg-cyber-black text-slate-700 dark:text-slate-300 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500 dark:hover:border-red-500 dark:hover:text-red-400"
-                  >
-                    {lang} <X className="h-2 w-2 ml-1" />
-                  </motion.span>
-                ))}
-              </AnimatePresence>
+              {selectedLanguages.map((lang) => (
+                <span
+                  key={lang}
+                  onClick={() => handleLanguageToggle(lang)}
+                  className="inline-flex items-center text-[9px] font-mono border border-slate-350 bg-white text-slate-700 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
+                >
+                  {lang} <X className="h-2 w-2 ml-1" />
+                </span>
+              ))}
             </div>
           )}
         </div>
@@ -618,38 +566,52 @@ export default function RankingsEngine({
       </div>
 
       {/* 10. Table System Container with Sticky Header & Pinned Column rules */}
-      <div className="relative border border-slate-200 dark:border-cyber-border overflow-x-auto select-none bg-white dark:bg-cyber-dark">
-        <table className="w-full min-w-max table-auto border-collapse text-xs">
-          <thead className="sticky top-0 z-10 bg-slate-900 dark:bg-cyber-gray text-white dark:text-cyber-yellow font-sans uppercase tracking-wider font-semibold">
+      <div className="aur-table-wrap relative overflow-x-auto select-none rounded-sm">
+        <table className="aur-table table-fixed w-full">
+          <thead className="sticky top-0 z-10 aur-thead-shadow">
             {table.getHeaderGroups().map((headerGroup) => (
               <tr key={headerGroup.id} className="border-b border-slate-200 dark:border-slate-800">
                 {headerGroup.headers.map((header, idx) => {
-                  const isRankPinned = idx === 0;
-                  const isNamePinned = idx === 1;
+                  const isPinnedCol = idx < 2; // rank and name columns pinned
+                  const columnId = header.column.id;
+                  const isMobileHiddenCol =
+                    columnId === "citations" ||
+                    columnId === "research" ||
+                    columnId === "employability" ||
+                    columnId === "tuition";
+                  const widthClass =
+                    columnId === "calculatedRank"
+                      ? "w-14 min-w-[56px] max-w-[56px]"
+                      : columnId === "name"
+                        ? "w-[18rem] min-w-[18rem] sm:w-[22rem] sm:min-w-[22rem]"
+                        : columnId === "compare"
+                          ? "w-28 min-w-[112px]"
+                          : "w-24 min-w-[96px]";
+                  const alignClass =
+                    columnId === "calculatedScore" ||
+                    columnId === "citations" ||
+                    columnId === "research" ||
+                    columnId === "employability"
+                      ? "text-right"
+                      : "";
                   return (
                     <th
                       key={header.id}
-                      className={`py-3 text-left font-bold select-none whitespace-nowrap ${
-                        idx === 0 ? "pl-8 pr-4" : idx === headerGroup.headers.length - 1 ? "pr-8 pl-4" : "px-4"
-                      } ${
-                        isRankPinned
-                          ? "sticky left-0 bg-slate-900 dark:bg-cyber-gray z-20"
-                          : isNamePinned
-                          ? "sticky left-[72px] bg-slate-900 dark:bg-cyber-gray z-20 border-r border-slate-800 dark:border-slate-700"
+                      className={`px-4 py-3 text-left font-bold select-none ${
+                        isPinnedCol
+                          ? idx === 0
+                            ? `sticky left-0 bg-[#1e293b] dark:bg-[#18181f] z-20 border-r border-white/10 ${widthClass}`
+                            : `sticky left-[56px] bg-[#1e293b] dark:bg-[#18181f] z-20 border-r border-white/10 ${widthClass}`
                           : ""
+                      } ${widthClass} ${alignClass} ${
+                        isMobileHiddenCol ? "hidden sm:table-cell" : ""
                       } ${header.column.getCanSort() ? "cursor-pointer hover:text-amber-300 dark:hover:text-cyber-yellow-bright" : ""}`}
                       onClick={header.column.getToggleSortingHandler()}
                     >
-                      <div className="flex items-center space-x-1.5">
+                      <div className={`flex items-center space-x-1.5 ${alignClass ? "justify-end" : ""}`}>
                         <span>{flexRender(header.column.columnDef.header, header.getContext())}</span>
                         {header.column.getCanSort() && (
-                          <motion.span
-                            className="shrink-0"
-                            animate={{
-                              rotate: header.column.getIsSorted() === "desc" ? 180 : 0,
-                            }}
-                            transition={{ duration: 0.3, ease: "easeOut" }}
-                          >
+                          <span className="shrink-0">
                             {header.column.getIsSorted() === "asc" ? (
                               <ChevronUp className="h-3 w-3" />
                             ) : header.column.getIsSorted() === "desc" ? (
@@ -657,7 +619,7 @@ export default function RankingsEngine({
                             ) : (
                               <div className="w-3" />
                             )}
-                          </motion.span>
+                          </span>
                         )}
                       </div>
                     </th>
@@ -666,70 +628,92 @@ export default function RankingsEngine({
               </tr>
             ))}
           </thead>
-          <tbody className="divide-y divide-slate-250 dark:divide-slate-850 font-sans text-slate-700 dark:text-slate-300">
-            <AnimatePresence>
-              {table.getRowModel().rows.map((row, idx) => (
-                <motion.tr
-                  key={row.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.3, ease: "easeOut", delay: idx * 0.05 }}
-                  whileHover={{ y: -2, boxShadow: "0 4px 12px rgba(15,23,42,0.08)" }}
-                  className="hover:bg-slate-50 dark:hover:bg-cyber-gray/25 transition-colors"
-                >
+          <tbody className="font-sans text-slate-700 dark:text-slate-300">
+            {table.getRowModel().rows.map((row) => (
+              <tr key={row.id} className="group">
                 {row.getVisibleCells().map((cell, idx) => {
-                  const isRankPinned = idx === 0;
-                  const isNamePinned = idx === 1;
+                  const isPinnedCol = idx < 2;
+                  const columnId = cell.column.id;
+                  const isMobileHiddenCol =
+                    columnId === "citations" ||
+                    columnId === "research" ||
+                    columnId === "employability" ||
+                    columnId === "tuition";
+                  const widthClass =
+                    columnId === "calculatedRank"
+                      ? "w-14 min-w-[56px] max-w-[56px]"
+                      : columnId === "name"
+                        ? "w-[18rem] min-w-[18rem] sm:w-[22rem] sm:min-w-[22rem]"
+                        : columnId === "compare"
+                          ? "w-28 min-w-[112px]"
+                          : "w-24 min-w-[96px]";
+                  const alignClass =
+                    columnId === "calculatedScore" ||
+                    columnId === "citations" ||
+                    columnId === "research" ||
+                    columnId === "employability"
+                      ? "text-right"
+                      : "";
                   return (
                     <td
                       key={cell.id}
-                      className={`py-3 align-middle whitespace-nowrap ${
-                        idx === 0 ? "pl-8 pr-4" : idx === row.getVisibleCells().length - 1 ? "pr-8 pl-4" : "px-4"
-                      } ${
-                        isRankPinned
-                          ? "sticky left-0 bg-white dark:bg-cyber-black hover:bg-slate-50 dark:hover:bg-cyber-gray/30 z-10 font-bold text-slate-900 dark:text-white"
-                          : isNamePinned
-                          ? "sticky left-[72px] bg-white dark:bg-cyber-black hover:bg-slate-50 dark:hover:bg-cyber-gray/30 z-10 border-r border-slate-200 dark:border-slate-800"
+                      className={`px-4 py-3 align-middle ${
+                        isPinnedCol
+                          ? idx === 0
+                            ? `sticky-pin sticky left-0 z-10 border-r border-slate-200/80 dark:border-cyber-border/40 font-bold text-slate-900 dark:text-white ${widthClass}`
+                            : `sticky-pin sticky left-[56px] z-10 border-r border-slate-200/80 dark:border-cyber-border/40 font-bold text-slate-900 dark:text-white ${widthClass}`
                           : ""
-                      }`}
+                      } ${widthClass} ${alignClass} ${isMobileHiddenCol ? "hidden sm:table-cell" : ""}`}
                     >
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </td>
                   );
                 })}
-              </motion.tr>
-              ))}
-              {filteredData.length === 0 && (
-                <motion.tr
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <td colSpan={columns.length} className="text-center py-12 text-slate-400 italic">
-                    No universities match the current search filters.
-                  </td>
-                </motion.tr>
-              )}
-            </AnimatePresence>
+              </tr>
+            ))}
+            {filteredData.length === 0 && (
+              <tr>
+                <td colSpan={columns.length} className="py-16 px-6">
+                  <div className="flex flex-col items-center text-center max-w-md mx-auto">
+                    <div className="flex h-12 w-12 items-center justify-center border border-slate-200 dark:border-cyber-border bg-slate-50 dark:bg-cyber-gray mb-4">
+                      <FilterX className="h-5 w-5 text-amber-700 dark:text-cyber-yellow" />
+                    </div>
+                    <p className="aur-caption mb-2">No matches</p>
+                    <h3 className="font-serif text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                      No institutions match your filters
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-6">
+                      Try widening location, subject, or rank ranges—or reset all filters to browse the full index.
+                    </p>
+                    <button
+                      type="button"
+                      onClick={handleResetFilters}
+                      className={`aur-btn-primary px-5 py-2.5 aur-focus-ring ${focusRing}`}
+                    >
+                      Reset all filters
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            )}
           </tbody>
         </table>
       </div>
 
       {/* Pagination Controls */}
-      <div className="flex items-center justify-between border-t border-slate-200 bg-white py-3 mt-4">
+      <div className="aur-panel flex items-center justify-between px-4 py-3 mt-4">
         <div className="flex flex-1 justify-between sm:hidden">
           <button
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="relative inline-flex items-center border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className={`relative inline-flex items-center border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 ${focusRing}`}
           >
             Previous
           </button>
           <button
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="relative ml-3 inline-flex items-center border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50"
+            className={`relative ml-3 inline-flex items-center border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 ${focusRing}`}
           >
             Next
           </button>
@@ -746,14 +730,14 @@ export default function RankingsEngine({
               <button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className="relative inline-flex items-center border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                className={`relative inline-flex items-center border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 ${focusRing}`}
               >
                 Previous
               </button>
               <button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className="relative inline-flex items-center border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50"
+                className={`relative inline-flex items-center border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 ${focusRing}`}
               >
                 Next
               </button>
@@ -763,28 +747,11 @@ export default function RankingsEngine({
       </div>
 
       {/* 11. Custom Recalculation Weights Slide-Out Drawer */}
-      <AnimatePresence>
-        {isWeightsDrawerOpen && (
-          <motion.div
-            key="weights-drawer"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-0 z-50 overflow-hidden font-sans"
-          >
-            <div
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
-              onClick={() => setIsWeightsDrawerOpen(false)}
-            />
-            <motion.div
-              className="fixed inset-y-0 right-0 pl-10 max-w-full flex"
-              initial={{ x: "100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "100%" }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            >
-              <div className="w-screen max-w-md bg-white border-l border-slate-900 flex flex-col justify-between shadow-2xl">
+      {isWeightsDrawerOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden font-sans">
+          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onClick={() => setIsWeightsDrawerOpen(false)} />
+          <div className="fixed inset-y-0 right-0 pl-10 max-w-full flex">
+            <div className="w-screen max-w-md bg-white border-l border-slate-900 flex flex-col justify-between shadow-2xl">
               
               {/* Drawer Header */}
               <div className="p-6 border-b border-slate-200">
@@ -865,10 +832,9 @@ export default function RankingsEngine({
               </div>
 
             </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          </div>
+        </div>
+      )}
 
     </div>
   );

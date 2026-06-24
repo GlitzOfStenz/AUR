@@ -4,10 +4,18 @@ import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import { Search, Bell, Sun, Moon, Menu, X, ChevronDown, User, Shield, LogOut, Bot } from "lucide-react";
 import { useSidebar } from "../navigation/SidebarContext";
+import { useToast } from "../feedback/ToastContext";
 import { TOP_NAV_LINKS } from "../navigation/config";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Navbar() {
+interface NavbarProps {
+  showSidebar?: boolean;
+}
+
+export default function Navbar({ showSidebar = true }: NavbarProps) {
+  const { showToast } = useToast();
+  const focusRing =
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyber-yellow dark:focus-visible:ring-offset-cyber-black";
   const {
     theme,
     toggleTheme,
@@ -15,17 +23,21 @@ export default function Navbar() {
     setIsMobileOpen,
     activeView,
     handleViewChange,
-    filters,
-    setFilters,
-    isChatOpen,
-    setIsChatOpen,
+    searchQuery,
+    setSearchQuery,
   } = useSidebar();
 
+  const [searchVal, setSearchVal] = useState(searchQuery);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifMenu, setShowNotifMenu] = useState(false);
 
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+
+  // Sync internal search state with context searchQuery
+  useEffect(() => {
+    setSearchVal(searchQuery);
+  }, [searchQuery]);
 
   // Click outside menus to close
   useEffect(() => {
@@ -43,22 +55,25 @@ export default function Navbar() {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSearchQuery(searchVal);
     handleViewChange("rankings"); // Direct user to rankings to see results
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFilters((prev) => ({ ...prev, searchQuery: e.target.value }));
+    setSearchVal(e.target.value);
+    // Instant search filtering
+    setSearchQuery(e.target.value);
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-slate-200 dark:border-cyber-border bg-white dark:bg-cyber-dark transition-all duration-300">
-      <div className="mx-auto w-full px-4 sm:px-6 lg:px-8">
-        <div className="flex py-2.5 items-center justify-between gap-4">
-
+    <header className="sticky top-0 z-40 w-full border-b border-slate-200/80 dark:border-cyber-border bg-white/90 dark:bg-cyber-dark/90 backdrop-blur-xl shadow-[0_1px_0_rgba(15,23,42,0.04)] dark:shadow-[0_1px_0_rgba(234,179,8,0.08)] transition-all duration-300">
+      <div className="mx-auto max-w-full px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between gap-4">
+          
           {/* Logo / Editorial Brand */}
           <div
             onClick={() => handleViewChange("home")}
-            className="flex cursor-pointer items-center shrink-0 bg-white/90 dark:bg-white/10 backdrop-blur-sm rounded-md px-2 py-1"
+            className="flex cursor-pointer items-center space-x-3 text-slate-900 dark:text-white shrink-0 group"
           >
             <Image
               src="/aur-logo-cropped.png"
@@ -80,10 +95,11 @@ export default function Navbar() {
                 <button
                   key={link.label}
                   onClick={() => handleViewChange(link.view)}
-                  className={`relative px-4 py-2 text-[11px] font-bold uppercase tracking-wider transition-colors duration-200 rounded-md cursor-pointer ${isActive
-                    ? "text-slate-900 dark:text-cyber-yellow"
-                    : "text-slate-500 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white"
-                    }`}
+                  className={`relative px-4 py-2 text-[11px] font-bold uppercase tracking-wider transition-colors duration-200 rounded-md ${
+                    isActive
+                      ? "text-slate-900 dark:text-cyber-yellow"
+                      : "text-slate-500 hover:text-slate-950 dark:text-slate-400 dark:hover:text-white"
+                  }`}
                 >
                   {link.label}
                   {isActive && (
@@ -101,12 +117,12 @@ export default function Navbar() {
           {/* Search bar in center */}
           <form
             onSubmit={handleSearchSubmit}
-            className="flex-grow max-w-md hidden lg:block"
+            className="flex-grow max-w-md hidden md:block"
           >
             <div className="relative">
               <input
                 type="text"
-                value={filters.searchQuery}
+                value={searchVal}
                 onChange={handleSearchChange}
                 placeholder="Search across index..."
                 className="w-full border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-cyber-gray/50 px-4 py-1.5 pl-10 rounded-full text-xs text-slate-800 dark:text-slate-200 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:border-slate-800 dark:focus:border-cyber-yellow transition-all duration-200"
@@ -117,20 +133,13 @@ export default function Navbar() {
 
           {/* Right Section Icons */}
           <div className="flex items-center space-x-2 sm:space-x-3">
-
-            {/* Chat Toggle Button */}
-            <button
-              onClick={() => setIsChatOpen(!isChatOpen)}
-              className="cursor-pointer p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-cyber-yellow transition-colors hover:bg-slate-100 dark:hover:bg-cyber-gray rounded-full"
-              title="Open AI Assistant"
-            >
-              <Bot className="h-4 w-4" />
-            </button>
-
+            
             {/* Theme Toggle Button */}
             <button
+              type="button"
               onClick={toggleTheme}
-              className="cursor-pointer p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-cyber-yellow transition-colors hover:bg-slate-100 dark:hover:bg-cyber-gray rounded-full"
+              aria-label={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+              className={`p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-cyber-yellow transition-colors hover:bg-slate-100 dark:hover:bg-cyber-gray rounded-full ${focusRing}`}
               title={theme === "dark" ? "Light Editorial Theme" : "Dark Futuristic Theme"}
             >
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
@@ -139,8 +148,10 @@ export default function Navbar() {
             {/* Notification Bell Dropdown */}
             <div className="relative" ref={notifRef}>
               <button
+                type="button"
                 onClick={() => setShowNotifMenu(!showNotifMenu)}
-                className="cursor-pointer p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-cyber-yellow transition-colors hover:bg-slate-100 dark:hover:bg-cyber-gray rounded-full relative"
+                aria-label="Open notifications"
+                className={`p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-cyber-yellow transition-colors hover:bg-slate-100 dark:hover:bg-cyber-gray rounded-full relative ${focusRing}`}
               >
                 <Bell className="h-4 w-4" />
                 <span className="absolute top-1 right-1 flex h-2 w-2">
@@ -189,8 +200,9 @@ export default function Navbar() {
                       ].map((n) => (
                         <div
                           key={n.id}
-                          className={`p-3 border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-cyber-dark/40 transition-colors ${n.isNew ? "bg-amber-50/20 dark:bg-cyber-yellow/5" : ""
-                            }`}
+                          className={`p-3 border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-cyber-dark/40 transition-colors ${
+                            n.isNew ? "bg-amber-50/20 dark:bg-cyber-yellow/5" : ""
+                          }`}
                         >
                           <div className="flex justify-between font-semibold text-slate-900 dark:text-white">
                             <span>{n.title}</span>
@@ -210,8 +222,10 @@ export default function Navbar() {
             {/* Profile Avatar Dropdown */}
             <div className="relative border-l border-slate-200 dark:border-slate-800 pl-3" ref={profileRef}>
               <button
+                type="button"
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="cursor-pointer flex items-center space-x-1.5 focus:outline-none group"
+                aria-label="Open profile menu"
+                className={`flex items-center space-x-1.5 focus:outline-none group ${focusRing}`}
               >
                 <div className="h-8 w-8 rounded-full border border-slate-350 dark:border-cyber-yellow bg-slate-900 flex items-center justify-center text-white text-xs font-bold overflow-hidden shadow-sm dark:shadow-[0_0_8px_rgba(234,179,8,0.1)]">
                   {/* Mock user initial or image */}
@@ -238,8 +252,8 @@ export default function Navbar() {
                     </div>
 
                     {[
-                      { label: "My Profile", icon: User, action: () => { } },
-                      { label: "Admin Console", icon: Shield, action: () => { } },
+                      { label: "My Profile", icon: User, action: () => {} },
+                      { label: "Admin Console", icon: Shield, action: () => {} },
                     ].map((item) => (
                       <button
                         key={item.label}
@@ -258,7 +272,7 @@ export default function Navbar() {
 
                     <button
                       onClick={() => {
-                        alert("Logging out...");
+                        showToast("Signing out of your session…", "info");
                         setShowProfileMenu(false);
                       }}
                       className="w-full text-left px-4 py-2 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 dark:text-red-400 flex items-center space-x-2 transition-colors"
@@ -272,12 +286,16 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Hamburger menu */}
+            {showSidebar && (
             <button
+              type="button"
               onClick={() => setIsMobileOpen(!isMobileOpen)}
-              className="p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-cyber-yellow transition-colors hover:bg-slate-100 dark:hover:bg-cyber-gray rounded-md md:hidden"
+              aria-label={isMobileOpen ? "Close menu" : "Open menu"}
+              className={`p-2 text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-cyber-yellow transition-colors hover:bg-slate-100 dark:hover:bg-cyber-gray rounded-md md:hidden ${focusRing}`}
             >
               {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
+            )}
 
           </div>
 

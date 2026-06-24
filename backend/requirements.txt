@@ -1,0 +1,15 @@
+fastapi
+uvicorn
+pandas
+openpyxl
+python-dotenv
+
+fastapi
+uvicorn[standard]
+sqlalchemy[asyncio]
+asyncpg
+redis[asyncio]
+python-jose[cryptography]
+bcrypt
+pydantic[email]
+python-dotenv

@@ -1,10 +1,410 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { Search, BookOpen, GraduationCap, ChevronRight, MapPin, Star } from "lucide-react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
+import {
+  Search,
+  BookOpen,
+  GraduationCap,
+  ChevronRight,
+  MapPin,
+  Globe2,
+  BarChart3,
+  Database,
+  Clock,
+  TrendingUp,
+  TrendingDown,
+  Play,
+  ArrowRight,
+  Bell,
+  Building2,
+  LineChart,
+  Activity,
+  Mail,
+} from "lucide-react";
 import Link from "next/link";
 import { MOCK_UNIVERSITIES, FEATURED_ARTICLES, University, Article } from "../data";
+import { AsiaMapNetwork, MapUniversityCards } from "./home/AsiaMapHero";
+import "./home/ref-home.css";
+
+type SuggestionPick =
+  | { kind: "uni"; uni: University }
+  | { kind: "article"; article: Article }
+  | { kind: "view-all" };
+
+const COUNTRY_FLAGS: Record<string, string> = {
+  China: "🇨🇳",
+  Singapore: "🇸🇬",
+  Japan: "🇯🇵",
+  "South Korea": "🇰🇷",
+  India: "🇮🇳",
+  Malaysia: "🇲🇾",
+  Thailand: "🇹🇭",
+  Vietnam: "🇻🇳",
+  Indonesia: "🇮🇩",
+  Uzbekistan: "🇺🇿",
+  Kazakhstan: "🇰🇿",
+  Taiwan: "🇹🇼",
+  "Hong Kong": "🇭🇰",
+  Philippines: "🇵🇭",
+  Pakistan: "🇵🇰",
+  Bangladesh: "🇧🇩",
+  Nepal: "🇳🇵",
+  Myanmar: "🇲🇲",
+  Cambodia: "🇰🇭",
+  Mongolia: "🇲🇳",
+};
+
+/** Light cards themed around each country's iconic monument */
+const COUNTRY_THEME: Record<
+  string,
+  { code: string; monument: string; accent: string; bg: string; image: string; imagePos?: string }
+> = {
+  Singapore: {
+    code: "SG",
+    monument: "Marina Bay Sands",
+    accent: "#ef4444",
+    bg: "linear-gradient(135deg, #fff5f5 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1525621488860-1f28d3244604?auto=format&fit=crop&w=600&q=80",
+    imagePos: "70% center",
+  },
+  "Hong Kong": {
+    code: "HK",
+    monument: "Victoria Harbour",
+    accent: "#dc2626",
+    bg: "linear-gradient(135deg, #fff7f7 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1536596788103-df0d9994a3e3?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center 40%",
+  },
+  "South Korea": {
+    code: "KR",
+    monument: "Gyeongbokgung Palace",
+    accent: "#2563eb",
+    bg: "linear-gradient(135deg, #eff6ff 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1517154428173-52d99888fc9e?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  China: {
+    code: "CN",
+    monument: "Great Wall of China",
+    accent: "#dc2626",
+    bg: "linear-gradient(135deg, #fffbeb 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1508804185872-d7badad00f7d?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Japan: {
+    code: "JP",
+    monument: "Mount Fuji",
+    accent: "#be123c",
+    bg: "linear-gradient(135deg, #fff1f2 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center 35%",
+  },
+  India: {
+    code: "IN",
+    monument: "Taj Mahal",
+    accent: "#ea580c",
+    bg: "linear-gradient(135deg, #fff7ed 0%, #ffffff 55%, #f0fdf4 100%)",
+    image: "https://images.unsplash.com/photo-1564507592333-c60657eea523?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Taiwan: {
+    code: "TW",
+    monument: "Taipei 101",
+    accent: "#1d4ed8",
+    bg: "linear-gradient(135deg, #eff6ff 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1470006985013-6c54c888a04f?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center bottom",
+  },
+  Malaysia: {
+    code: "MY",
+    monument: "Petronas Towers",
+    accent: "#1e40af",
+    bg: "linear-gradient(135deg, #eff6ff 0%, #ffffff 55%, #fefce8 100%)",
+    image: "https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Thailand: {
+    code: "TH",
+    monument: "Wat Arun",
+    accent: "#b45309",
+    bg: "linear-gradient(135deg, #fffbeb 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1552465011-5ec7e39b7250?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Vietnam: {
+    code: "VN",
+    monument: "Ha Long Bay",
+    accent: "#059669",
+    bg: "linear-gradient(135deg, #ecfdf5 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1528127269322-539801943592?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Indonesia: {
+    code: "ID",
+    monument: "Borobudur Temple",
+    accent: "#c2410c",
+    bg: "linear-gradient(135deg, #fff7ed 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1555400038-63f5ba517a47?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Uzbekistan: {
+    code: "UZ",
+    monument: "Registan, Samarkand",
+    accent: "#0284c7",
+    bg: "linear-gradient(135deg, #f0f9ff 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1578895101403-2fc6c0e161bb?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Kazakhstan: {
+    code: "KZ",
+    monument: "Bayterek Tower",
+    accent: "#0891b2",
+    bg: "linear-gradient(135deg, #ecfeff 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1565008576549-57569a49371d?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Philippines: {
+    code: "PH",
+    monument: "Mayon Volcano",
+    accent: "#2563eb",
+    bg: "linear-gradient(135deg, #eff6ff 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1518509562904-7a059f5c4d0c?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Pakistan: {
+    code: "PK",
+    monument: "Faisal Mosque",
+    accent: "#16a34a",
+    bg: "linear-gradient(135deg, #f0fdf4 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1571875257727-b31a4db7c926?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Bangladesh: {
+    code: "BD",
+    monument: "Sixty Dome Mosque",
+    accent: "#15803d",
+    bg: "linear-gradient(135deg, #f0fdf4 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1605649487212-47bdab064df7?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Nepal: {
+    code: "NP",
+    monument: "Boudhanath Stupa",
+    accent: "#dc2626",
+    bg: "linear-gradient(135deg, #fff7ed 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1524231757912-21f4fe3a7200?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Myanmar: {
+    code: "MM",
+    monument: "Shwedagon Pagoda",
+    accent: "#ca8a04",
+    bg: "linear-gradient(135deg, #fefce8 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1559592410-5c6a0c2fc866?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Cambodia: {
+    code: "KH",
+    monument: "Angkor Wat",
+    accent: "#b45309",
+    bg: "linear-gradient(135deg, #fff7ed 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1609137144813-b021b859d386?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+  Mongolia: {
+    code: "MN",
+    monument: "Genghis Khan Statue",
+    accent: "#1d4ed8",
+    bg: "linear-gradient(135deg, #eff6ff 0%, #ffffff 62%)",
+    image: "https://images.unsplash.com/photo-1548013144-3a63e8ce00a3?auto=format&fit=crop&w=600&q=80",
+    imagePos: "center",
+  },
+};
+
+function getCountryTheme(country: string) {
+  return (
+    COUNTRY_THEME[country] ?? {
+      code: country.slice(0, 2).toUpperCase(),
+      monument: country,
+      accent: "#f97316",
+      bg: "linear-gradient(135deg, #f8fafc 0%, #ffffff 100%)",
+      image: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=600&q=80",
+      imagePos: "center",
+    }
+  );
+}
+
+const LIVE_UPDATES = [
+  { text: "New Rankings Published", time: "2 min ago", color: "#f59e0b" },
+  { text: "Tsinghua University climbs to #1", time: "15 min ago", color: "#2563eb" },
+  { text: "Singapore institutions gain +2.4 avg", time: "32 min ago", color: "#f59e0b" },
+];
+
+const METHODOLOGY = [
+  { label: "Research Impact", pct: 40, color: "#3b82f6" },
+  { label: "Teaching Excellence", pct: 25, color: "#10b981" },
+  { label: "Employability", pct: 15, color: "#f59e0b" },
+  { label: "International Outlook", pct: 15, color: "#8b5cf6" },
+  { label: "Industry Income", pct: 5, color: "#64748b" },
+];
+
+const PULSE_ITEMS = [
+  "Tsinghua leads research output index",
+  "NUS tops employability in ASEAN",
+  "Uzbekistan medical programs surge +18%",
+  "Japan universities rise in citations",
+  "Singapore avg score hits 94.2",
+  "New English-medium tracks in Central Asia",
+];
+
+function highlightMatch(text: string, query: string) {
+  const q = query.trim();
+  if (!q) return text;
+  const lower = text.toLowerCase();
+  const idx = lower.indexOf(q.toLowerCase());
+  if (idx === -1) return text;
+  return (
+    <>
+      {text.slice(0, idx)}
+      <mark className="bg-amber-100 text-amber-800 px-0.5">{text.slice(idx, idx + q.length)}</mark>
+      {text.slice(idx + q.length)}
+    </>
+  );
+}
+
+function Sparkline({ values, color = "#3b82f6" }: { values: number[]; color?: string }) {
+  const max = Math.max(...values);
+  const min = Math.min(...values);
+  const range = max - min || 1;
+  const pts = values
+    .map((v, i) => {
+      const x = (i / (values.length - 1)) * 48;
+      const y = 14 - ((v - min) / range) * 12;
+      return `${x},${y}`;
+    })
+    .join(" ");
+  return (
+    <svg width="52" height="16" className="inline-block" aria-hidden>
+      <polyline fill="none" stroke={color} strokeWidth="1.5" points={pts} />
+    </svg>
+  );
+}
+
+function MiniLineChart({ color, trend }: { color: string; trend?: "up" | "down" }) {
+  const pts = trend === "down" ? "0,12 12,8 24,10 36,6 48,8" : "0,10 12,8 24,6 36,4 48,2";
+  return (
+    <svg width="100%" height="48" viewBox="0 0 48 16" preserveAspectRatio="none" className="mt-2">
+      <polyline fill="none" stroke={color} strokeWidth="1.5" points={pts} opacity="0.9" />
+      <polyline fill={`${color}22`} stroke="none" points={`${pts} 48,16 0,16`} />
+    </svg>
+  );
+}
+
+function RadarChart({ universities }: { universities: University[] }) {
+  const axes = ["Innovation", "Research", "Teaching", "Employability", "Intl"];
+  const n = axes.length;
+  const cx = 120;
+  const cy = 120;
+  const r = 80;
+
+  const angle = (i: number) => (Math.PI * 2 * i) / n - Math.PI / 2;
+  const point = (i: number, val: number) => {
+    const rad = (val / 100) * r;
+    return { x: cx + Math.cos(angle(i)) * rad, y: cy + Math.sin(angle(i)) * rad };
+  };
+
+  const gridLevels = [0.25, 0.5, 0.75, 1];
+  const colors = ["#f97316", "#3b82f6", "#10b981", "#8b5cf6"];
+
+  const getVals = (u: University) => [
+    u.research * 0.95,
+    u.research,
+    u.teaching,
+    u.employability,
+    u.intlStudents,
+  ];
+
+  return (
+    <svg viewBox="0 0 240 240" className="w-full max-w-[280px] mx-auto">
+      {gridLevels.map((lvl) => {
+        const pts = axes
+          .map((_, i) => {
+            const p = point(i, lvl * 100);
+            return `${p.x},${p.y}`;
+          })
+          .join(" ");
+        return (
+          <polygon key={lvl} points={pts} fill="none" stroke="rgba(148,163,184,0.15)" strokeWidth="1" />
+        );
+      })}
+      {axes.map((label, i) => {
+        const outer = point(i, 100);
+        return (
+          <g key={label}>
+            <line x1={cx} y1={cy} x2={outer.x} y2={outer.y} stroke="rgba(148,163,184,0.12)" />
+            <text
+              x={outer.x + (outer.x - cx) * 0.12}
+              y={outer.y + (outer.y - cy) * 0.12}
+              textAnchor="middle"
+              fill="#94a3b8"
+              fontSize="8"
+            >
+              {label}
+            </text>
+          </g>
+        );
+      })}
+      {universities.map((uni, ui) => {
+        const vals = getVals(uni);
+        const pts = vals
+          .map((v, i) => {
+            const p = point(i, v);
+            return `${p.x},${p.y}`;
+          })
+          .join(" ");
+        return (
+          <polygon
+            key={uni.id}
+            points={pts}
+            fill={`${colors[ui]}22`}
+            stroke={colors[ui]}
+            strokeWidth="1.5"
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+function getCountryStats() {
+  const map = new Map<string, University[]>();
+  MOCK_UNIVERSITIES.forEach((u) => {
+    if (!map.has(u.location)) map.set(u.location, []);
+    map.get(u.location)!.push(u);
+  });
+  return Array.from(map.entries())
+    .map(([country, unis]) => {
+      const sorted = [...unis].sort((a, b) => b.overall - a.overall);
+      return {
+        country,
+        count: unis.length,
+        avgScore: unis.reduce((s, u) => s + u.overall, 0) / unis.length,
+        topUni: sorted[0],
+      };
+    })
+    .sort((a, b) => b.avgScore - a.avgScore)
+    .slice(0, 8);
+}
+
+function rankTrend(uni: University) {
+  const delta = (uni.history[1] ?? uni.history[0]) - uni.history[0];
+  return { delta, improved: delta > 0 };
+}
+
+function scoreHistory(uni: University, metric: "research" | "employability" | "overall") {
+  const base = metric === "research" ? uni.research : metric === "employability" ? uni.employability : uni.overall;
+  return uni.history.map((rank, i) => Math.min(100, base - i * 0.8 + (5 - rank) * 0.5));
+}
 
 interface HomepageProps {
   onSearchSubmit: (query: string) => void;
@@ -20,36 +420,100 @@ export default function Homepage({
   onViewChange,
 }: HomepageProps) {
   const [searchQuery, setSearchQuery] = useState("");
+  const [articles, setArticles] = useState<Article[]>(FEATURED_ARTICLES);
+  const [loadingArticles, setLoadingArticles] = useState(true);
+  const [suggestions, setSuggestions] = useState<{ universities: University[]; articles: Article[] }>({
+    universities: [],
+    articles: [],
+  });
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [activeTab, setActiveTab] = useState<"overall" | "research" | "employability">("overall");
-  const loadingArticles = false;
-  const articles = FEATURED_ARTICLES;
-  
+  const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
+  const [articleTab, setArticleTab] = useState<"featured" | "reports" | "insights">("featured");
+
   const suggestionRef = useRef<HTMLDivElement>(null);
+  const methodologyRef = useRef<HTMLDivElement>(null);
 
-  const suggestions = React.useMemo(() => {
-    if (searchQuery.trim().length === 0) {
-      return { universities: [], articles: [] };
+  useEffect(() => {
+    async function fetchArticles() {
+      try {
+        const res = await fetch("/api/blogs");
+        if (res.ok) {
+          const data = await res.json();
+          setArticles(data);
+        }
+      } catch (err) {
+        console.error("Failed to fetch articles:", err);
+      } finally {
+        setLoadingArticles(false);
+      }
     }
+    fetchArticles();
+  }, []);
 
+  useEffect(() => {
+    if (searchQuery.trim().length === 0) {
+      setSuggestions({ universities: [], articles: [] });
+      return;
+    }
     const filteredUnis = MOCK_UNIVERSITIES.filter(
       (uni) =>
         uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         uni.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
         uni.subjects.some((sub) => sub.toLowerCase().includes(searchQuery.toLowerCase()))
     ).slice(0, 5);
-
-    const filteredArticles = FEATURED_ARTICLES.filter(
+    const filteredArticles = articles.filter(
       (art) =>
         art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        art.subtitle.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        art.contentSummary.toLowerCase().includes(searchQuery.toLowerCase())
+        (art.subtitle && art.subtitle.toLowerCase().includes(searchQuery.toLowerCase()))
     ).slice(0, 3);
+    setSuggestions({ universities: filteredUnis, articles: filteredArticles });
+  }, [searchQuery, articles]);
 
-    return { universities: filteredUnis, articles: filteredArticles };
-  }, [searchQuery]);
+  const flatSuggestions = useMemo((): SuggestionPick[] => {
+    const items: SuggestionPick[] = [];
+    suggestions.universities.forEach((uni) => items.push({ kind: "uni", uni }));
+    suggestions.articles.forEach((article) => items.push({ kind: "article", article }));
+    if (searchQuery.trim().length > 0) items.push({ kind: "view-all" });
+    return items;
+  }, [suggestions, searchQuery]);
 
-  // Click outside listener to close suggestions
+  useEffect(() => setActiveSuggestionIndex(-1), [searchQuery]);
+
+  const activateSuggestion = useCallback(
+    (item: SuggestionPick) => {
+      if (item.kind === "uni") {
+        onUniversitySelect(item.uni.id);
+        setShowSuggestions(false);
+      } else if (item.kind === "article") {
+        onArticleSelect(item.article);
+        setShowSuggestions(false);
+      } else {
+        onSearchSubmit(searchQuery);
+        onViewChange("rankings");
+        setShowSuggestions(false);
+      }
+    },
+    [onArticleSelect, onSearchSubmit, onUniversitySelect, onViewChange, searchQuery]
+  );
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Escape") {
+      setShowSuggestions(false);
+      return;
+    }
+    if (!showSuggestions || flatSuggestions.length === 0) return;
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveSuggestionIndex((i) => Math.min(i + 1, flatSuggestions.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveSuggestionIndex((i) => Math.max(i - 1, 0));
+    } else if (e.key === "Enter" && activeSuggestionIndex >= 0) {
+      e.preventDefault();
+      activateSuggestion(flatSuggestions[activeSuggestionIndex]);
+    }
+  };
+
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (suggestionRef.current && !suggestionRef.current.contains(event.target as Node)) {
@@ -69,410 +533,564 @@ export default function Homepage({
     }
   };
 
-  // Get Top 5 Universities based on active metric tab
-  const getTopFive = () => {
-    const sorted = [...MOCK_UNIVERSITIES].sort((a, b) => {
-      if (activeTab === "research") return b.research - a.research;
-      if (activeTab === "employability") return b.employability - a.employability;
-      return b.overall - a.overall;
-    });
-    return sorted.slice(0, 5);
+  const topTen = useMemo(
+    () => [...MOCK_UNIVERSITIES].sort((a, b) => b.overall - a.overall).slice(0, 10),
+    []
+  );
+
+  const countryStats = useMemo(() => getCountryStats(), []);
+  const compareUnis = topTen.slice(0, 4);
+  const uniqueCountries = useMemo(() => new Set(MOCK_UNIVERSITIES.map((u) => u.location)).size, []);
+  const mapUniversities = topTen.slice(0, 3);
+
+  const scrollToMethodology = () => {
+    methodologyRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
   return (
-    <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 pt-0 pb-8 font-sans grow -mt-2">
-      
-      {/* Split Layout Screen */}
-      <div className="grid grid-cols-1 lg:grid-cols-10 gap-8 mb-16 border-b border-slate-200 pb-16">
-        
-        {/* Left Pane (40% - Cols 1-4): Discovery & Typographic Search */}
-        <div className="lg:col-span-4 flex flex-col justify-start pt-2 lg:pt-4 pr-0 lg:pr-6">
-          <div className="mb-4">
-            <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700">
-              Academic Intelligence Hub
-            </span>
-          </div>
-          <h2 className="font-serif text-3xl sm:text-4xl font-semibold tracking-tight text-slate-900 leading-tight mb-4">
-            Find World-Class Education in Asia.
-          </h2>
-          <p className="text-slate-500 text-sm leading-relaxed mb-8">
-            Filter institutional indicators, compare global rankings, and explore regional study models including medical careers in Central Asia.
-          </p>
-
-          {/* Search Box Container */}
-          <div className="relative w-full" ref={suggestionRef}>
-            <form onSubmit={handleSearchSubmit} className="flex flex-col gap-3 sm:flex-row">
-              <div className="relative w-full">
-                <input
-                  type="text"
-                  placeholder="Search universities, locations..."
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setShowSuggestions(true);
-                  }}
-                  onFocus={() => setShowSuggestions(true)}
-                  className="w-full border border-slate-900 bg-white px-4 py-3 pl-11 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-700 focus:border-amber-700"
-                />
-                <Search className="absolute left-4 top-3.5 h-4.5 w-4.5 text-slate-400" />
-              </div>
-              <motion.button
-                type="submit"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full sm:w-auto bg-slate-900 text-white text-xs font-semibold uppercase tracking-wider px-6 py-3 hover:bg-slate-800 transition-colors border-y border-r border-slate-900"
-              >
-                Search
-              </motion.button>
-            </form>
-
-            {/* Debounced Suggestion Dropdown */}
-            <AnimatePresence>
-              {showSuggestions && searchQuery.trim().length > 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -12, scale: 0.99 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -12, scale: 0.99 }}
-                  transition={{ duration: 0.18, ease: "easeOut" }}
-                  className="absolute left-0 right-0 z-20 mt-1.5 border border-slate-950 bg-white shadow-xl max-h-96 overflow-y-auto"
-                >
-                
-                {/* Universities Section */}
-                <div className="p-3 border-b border-slate-100">
-                  <div className="flex items-center space-x-1.5 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    <GraduationCap className="h-3.5 w-3.5 text-slate-400" />
-                    <span>Universities</span>
-                  </div>
-                  {suggestions.universities.length > 0 ? (
-                    <ul className="space-y-1">
-                      {suggestions.universities.map((uni) => (
-                        <li key={uni.id}>
-                          <button
-                            onClick={() => {
-                              onUniversitySelect(uni.id);
-                              setShowSuggestions(false);
-                            }}
-                            className="w-full text-left flex items-center justify-between p-2 hover:bg-slate-50 dark:hover:bg-slate-700 transition-colors text-xs"
-                          >
-                            <span className="font-semibold text-slate-900 dark:text-slate-100 truncate pr-4">{uni.name}</span>
-                            <span className="flex items-center text-[10px] text-slate-400 dark:text-slate-300 bg-slate-50 dark:bg-cyber-gray px-1.5 py-0.5 rounded font-mono shrink-0">
-                              <MapPin className="h-2.5 w-2.5 mr-0.5" />
-                              {uni.location}
-                            </span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div className="text-xs text-slate-400 p-2 italic">No universities found</div>
-                  )}
-                </div>
-
-                {/* Spotlight Reports & Country Nodes */}
-                <div className="p-3">
-                  <div className="flex items-center space-x-1.5 mb-2 text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                    <BookOpen className="h-3.5 w-3.5 text-slate-400" />
-                    <span>Spotlights & Articles</span>
-                  </div>
-                  {suggestions.articles.length > 0 ? (
-                    <ul className="space-y-1">
-                      {suggestions.articles.map((art) => (
-                        <li key={art.id}>
-                          <button
-                            onClick={() => {
-                              onArticleSelect(art);
-                              setShowSuggestions(false);
-                            }}
-                            className="w-full text-left p-2 hover:bg-slate-50 transition-colors text-xs block"
-                          >
-                            <span className="font-semibold text-slate-800 line-clamp-1">{art.title}</span>
-                            <span className="text-[10px] text-slate-400 block mt-0.5">{art.source}</span>
-                          </button>
-                        </li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <div className="text-xs text-slate-400 p-2 italic">No relevant articles found</div>
-                  )}
-                </div>
-
-                {/* View All Search Link */}
-                <div className="bg-slate-50 p-2 text-center border-t border-slate-100">
-                  <button
-                    onClick={() => {
-                      onSearchSubmit(searchQuery);
-                      onViewChange("rankings");
-                      setShowSuggestions(false);
-                    }}
-                    className="inline-flex items-center text-[10px] font-bold text-amber-700 uppercase tracking-widest hover:text-amber-800"
-                  >
-                    View all rankings matching &quot;{searchQuery}&quot;
-                    <ChevronRight className="h-3 w-3 ml-0.5" />
-                  </button>
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          </div>
-
-          {/* Quick-links / Popular Searches */}
-          <div className="mt-4 flex flex-wrap gap-2 items-center">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Trending:</span>
-            {["Uzbekistan", "Medicine", "National Univ Singapore", "English medium", "Scholarships"].map((tag) => (
-              <motion.button
-                key={tag}
-                whileHover={{ y: -1, scale: 1.02 }}
-                onClick={() => {
-                  setSearchQuery(tag);
-                  onSearchSubmit(tag);
-                  onViewChange("rankings");
-                }}
-                className="text-[11px] border border-slate-200 px-2 py-0.5 text-slate-600 hover:border-slate-900 hover:text-slate-900 bg-slate-50 transition-all font-mono"
-              >
-                {tag}
-              </motion.button>
-            ))}
-          </div>
-        </div>
-
-        {/* Right Pane (60% - Cols 5-10): Global Interactive Rank Card */}
-        <div className="lg:col-span-6 border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-dark p-6 shadow-sm flex flex-col justify-between">
+    <div className="ref-home flex-grow w-full">
+      {/* ── Hero ── */}
+      <section className="ref-hero">
+        <div className="ref-hero-grid">
           <div>
-            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-4 mb-4">
-              <div>
-                <h3 className="font-serif text-xl font-bold text-slate-900 dark:text-slate-100">
-                  Live Top 5 Universities
-                </h3>
-                <p className="text-[10px] text-slate-400 dark:text-slate-300 font-semibold uppercase tracking-wider mt-0.5">
-                  Real-time Audited Academic Index
-                </p>
-              </div>
-              <span className="flex items-center text-xs font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 border border-amber-200 font-mono">
-                <Star className="h-3.5 w-3.5 fill-amber-700 mr-1 shrink-0" />
-                Rankings 2026
-              </span>
+            <span className="ref-label">Asia University Rankings</span>
+            <h1 className="text-3xl sm:text-4xl lg:text-[2.75rem] font-bold leading-tight mt-3 mb-4">
+              Asia&apos;s Most Trusted{" "}
+              <span className="ref-hero-title-accent">University Intelligence</span> Platform
+            </h1>
+            <p className="text-[var(--ref-muted)] text-sm leading-relaxed max-w-lg mb-6">
+              Filter institutional indicators, compare global rankings, and explore regional study models
+              including medical careers in Central Asia — powered by live audited data.
+            </p>
+
+            <div className="flex flex-wrap gap-3 mb-6">
+              <button type="button" className="ref-btn-primary" onClick={() => onViewChange("rankings")}>
+                Explore Rankings
+                <ArrowRight className="h-4 w-4" />
+              </button>
+              <button type="button" className="ref-btn-outline" onClick={scrollToMethodology}>
+                <Play className="h-4 w-4" />
+                Watch Methodology
+              </button>
             </div>
 
-            {/* Quick Metrics Selector Tabs */}
-            <div className="flex border-b border-slate-100 dark:border-slate-800 mb-6">
-              {[
-                { id: "overall", label: "Overall Score" },
-                { id: "research", label: "Research Metric" },
-                { id: "employability", label: "Employability Ratio" },
-              ].map((tab) => (
+            {/* Search */}
+            <div className="relative max-w-lg" ref={suggestionRef}>
+              <form onSubmit={handleSearchSubmit} className="flex rounded-lg overflow-hidden border border-[var(--ref-border)]">
+                <div className="relative flex-grow">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--ref-muted)]" />
+                  <input
+                    type="search"
+                    role="combobox"
+                    aria-expanded={showSuggestions && searchQuery.trim().length > 0}
+                    placeholder="Search universities, locations, subjects..."
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setShowSuggestions(true);
+                    }}
+                    onFocus={() => setShowSuggestions(true)}
+                    onKeyDown={handleSearchKeyDown}
+                    className="w-full bg-white text-sm text-slate-900 pl-10 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-[var(--ref-blue)]"
+                  />
+                </div>
+                <button type="submit" className="ref-btn-primary rounded-none px-5 py-3 text-[11px]">
+                  Search
+                </button>
+              </form>
+
+              {showSuggestions && searchQuery.trim().length > 0 && (
+                <div className="absolute left-0 right-0 z-30 mt-1 ref-card max-h-80 overflow-y-auto">
+                  {(() => {
+                    let rowIndex = -1;
+                    return (
+                      <>
+                        <div className="p-3 border-b border-[var(--ref-border)]">
+                          <div className="ref-label text-[9px] mb-2 flex items-center gap-1">
+                            <GraduationCap className="h-3 w-3" /> Universities
+                          </div>
+                          {suggestions.universities.length > 0 ? (
+                            <ul className="space-y-1">
+                              {suggestions.universities.map((uni) => {
+                                rowIndex += 1;
+                                const active = activeSuggestionIndex === rowIndex;
+                                return (
+                                  <li key={uni.id}>
+                                    <button
+                                      type="button"
+                                      onClick={() => activateSuggestion({ kind: "uni", uni })}
+                                      className={`w-full text-left flex justify-between p-2 text-xs rounded ${active ? "bg-amber-50" : "hover:bg-slate-50"}`}
+                                    >
+                                      <span className="font-semibold truncate pr-2">{highlightMatch(uni.name, searchQuery)}</span>
+                                      <span className="text-[var(--ref-muted)] shrink-0">{uni.location}</span>
+                                    </button>
+                                  </li>
+                                );
+                              })}
+                            </ul>
+                          ) : (
+                            <p className="text-xs text-[var(--ref-muted)] italic p-2">No universities found</p>
+                          )}
+                        </div>
+                        <div className="p-3 border-b border-[var(--ref-border)]">
+                          <div className="ref-label text-[9px] mb-2 flex items-center gap-1">
+                            <BookOpen className="h-3 w-3" /> Articles
+                          </div>
+                          {suggestions.articles.map((art) => {
+                            rowIndex += 1;
+                            return (
+                              <button
+                                key={art.id}
+                                type="button"
+                                onClick={() => activateSuggestion({ kind: "article", article: art })}
+                                className="w-full text-left p-2 text-xs hover:bg-slate-50 rounded block"
+                              >
+                                {highlightMatch(art.title, searchQuery)}
+                              </button>
+                            );
+                          })}
+                        </div>
+                        <div className="p-2 text-center">
+                          <button
+                            type="button"
+                            onClick={() => activateSuggestion({ kind: "view-all" })}
+                            className="text-[11px] text-blue-600 font-semibold uppercase tracking-wider"
+                          >
+                            View all matching &quot;{searchQuery}&quot;
+                            <ChevronRight className="inline h-3 w-3" />
+                          </button>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2 items-center">
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ref-muted)]">Trending:</span>
+              {["Uzbekistan", "Medicine", "National Univ Singapore", "English medium"].map((tag) => (
                 <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`relative border-b-2 px-4 py-2 text-xs font-semibold uppercase tracking-wider transition-colors -mb-px ${
-                    activeTab === tab.id
-                      ? "border-amber-700 text-slate-900 dark:text-slate-100"
-                      : "border-transparent text-slate-400 dark:text-slate-300 hover:text-slate-700 dark:hover:text-slate-200"
-                  }`}
+                  key={tag}
+                  type="button"
+                  onClick={() => {
+                    setSearchQuery(tag);
+                    onSearchSubmit(tag);
+                    onViewChange("rankings");
+                  }}
+                  className="text-[10px] px-2.5 py-1 rounded-full border border-blue-200 bg-white text-slate-600 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-900 transition-colors"
                 >
-                  {tab.label}
-                  {activeTab === tab.id && (
-                    <motion.span
-                      layoutId="active-tab-indicator"
-                      className="absolute inset-x-0 -bottom-px h-0.5 bg-amber-700"
-                      transition={{ type: "spring", stiffness: 320, damping: 30 }}
-                    />
-                  )}
+                  {tag}
                 </button>
               ))}
             </div>
 
-            {/* Micro Tabular View */}
-            <div className="space-y-3">
-              {getTopFive().map((uni, idx) => {
-                const activeScore =
-                  activeTab === "research"
-                    ? uni.research
-                    : activeTab === "employability"
-                    ? uni.employability
-                    : uni.overall;
-
-                return (
-                  <motion.div
-                    key={uni.id}
-                    onClick={() => onUniversitySelect(uni.id)}
-                    whileHover={{ y: -2, boxShadow: "0 14px 35px rgba(15,23,42,0.08)" }}
-                    transition={{ type: "spring", stiffness: 260, damping: 24 }}
-                    className="flex items-center justify-between p-3 border border-slate-100 dark:border-slate-800 hover:border-slate-300 dark:hover:border-slate-700 bg-slate-50 dark:bg-cyber-gray hover:bg-white dark:hover:bg-cyber-gray/80 cursor-pointer transition-all duration-150 group"
-                  >
-                    <div className="flex items-center space-x-3 truncate">
-                      <span className="flex h-6 w-6 shrink-0 items-center justify-center border border-slate-900 dark:border-slate-700 bg-slate-900 dark:bg-slate-800 text-white dark:text-slate-100 font-mono text-xs font-bold">
-                        {idx + 1}
-                      </span>
-                      <div className="truncate">
-                        <h4 className="text-xs font-bold text-slate-900 dark:text-slate-100 group-hover:text-amber-700 transition-colors truncate">
-                          {uni.name}
-                        </h4>
-                        <span className="text-[10px] text-slate-400 dark:text-slate-300 font-mono">
-                          {uni.location}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4 shrink-0 font-mono">
-                      <div className="text-right">
-                        <span className="text-xs font-bold text-slate-900 dark:text-slate-100">
-                          {activeScore.toFixed(1)}
-                        </span>
-                        <span className="text-[9px] text-slate-400 dark:text-slate-300 block uppercase tracking-wider">
-                          Score
-                        </span>
-                      </div>
-                      <ChevronRight className="h-4 w-4 text-slate-400 dark:text-slate-300 group-hover:text-slate-900 dark:group-hover:text-slate-100 group-hover:translate-x-0.5 transition-all" />
-                    </div>
-                  </motion.div>
-                );
-              })}
+            <div className="ref-stat-bar">
+              {[
+                { icon: Building2, val: `${MOCK_UNIVERSITIES.length}+`, label: "Institutions" },
+                { icon: Globe2, val: `${uniqueCountries}+`, label: "Countries" },
+                { icon: Database, val: "1M+", label: "Data Points" },
+                { icon: Clock, val: "15+", label: "Years of Data" },
+              ].map((s) => (
+                <div key={s.label} className="ref-stat-item">
+                  <s.icon className="h-5 w-5 text-amber-500 shrink-0" />
+                  <div>
+                    <div className="font-bold text-sm">{s.val}</div>
+                    <div className="text-[10px] text-[var(--ref-muted)] uppercase tracking-wider">{s.label}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="mt-6 pt-4 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-            <span className="text-[10px] text-slate-400 dark:text-slate-300 font-medium">
-              * Filterable by Location, Program & Tuition.
-            </span>
-            <button
-              onClick={() => onViewChange("rankings")}
-              className="text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-slate-100 hover:text-amber-700 dark:hover:text-amber-400 transition-colors inline-flex items-center"
-            >
-              Analyze All Universities
-              <ChevronRight className="h-4 w-4 ml-1" />
-            </button>
+          <div className="ref-hero-visual">
+            <div className="ref-map-stage">
+              <AsiaMapNetwork />
+              <MapUniversityCards
+                universities={mapUniversities}
+                onUniversitySelect={onUniversitySelect}
+              />
+            </div>
+
+            <aside className="ref-live-sidebar">
+              <h3 className="ref-live-sidebar__title">
+                <span className="text-amber-500">L</span>ive Updates
+              </h3>
+              <ul className="ref-live-sidebar__list">
+                {LIVE_UPDATES.map((item) => (
+                  <li key={item.text} className="ref-live-sidebar__item">
+                    <span
+                      className="ref-live-sidebar__icon"
+                      style={{ background: `${item.color}18`, color: item.color }}
+                    >
+                      <Bell className="h-3.5 w-3.5" />
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <p className="ref-live-sidebar__text">{item.text}</p>
+                      <p className="ref-live-sidebar__time">{item.time}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+              <button
+                type="button"
+                className="ref-live-sidebar__cta"
+                onClick={() => onViewChange("rankings")}
+              >
+                View All Updates
+                <ArrowRight className="h-3.5 w-3.5" />
+              </button>
+            </aside>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Editorial Content Grid Header */}
-      <div className="mb-8 border-b border-slate-900 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-baseline gap-4">
-        <div>
-          <h3 className="font-serif text-2xl font-semibold tracking-tight text-slate-900 dark:text-white">
-            Editorial Focus & Regional Briefings
-          </h3>
-          <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
-            Featured academic insights and medical career roadmaps across Asian universities.
-          </p>
+      {/* ── Live Top 10 ── */}
+      <section className="ref-section">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-6">
+          <div>
+            <span className="ref-label">Rankings Engine</span>
+            <h2 className="text-2xl font-bold mt-1">Live Top 10 Universities</h2>
+          </div>
+          <button type="button" className="ref-btn-primary text-[11px]" onClick={() => onViewChange("rankings")}>
+            Analyze All Universities
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
-        <div className="flex items-center space-x-4 self-end sm:self-auto">
+
+        <div className="ref-card-light ref-table-wrap shadow-lg">
+          <table className="ref-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>University</th>
+                <th>Country</th>
+                <th>Score</th>
+                <th>Trend</th>
+                <th className="hidden md:table-cell">Research</th>
+                <th className="hidden md:table-cell">Employability</th>
+                <th className="hidden lg:table-cell">International</th>
+              </tr>
+            </thead>
+            <tbody>
+              {topTen.map((uni, idx) => {
+                const trend = rankTrend(uni);
+                return (
+                  <tr
+                    key={uni.id}
+                    className="cursor-pointer"
+                    onClick={() => onUniversitySelect(uni.id)}
+                  >
+                    <td>
+                      <span className={`inline-flex items-center justify-center w-7 h-7 rounded-full text-xs font-bold ${idx < 3 ? "bg-orange-100 text-orange-700" : "bg-slate-100 text-slate-600"}`}>
+                        {idx + 1}
+                      </span>
+                    </td>
+                    <td className="font-semibold text-slate-900 max-w-[180px] truncate">{uni.name}</td>
+                    <td>
+                      <span className="mr-1">{COUNTRY_FLAGS[uni.location] ?? "🌏"}</span>
+                      {uni.location}
+                    </td>
+                    <td className="font-mono font-bold">{uni.overall.toFixed(1)}</td>
+                    <td>
+                      <span className={`inline-flex items-center gap-0.5 text-xs font-semibold ${trend.improved ? "ref-trend-up" : "ref-trend-down"}`}>
+                        {trend.improved ? <TrendingUp className="h-3.5 w-3.5" /> : <TrendingDown className="h-3.5 w-3.5" />}
+                        {Math.abs(trend.delta).toFixed(1)}
+                      </span>
+                    </td>
+                    <td className="hidden md:table-cell">
+                      <Sparkline values={scoreHistory(uni, "research")} color="#3b82f6" />
+                    </td>
+                    <td className="hidden md:table-cell">
+                      <Sparkline values={scoreHistory(uni, "employability")} color="#10b981" />
+                    </td>
+                    <td className="hidden lg:table-cell">
+                      <Sparkline values={[uni.intlStudents - 8, uni.intlStudents - 4, uni.intlStudents - 2, uni.intlStudents - 1, uni.intlStudents]} color="#8b5cf6" />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        <p className="text-[10px] text-[var(--ref-muted)] mt-3">* Filterable by location, program &amp; tuition in Rankings Engine.</p>
+      </section>
+
+      {/* ── Explore by Country (light cards, per-country theme) ── */}
+      <section className="ref-section pt-0 ref-country-section">
+        <span className="ref-label">Regional Intelligence</span>
+        <h2 className="text-2xl font-bold mt-1 mb-6">Explore by Country</h2>
+        <div className="ref-country-grid">
+          {countryStats.map((c) => {
+            const theme = getCountryTheme(c.country);
+            return (
+              <button
+                key={c.country}
+                type="button"
+                className="ref-country-card ref-country-card--light text-left"
+                style={
+                  {
+                    "--country-accent": theme.accent,
+                    "--country-bg": theme.bg,
+                    "--country-image": `url(${theme.image})`,
+                    "--country-image-pos": theme.imagePos ?? "center",
+                  } as React.CSSProperties
+                }
+                onClick={() => {
+                  onSearchSubmit(c.country);
+                  onViewChange("rankings");
+                }}
+              >
+                <div className="ref-country-monument" aria-hidden="true" />
+                <div className="ref-country-body">
+                  <span className="ref-country-code">{theme.code}</span>
+                  <span className="ref-country-monument-label">{theme.monument}</span>
+                  <div className="ref-country-name">{c.country}</div>
+                  <div className="ref-country-meta">{c.count} universities</div>
+                  <div className="ref-country-avg">Avg {c.avgScore.toFixed(1)}</div>
+                  <div className="ref-country-top truncate">Top: {c.topUni.name}</div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ── Methodology ── */}
+      <section className="ref-section pt-0" ref={methodologyRef} id="methodology">
+        <div className="ref-card p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+          <div className="flex justify-center">
+            <div className="ref-donut" />
+          </div>
+          <div>
+            <span className="ref-label">Ranking Methodology</span>
+            <h2 className="text-2xl font-bold mt-1 mb-4">How We Score Institutions</h2>
+            <p className="text-sm text-[var(--ref-muted)] mb-6 leading-relaxed">
+              Our composite index blends research output, teaching quality, graduate outcomes, and global outlook
+              — recalculated in real time from audited institutional data.
+            </p>
+            <ul className="space-y-3">
+              {METHODOLOGY.map((m) => (
+                <li key={m.label} className="flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full shrink-0" style={{ background: m.color }} />
+                    {m.label}
+                  </span>
+                  <span className="font-mono font-bold">{m.pct}%</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Discovery Hub ── */}
+      <section className="ref-section pt-0">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 mb-4">
+          <div>
+            <span className="ref-label">Discovery Hub</span>
+            <h2 className="text-2xl font-bold mt-1">Insights &amp; Analysis</h2>
+          </div>
           <Link
             href="/blogs/create"
-            className="inline-flex items-center justify-center border-2 border-slate-900 bg-slate-900 dark:border-cyber-yellow dark:bg-transparent dark:text-cyber-yellow dark:shadow-[0_0_8px_rgba(234,179,8,0.1)] px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white hover:bg-slate-800 dark:hover:bg-cyber-yellow dark:hover:text-cyber-black transition-all duration-200"
+            className="ref-btn-primary text-[11px] font-bold uppercase tracking-wider inline-flex items-center justify-center gap-1.5"
           >
             Create Blog
           </Link>
-          <span className="hidden sm:inline-block text-[10px] uppercase font-bold tracking-widest text-slate-400 font-mono">
-            Featured Articles
-          </span>
         </div>
-      </div>
-
-      {/* Multi-Column Editorial Grid Modules */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-8 border-y border-slate-200">
-        {loadingArticles ? (
-          Array.from({ length: 3 }).map((_, idx) => (
-            <div key={idx} className="pb-4 flex flex-col justify-between h-full animate-pulse">
-              <div>
-                <div className="aspect-video w-full mb-6 bg-slate-100 dark:bg-cyber-gray border border-slate-200 rounded-sm" />
-                <div className="h-3 w-1/3 bg-slate-200 dark:bg-cyber-gray mb-3 rounded" />
-                <div className="h-5 w-3/4 bg-slate-200 dark:bg-cyber-gray mb-2 rounded" />
-                <div className="h-4 w-1/2 bg-slate-200 dark:bg-cyber-gray mb-4 rounded" />
-                <div className="space-y-2">
-                  <div className="h-3 w-full bg-slate-200 dark:bg-cyber-gray rounded" />
-                  <div className="h-3 w-full bg-slate-200 dark:bg-cyber-gray rounded" />
-                </div>
-              </div>
-            </div>
-          ))
-        ) : articles.length === 0 ? (
-          <div className="col-span-3 text-center py-12 text-slate-400 dark:text-slate-500 font-medium">
-            No articles published yet. Be the first to create one!
-          </div>
-        ) : (
-          articles.map((article, idx) => (
-            <motion.div
+        <div className="ref-article-tabs flex gap-6 border-b border-[var(--ref-border)] mb-6">
+          {(
+            [
+              { id: "featured" as const, label: "Featured Insights" },
+              { id: "reports" as const, label: "Latest Reports" },
+              { id: "insights" as const, label: "Regional Briefings" },
+            ] as const
+          ).map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setArticleTab(tab.id)}
+              className={`pb-3 text-xs font-bold uppercase tracking-wider transition-colors ${articleTab === tab.id ? "active" : "text-[var(--ref-muted)]"}`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {articles.map((article) => (
+            <button
               key={article.id}
+              type="button"
               onClick={() => onArticleSelect(article)}
-              whileHover={{ y: -6 }}
-              whileTap={{ scale: 0.99 }}
-              initial={{ opacity: 0, y: 18 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35, ease: "easeOut", delay: idx * 0.05 }}
-              className="pb-4 cursor-pointer group flex flex-col justify-between h-full"
+              className="ref-card text-left overflow-hidden group hover:border-blue-300 transition-colors"
             >
-              <div>
-                {/* Image Frame with Strict Aspect Ratio */}
-                <div className="relative aspect-video w-full mb-6 border border-slate-200 overflow-hidden bg-slate-100 dark:bg-cyber-gray">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <motion.img
-                    src={article.image}
-                    alt={article.title}
-                    whileHover={{ scale: 1.06 }}
-                    transition={{ duration: 0.4, ease: "easeOut" }}
-                    className="h-full w-full object-cover object-center transition-transform"
-                  />
-                </div>
-
-                {/* Metadata */}
-                <div className="flex items-center space-x-2 text-[10px] font-mono text-slate-400 uppercase tracking-widest mb-3">
-                  <span>{article.source}</span>
-                  <span>•</span>
-                  <span>{article.date}</span>
-                </div>
-
-                {/* Headings in Lora */}
-                <h4 className="font-serif text-lg font-bold text-slate-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-cyber-yellow transition-colors leading-snug mb-2">
+              <div className="aspect-video overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={article.image}
+                  alt=""
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              </div>
+              <div className="p-4">
+                <span className="ref-label text-[9px]">{article.category || "Insight"}</span>
+                <h3 className="font-bold text-sm mt-2 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
                   {article.title}
-                </h4>
-                <p className="font-serif text-xs italic text-slate-500 mb-4 leading-normal">
-                  {article.subtitle}
-                </p>
-
-                {/* Body Summary */}
-                <p className="text-slate-600 text-xs leading-relaxed line-clamp-3 mb-6">
-                  {article.contentSummary}
-                </p>
-              </div>
-
-              <div className="flex items-center text-xs font-bold uppercase tracking-wider text-slate-900 dark:text-white group-hover:text-amber-700 dark:group-hover:text-cyber-yellow transition-colors">
-                <span>Read Full Report</span>
-                <ChevronRight className="h-4 w-4 ml-1 group-hover:translate-x-0.5 transition-transform" />
-              </div>
-            </motion.div>
-          ))
-        )}
-      </div>
-
-      {/* Global Partner Universities Grid (QS Style) */}
-      <div className="mt-16 pt-16 border-t border-slate-200 text-center">
-        <h2 className="text-3xl font-bold font-sans tracking-tight text-slate-900 mb-10">
-          Over 650 global partner universities
-        </h2>
-        
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
-          {MOCK_UNIVERSITIES.slice(0, 8).map((uni, idx) => (
-            <motion.div
-              key={`partner-${uni.id}`}
-              whileHover={{ scale: 1.02 }}
-              onClick={() => onUniversitySelect(uni.id)}
-              className="bg-white border border-slate-100 p-6 flex items-center justify-center cursor-pointer hover:shadow-lg transition-all h-32 group"
-            >
-              <div className="relative w-full h-full grayscale group-hover:grayscale-0 transition-all opacity-70 group-hover:opacity-100 flex items-center justify-center flex-col">
-                <div className="h-10 w-10 relative mb-2">
-                  <img
-                    src={uni.campusPhoto}
-                    alt={`${uni.name} Logo`}
-                    className="object-cover rounded-md w-full h-full"
-                  />
-                </div>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-800 text-center line-clamp-2">
-                  {uni.name}
+                </h3>
+                <p className="text-xs text-[var(--ref-muted)] line-clamp-2 mb-3">{article.contentSummary}</p>
+                <span className="text-[10px] text-[var(--ref-muted)]">
+                  {article.date}{article.readTime ? ` · ${article.readTime}` : ""}
                 </span>
               </div>
-            </motion.div>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Comparison + Analytics ── */}
+      <section className="ref-section pt-0">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="ref-card p-6">
+            <span className="ref-label">Comparison Tool</span>
+            <h2 className="text-xl font-bold mt-1 mb-2">University Comparison</h2>
+            <p className="text-xs text-[var(--ref-muted)] mb-4">Top 4 institutions across key performance axes</p>
+            <RadarChart universities={compareUnis} />
+            <div className="flex flex-wrap gap-2 mt-4 justify-center">
+              {compareUnis.map((u, i) => (
+                <span key={u.id} className="text-[10px] px-2 py-1 rounded border border-[var(--ref-border)]">
+                  <span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: ["#f97316", "#3b82f6", "#10b981", "#8b5cf6"][i] }} />
+                  {u.name.split(" ")[0]}
+                </span>
+              ))}
+            </div>
+            <button
+              type="button"
+              className="ref-btn-outline w-full mt-4 justify-center text-[11px]"
+              onClick={() => onViewChange("rankings")}
+            >
+              Open Full Comparison
+            </button>
+          </div>
+
+          <div>
+            <span className="ref-label">Real-Time Analytics</span>
+            <h2 className="text-xl font-bold mt-1 mb-4">Live Performance Dashboard</h2>
+            <div className="ref-analytics-grid">
+              {[
+                { title: "Live Rankings Updates", icon: LineChart, color: "#3b82f6", trend: "up" as const, stat: "+12 shifts" },
+                { title: "Research Output Growth", icon: Activity, color: "#22c55e", trend: "up" as const, stat: "+18.7%" },
+                { title: "Country Performance", icon: BarChart3, color: "#3b82f6", trend: "up" as const, stat: "Singapore 94.2" },
+                { title: "Institution Performance", icon: TrendingUp, color: "#f97316", trend: "up" as const, stat: "Tsinghua 98.2" },
+              ].map((card) => (
+                <div key={card.title} className="ref-analytics-card">
+                  <div className="flex items-center gap-2 mb-1">
+                    <card.icon className="h-4 w-4" style={{ color: card.color }} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ref-muted)]">{card.title}</span>
+                  </div>
+                  <div className="font-mono font-bold text-lg" style={{ color: card.color }}>{card.stat}</div>
+                  <MiniLineChart color={card.color} trend={card.trend} />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Pulse Ticker ── */}
+      <div className="ref-pulse-ticker">
+        <div className="ref-pulse-track">
+          {[...PULSE_ITEMS, ...PULSE_ITEMS].map((item, i) => (
+            <span key={`${item}-${i}`} className="text-xs text-[var(--ref-muted)] inline-flex items-center gap-2">
+              <Activity className="h-3 w-3 text-amber-500" />
+              {item}
+            </span>
           ))}
         </div>
       </div>
+
+      {/* ── Trusted By ── */}
+      <section className="ref-section py-8">
+        <p className="text-center text-[10px] font-bold uppercase tracking-[0.2em] text-[var(--ref-muted)] mb-6">
+          Trusted by Leading Institutions
+        </p>
+        <div className="flex flex-wrap justify-center gap-8 items-center opacity-60">
+          {topTen.slice(0, 6).map((u) => (
+            <span key={u.id} className="text-sm font-bold tracking-wide text-slate-500">
+              {u.name.split(" ")[0].toUpperCase()}
+            </span>
+          ))}
+        </div>
+      </section>
+
+      {/* ── CTA Banner ── */}
+      <section className="ref-section pt-0 pb-8">
+        <div className="ref-cta-banner p-8 md:p-12">
+          <div className="relative z-10 max-w-xl">
+            <h2 className="text-2xl md:text-3xl font-bold mb-3">
+              Discover the Future of Higher Education Intelligence
+            </h2>
+            <p className="text-sm text-[var(--ref-muted)] mb-6">
+              Access live rankings, institutional analytics, and regional insights trusted across Asia.
+            </p>
+            <div className="flex flex-wrap gap-3 justify-center">
+              <button type="button" className="ref-btn-primary" onClick={() => onViewChange("rankings")}>
+                Explore Rankings
+              </button>
+              <button type="button" className="ref-btn-outline" onClick={() => onViewChange("settings")}>
+                Request Institutional Access
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Footer block ── */}
+      <footer className="ref-section pt-0 border-t border-[var(--ref-border)]">
+        <div className="ref-footer-grid">
+          <div>
+            <div className="font-bold text-lg mb-2">
+              ASIA <span className="text-amber-600">UNIVERSITY</span> RANKINGS
+            </div>
+            <p className="text-xs text-[var(--ref-muted)] leading-relaxed max-w-xs">
+              The definitive intelligence platform for higher education across Asia and Central Asia.
+            </p>
+          </div>
+          {[
+            { title: "Platform", links: [["Rankings Engine", "rankings"], ["Discovery Hub", "home"], ["Analytics", "rankings"]] },
+            { title: "Resources", links: [["Methodology", "home"], ["Reports", "home"], ["Insights", "home"]] },
+            { title: "Company", links: [["About Us", "settings"], ["Contact", "settings"], ["Privacy", "settings"]] },
+          ].map((col) => (
+            <div key={col.title}>
+              <h4 className="text-xs font-bold uppercase tracking-wider mb-3">{col.title}</h4>
+              <ul className="space-y-2">
+                {col.links.map(([label, view]) => (
+                  <li key={label}>
+                    <button
+                      type="button"
+                      onClick={() => onViewChange(view)}
+                      className="text-xs text-[var(--ref-muted)] hover:text-blue-600 transition-colors"
+                    >
+                      {label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div className="mt-8 pt-6 border-t border-[var(--ref-border)] flex flex-col sm:flex-row justify-between gap-4 items-center">
+          <span className="text-[10px] text-[var(--ref-muted)]">© 2026 Asia University Rankings. All rights reserved.</span>
+          <div className="flex items-center gap-2">
+            <Mail className="h-4 w-4 text-[var(--ref-muted)]" />
+            <input
+              type="email"
+              placeholder="Newsletter email"
+              className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-900 w-48 focus:outline-none focus:ring-2 focus:ring-amber-400"
+            />
+            <button type="button" className="ref-btn-primary text-[10px] px-3 py-1.5">Subscribe</button>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

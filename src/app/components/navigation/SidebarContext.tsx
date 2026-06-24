@@ -3,26 +3,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export interface FilterState {
-  country: string;
-  qsRange: [number, number]; // Rank range: 1 to 50
-  tuitionRange: [number, number]; // Tuition range: 0 to 25000 (USD/year equivalent)
-  isPublic: boolean | null; // null = both, true = public, false = private
-  subjects: string[];
-  scholarshipOnly: boolean;
-  searchQuery: string;
-}
-
-const initialFilters: FilterState = {
-  country: "",
-  qsRange: [1, 100],
-  tuitionRange: [0, 50000],
-  isPublic: null,
-  subjects: [],
-  scholarshipOnly: false,
-  searchQuery: "",
-};
-
 interface SidebarContextType {
   isCollapsed: boolean;
   setIsCollapsed: (val: boolean) => void;
@@ -30,9 +10,8 @@ interface SidebarContextType {
   setIsMobileOpen: (val: boolean) => void;
   theme: "dark" | "light";
   toggleTheme: () => void;
-  filters: FilterState;
-  setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
-  clearFilters: () => void;
+  searchQuery: string;
+  setSearchQuery: (val: string) => void;
   activeView: string;
   handleViewChange: (view: string) => void;
   selectedUniId: string | null;
@@ -58,8 +37,9 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // State initialization
   const [isCollapsed, setIsCollapsedState] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [theme, setTheme] = useState<"dark" | "light">("light"); // Default to clean light theme
-  const [filters, setFilters] = useState<FilterState>(initialFilters);
+  const [theme, setTheme] = useState<"dark" | "light">("light");
+ // const [filters, setFilters] = useState<FilterState>(initialFilters);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedUniIds, setSelectedUniIds] = useState<string[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -75,7 +55,6 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (savedTheme === "dark" || savedTheme === "light") {
         setTheme(savedTheme);
       } else {
-        // Default to clean light
         setTheme("light");
       }
 
@@ -83,8 +62,8 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
       if (savedCompared) {
         try {
           setSelectedUniIds(JSON.parse(savedCompared));
-        } catch (e) {
-          console.error(e);
+        } catch (error) {
+          console.error(error);
         }
       }
     }
@@ -95,13 +74,16 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
       const next = prev.includes(uniId)
         ? prev.filter((id) => id !== uniId)
         : [...prev, uniId];
+
       if (next.length > 4) {
         alert("You can compare a maximum of 4 universities at a time.");
         return prev;
       }
+
       if (typeof window !== "undefined") {
         localStorage.setItem("compared_uni_ids", JSON.stringify(next));
       }
+
       return next;
     });
   };
@@ -155,8 +137,8 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Synchronize initial URL search query if exists
   useEffect(() => {
     const q = searchParams.get("search");
-    if (q) {
-      setFilters(prev => ({ ...prev, searchQuery: q }));
+    if (q !== null) {
+      setSearchQuery(q);
     }
   }, [searchParams]);
 
@@ -167,7 +149,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (view !== "profile") {
       current.delete("id");
     }
-    router.push(`/?${current.toString()}`);
+    router.push(`?${current.toString()}`);
     setIsMobileOpen(false); // Close mobile drawer when navigating
   };
 
@@ -180,16 +162,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
       current.set("view", "rankings");
       current.delete("id");
     }
-    router.push(`/?${current.toString()}`);
-  };
-
-  // Reset filters helper
-  const clearFilters = () => {
-    setFilters({
-      ...initialFilters,
-      // Retain the query unless it was cleared
-      searchQuery: "",
-    });
+    router.push(`?${current.toString()}`);
   };
 
   return (
@@ -201,9 +174,8 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setIsMobileOpen,
         theme,
         toggleTheme,
-        filters,
-        setFilters,
-        clearFilters,
+        searchQuery,
+        setSearchQuery,
         activeView,
         handleViewChange,
         selectedUniId,

@@ -49,8 +49,10 @@ function getMockResponse(query: string): string {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function FloatingChatAssistant() {
-  const { theme, isChatOpen, setIsChatOpen, activeView } = useSidebar();
+  const { theme, activeView } = useSidebar();
   const isDark = theme === "dark";
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
 
   const [isIdle, setIsIdle] = useState(true);
 
