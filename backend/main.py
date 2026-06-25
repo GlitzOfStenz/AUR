@@ -4,6 +4,7 @@ from routers import universities, rankings, countries, search
 from routers import auth
 from routers.auth import router as auth_router
 from routers.users import router as users_router
+from routers import analytics
 
 app = FastAPI(title="AUR - Asia University Ranking API", version="1.0.0")
 
@@ -19,6 +20,7 @@ app.add_middleware(
 app.include_router(universities.router)
 app.include_router(rankings.router)
 app.include_router(countries.router)
+app.include_router(analytics.router)
 app.include_router(search.router)
 app.include_router(auth.router)
 
