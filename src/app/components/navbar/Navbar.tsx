@@ -76,11 +76,11 @@ export default function Navbar({ showSidebar = true }: NavbarProps) {
             className="flex cursor-pointer items-center space-x-3 text-slate-900 dark:text-white shrink-0 group"
           >
             <Image
-              src="/aur-logo-cropped.png"
+              src="/aur-logo.jpg"
               alt="Asia University Rankings"
               width={458}
               height={135}
-              className="h-[22px] sm:h-[26px] w-auto object-contain mix-blend-multiply dark:mix-blend-normal"
+              className="h-[36px] sm:h-[42px] md:h-[46px] w-auto object-contain mix-blend-multiply dark:mix-blend-normal"
               priority
               quality={100}
               unoptimized
