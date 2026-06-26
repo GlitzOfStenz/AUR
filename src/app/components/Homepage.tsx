@@ -1043,54 +1043,6 @@ export default function Homepage({
           </div>
         </div>
       </section>
-
-      {/* ── Footer block ── */}
-      <footer className="ref-section pt-0 border-t border-[var(--ref-border)]">
-        <div className="ref-footer-grid">
-          <div>
-            <div className="font-bold text-lg mb-2">
-              ASIA <span className="text-amber-600">UNIVERSITY</span> RANKINGS
-            </div>
-            <p className="text-xs text-[var(--ref-muted)] leading-relaxed max-w-xs">
-              The definitive intelligence platform for higher education across Asia and Central Asia.
-            </p>
-          </div>
-          {[
-            { title: "Platform", links: [["Rankings Engine", "rankings"], ["Discovery Hub", "home"], ["Analytics", "rankings"]] },
-            { title: "Resources", links: [["Methodology", "home"], ["Reports", "home"], ["Insights", "home"]] },
-            { title: "Company", links: [["About Us", "settings"], ["Contact", "settings"], ["Privacy", "settings"]] },
-          ].map((col) => (
-            <div key={col.title}>
-              <h4 className="text-xs font-bold uppercase tracking-wider mb-3">{col.title}</h4>
-              <ul className="space-y-2">
-                {col.links.map(([label, view]) => (
-                  <li key={label}>
-                    <button
-                      type="button"
-                      onClick={() => onViewChange(view)}
-                      className="text-xs text-[var(--ref-muted)] hover:text-blue-600 transition-colors"
-                    >
-                      {label}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <div className="mt-8 pt-6 border-t border-[var(--ref-border)] flex flex-col sm:flex-row justify-between gap-4 items-center">
-          <span className="text-[10px] text-[var(--ref-muted)]">© 2026 Asia University Rankings. All rights reserved.</span>
-          <div className="flex items-center gap-2">
-            <Mail className="h-4 w-4 text-[var(--ref-muted)]" />
-            <input
-              type="email"
-              placeholder="Newsletter email"
-              className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-900 w-48 focus:outline-none focus:ring-2 focus:ring-amber-400"
-            />
-            <button type="button" className="ref-btn-primary text-[10px] px-3 py-1.5">Subscribe</button>
-          </div>
-        </div>
-      </footer>
     </div>
   );
 }
