@@ -7,4 +7,17 @@ venv/
 # Cache files
 __pycache__/
 *.pyc
+<<<<<<< HEAD
 .pytest_cache/
+=======
+.pytest_cache/
+
+# VS Code settings
+.vscode/
+
+# Logs
+*.log
+
+# env files
+.env
+>>>>>>> main

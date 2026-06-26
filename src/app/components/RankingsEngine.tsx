@@ -30,7 +30,6 @@ import {
   FilterX,
 } from "lucide-react";
 import { MOCK_UNIVERSITIES, University } from "../data";
-import { useSidebar } from "./navigation/SidebarContext";
 
 interface RankingsEngineProps {
   searchQuery: string;
@@ -60,7 +59,6 @@ export default function RankingsEngine({
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyber-yellow dark:focus-visible:ring-offset-cyber-black";
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { filters } = useSidebar();
 
   // 1. Core State
   const [sorting, setSorting] = useState<SortingState>([{ id: "calculatedRank", desc: false }]);
@@ -215,67 +213,25 @@ export default function RankingsEngine({
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const filteredData = useMemo(() => {
     return processedData.filter((uni) => {
-      // 1. Search Query (combine props.searchQuery and filters.searchQuery)
-      const query = (filters.searchQuery || deferredSearchQuery || "").toLowerCase();
+      const query = (deferredSearchQuery || "").toLowerCase();
       const matchesSearch =
         query === "" ||
         uni.name.toLowerCase().includes(query) ||
         uni.location.toLowerCase().includes(query);
 
-      // 2. Location (combine locations state and filters.country)
       const matchesLoc =
-        (locations.length === 0 || locations.includes(uni.location)) &&
-        (filters.country === "" || uni.location === filters.country);
+        locations.length === 0 || locations.includes(uni.location);
 
-      // 3. Subject (combine selectedSubjects state and filters.subjects)
       const matchesSub =
-        (selectedSubjects.length === 0 || uni.subjects.some((sub) => selectedSubjects.includes(sub))) &&
-        (filters.subjects.length === 0 || uni.subjects.some((sub) => filters.subjects.includes(sub)));
+        selectedSubjects.length === 0 || uni.subjects.some((sub) => selectedSubjects.includes(sub));
 
-      // 4. Language filter (keep existing local language filter)
       const matchesLang =
         selectedLanguages.length === 0 ||
         uni.languages.some((lang) => selectedLanguages.includes(lang));
 
-      // 5. QS Rank Range (calculatedRank is from processedData)
-      const rank = uni.calculatedRank;
-      const matchesRank = rank >= filters.qsRange[0] && rank <= filters.qsRange[1];
-
-      // 6. Tuition Range
-      const tuitionVal = parseInt(uni.tuition.replace(/[^0-9]/g, "")) || 0;
-      const matchesTuition = tuitionVal >= filters.tuitionRange[0] && tuitionVal <= filters.tuitionRange[1];
-
-      // 7. Public / Private
-      let matchesType = true;
-      if (filters.isPublic !== null) {
-        // Prefer data-driven flag if present; fall back to legacy ID-based rule for compatibility.
-        const legacyIsPublic = !["akfa-univ", "tashkent-webster", "yonsei", "korea-univ"].includes(uni.id);
-        const isPublic = typeof uni.isPublic === "boolean" ? uni.isPublic : legacyIsPublic;
-        matchesType = isPublic === filters.isPublic;
-      }
-
-      // 8. Scholarship Only
-      let matchesScholarship = true;
-      if (filters.scholarshipOnly) {
-        // Prefer data-driven flag if present; fall back to legacy ID-based rule for compatibility.
-        const legacyHasScholarship = ["tsinghua", "nus", "peking", "tokyo", "samarkand-med", "tashkent-med", "akfa-univ", "malaya"].includes(uni.id);
-        const hasScholarship =
-          typeof uni.hasScholarship === "boolean" ? uni.hasScholarship : legacyHasScholarship;
-        matchesScholarship = hasScholarship;
-      }
-
-      return (
-        matchesSearch &&
-        matchesLoc &&
-        matchesSub &&
-        matchesLang &&
-        matchesRank &&
-        matchesTuition &&
-        matchesType &&
-        matchesScholarship
-      );
+      return matchesSearch && matchesLoc && matchesSub && matchesLang;
     });
-  }, [processedData, deferredSearchQuery, locations, selectedSubjects, selectedLanguages, filters]);
+  }, [processedData, deferredSearchQuery, locations, selectedSubjects, selectedLanguages]);
 
   // 6. Extract unique values for filter dropdown options
   const uniqueLocations = useMemo(() => Array.from(new Set(MOCK_UNIVERSITIES.map((u) => u.location))).sort(), []);

@@ -1,11 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, SlidersHorizontal, ChevronDown } from "lucide-react";
+import React from "react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSidebar } from "../navigation/SidebarContext";
 import { SIDEBAR_ITEMS, NavItem } from "../navigation/config";
-import FilterPanel from "../filters/FilterPanel";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 
 export default function Sidebar() {
   const {
@@ -16,8 +15,6 @@ export default function Sidebar() {
     theme,
   } = useSidebar();
 
-  const [isFilterExpanded, setIsFilterExpanded] = useState(false);
-
   // Helper to check if a navigation item matches the active view
   const isItemActive = (item: NavItem) => {
     return activeView === item.view;
@@ -25,16 +22,6 @@ export default function Sidebar() {
 
   const handleItemClick = (item: NavItem) => {
     handleViewChange(item.view);
-  };
-
-  // Expand sidebar and expand filters if clicked collapsed filter icon
-  const handleFilterAccordionClick = () => {
-    if (isCollapsed) {
-      setIsCollapsed(false);
-      setIsFilterExpanded(true);
-    } else {
-      setIsFilterExpanded(!isFilterExpanded);
-    }
   };
 
   return (
@@ -109,60 +96,7 @@ export default function Sidebar() {
           );
         })}
 
-        {/* 2. Collapsible Filter Accordion Section inside Sidebar */}
-        <div className="pt-4 border-t border-slate-200 dark:border-cyber-border/40 mt-4">
-          <button
-            onClick={handleFilterAccordionClick}
-            className={`w-full flex items-center p-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
-              isFilterExpanded && !isCollapsed
-                ? "text-slate-900 dark:text-cyber-yellow-bright"
-                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-            } hover:bg-slate-200/40 dark:hover:bg-cyber-gray/30`}
-          >
-            <div className={`shrink-0 ${isCollapsed ? "mx-auto" : "mr-3.5"}`}>
-              <SlidersHorizontal className="h-4.5 w-4.5" />
-            </div>
-            
-            {!isCollapsed && (
-              <>
-                <span>Filters</span>
-                <ChevronDown
-                  className={`ml-auto h-4 w-4 transition-transform duration-200 ${
-                    isFilterExpanded ? "rotate-180" : "rotate-0"
-                  }`}
-                />
-              </>
-            )}
 
-            {/* Collapsed Hover Tooltip for filters */}
-            {isCollapsed && (
-              <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-4 px-2.5 py-1.5 rounded border pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 text-[10px] font-bold uppercase tracking-widest shadow-lg ${
-                theme === 'dark'
-                  ? 'bg-cyber-gray border-cyber-yellow/20 text-cyber-yellow-bright'
-                  : 'bg-slate-900 border-slate-900 text-white'
-              }`}>
-                University Filters
-              </div>
-            )}
-          </button>
-
-          {/* Expandable Filter Content */}
-          <AnimatePresence initial={false}>
-            {isFilterExpanded && !isCollapsed && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="overflow-hidden"
-              >
-                <div className="px-3 pt-4 pb-2 border border-slate-200/50 dark:border-cyber-border/20 rounded-lg mt-2 bg-slate-100/50 dark:bg-cyber-dark/30">
-                  <FilterPanel />
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
 
       </div>
 

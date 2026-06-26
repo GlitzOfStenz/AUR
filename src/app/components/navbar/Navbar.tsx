@@ -7,7 +7,11 @@ import { useToast } from "../feedback/ToastContext";
 import { TOP_NAV_LINKS } from "../navigation/config";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function Navbar() {
+interface NavbarProps {
+  showSidebar?: boolean;
+}
+
+export default function Navbar({ showSidebar = true }: NavbarProps) {
   const { showToast } = useToast();
   const focusRing =
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyber-yellow dark:focus-visible:ring-offset-cyber-black";
@@ -18,11 +22,11 @@ export default function Navbar() {
     setIsMobileOpen,
     activeView,
     handleViewChange,
-    filters,
-    setFilters,
+    searchQuery,
+    setSearchQuery,
   } = useSidebar();
 
-  const [searchVal, setSearchVal] = useState(filters.searchQuery);
+  const [searchVal, setSearchVal] = useState(searchQuery);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifMenu, setShowNotifMenu] = useState(false);
 
@@ -31,8 +35,8 @@ export default function Navbar() {
 
   // Sync internal search state with context searchQuery
   useEffect(() => {
-    setSearchVal(filters.searchQuery);
-  }, [filters.searchQuery]);
+    setSearchVal(searchQuery);
+  }, [searchQuery]);
 
   // Click outside menus to close
   useEffect(() => {
@@ -50,14 +54,14 @@ export default function Navbar() {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setFilters((prev) => ({ ...prev, searchQuery: searchVal }));
+    setSearchQuery(searchVal);
     handleViewChange("rankings"); // Direct user to rankings to see results
   };
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchVal(e.target.value);
     // Instant search filtering
-    setFilters((prev) => ({ ...prev, searchQuery: e.target.value }));
+    setSearchQuery(e.target.value);
   };
 
   return (
@@ -285,6 +289,7 @@ export default function Navbar() {
             </div>
 
             {/* Mobile Hamburger menu */}
+            {showSidebar && (
             <button
               type="button"
               onClick={() => setIsMobileOpen(!isMobileOpen)}
@@ -293,6 +298,7 @@ export default function Navbar() {
             >
               {isMobileOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
+            )}
 
           </div>
 

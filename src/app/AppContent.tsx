@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "./components/navbar/Navbar";
 import Sidebar from "./components/sidebar/Sidebar";
@@ -19,6 +19,7 @@ import { Bookmark, ShieldAlert } from "lucide-react";
 
 export default function AppContent() {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const {
@@ -32,6 +33,8 @@ export default function AppContent() {
     handleClearCompare,
     theme,
   } = useSidebar();
+
+  const showSidebar = pathname !== "/" || activeView !== "home";
 
   const [searchQuery, setSearchQuery] = useState(() => searchParams.get("search") ?? "");
   const [savedUniIds, setSavedUniIds] = useState<string[]>([]);
@@ -74,16 +77,16 @@ export default function AppContent() {
       theme === "dark" && view !== "home" ? "text-slate-100 dark" : "text-slate-900"
     }`}>
       {/* Top Navigation Bar */}
-      <Navbar />
+      <Navbar showSidebar={showSidebar} />
 
       {/* Main Core Layout Layout */}
-      <div className="flex-grow flex w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-8">
+      <div className={`flex-grow flex w-full mx-auto ${showSidebar ? "max-w-7xl px-0 sm:px-4 lg:px-8" : "max-w-none px-0"}`}>
         
         {/* Collapsible Left Sidebar */}
-        <Sidebar />
+        {showSidebar && <Sidebar />}
 
         {/* Main Content Area */}
-        <main className={`flex-1 flex flex-col min-w-0 pb-20 md:pb-6 w-full mx-auto ${view === "home" ? "p-0 max-w-none" : "p-4 max-w-[1600px]"}`}>
+        <main className={`flex-1 flex flex-col min-w-0 pb-20 md:pb-6 w-full mx-auto ${showSidebar ? "p-4 max-w-[1600px]" : "p-0 max-w-none"}`}>
           <AnimatePresence mode="wait">
             <motion.div
               key={viewKey}
@@ -280,7 +283,7 @@ export default function AppContent() {
       </div>
 
       {/* Mobile Responsive Navigation Drawer & Bottom Bar */}
-      <MobileMenu />
+      <MobileMenu showSidebar={showSidebar} />
 
       <ComparisonDock
         selectedIds={selectedUniIds}

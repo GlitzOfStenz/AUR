@@ -3,26 +3,6 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
-export interface FilterState {
-  country: string;
-  qsRange: [number, number]; // Rank range: 1 to 50
-  tuitionRange: [number, number]; // Tuition range: 0 to 25000 (USD/year equivalent)
-  isPublic: boolean | null; // null = both, true = public, false = private
-  subjects: string[];
-  scholarshipOnly: boolean;
-  searchQuery: string;
-}
-
-const initialFilters: FilterState = {
-  country: "",
-  qsRange: [1, 50],
-  tuitionRange: [0, 25000],
-  isPublic: null,
-  subjects: [],
-  scholarshipOnly: false,
-  searchQuery: "",
-};
-
 interface SidebarContextType {
   isCollapsed: boolean;
   setIsCollapsed: (val: boolean) => void;
@@ -30,9 +10,8 @@ interface SidebarContextType {
   setIsMobileOpen: (val: boolean) => void;
   theme: "dark" | "light";
   toggleTheme: () => void;
-  filters: FilterState;
-  setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
-  clearFilters: () => void;
+  searchQuery: string;
+  setSearchQuery: (val: string) => void;
   activeView: string;
   handleViewChange: (view: string) => void;
   selectedUniId: string | null;
@@ -59,7 +38,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isCollapsed, setIsCollapsedState] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("light");
-  const [filters, setFilters] = useState<FilterState>(initialFilters);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedUniIds, setSelectedUniIds] = useState<string[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -157,8 +136,8 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
   // Synchronize initial URL search query if exists
   useEffect(() => {
     const q = searchParams.get("search");
-    if (q) {
-      setFilters(prev => ({ ...prev, searchQuery: q }));
+    if (q !== null) {
+      setSearchQuery(q);
     }
   }, [searchParams]);
 
@@ -185,15 +164,6 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
     router.push(`?${current.toString()}`);
   };
 
-  // Reset filters helper
-  const clearFilters = () => {
-    setFilters({
-      ...initialFilters,
-      // Retain the query unless it was cleared
-      searchQuery: "",
-    });
-  };
-
   return (
     <SidebarContext.Provider
       value={{
@@ -203,9 +173,8 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
         setIsMobileOpen,
         theme,
         toggleTheme,
-        filters,
-        setFilters,
-        clearFilters,
+        searchQuery,
+        setSearchQuery,
         activeView,
         handleViewChange,
         selectedUniId,
