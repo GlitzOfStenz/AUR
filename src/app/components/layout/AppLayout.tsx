@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { usePathname } from "next/navigation";
 import Navbar from "../navbar/Navbar";
 import Sidebar from "../sidebar/Sidebar";
 import MobileMenu from "../mobile/MobileMenu";
@@ -13,6 +14,9 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children }: AppLayoutProps) {
+  const pathname = usePathname();
+  const showSidebar = pathname !== "/";
+
   const {
     theme,
     selectedUniIds,
@@ -32,12 +36,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
       }`}
     >
       {/* Top Navigation Bar */}
-      <Navbar />
+      <Navbar showSidebar={showSidebar} />
 
       {/* Main Core Layout */}
-      <div className="flex-grow flex w-full max-w-7xl mx-auto px-0 sm:px-4 lg:px-8">
+      <div className={`flex-grow flex w-full mx-auto ${showSidebar ? "max-w-7xl px-0 sm:px-4 lg:px-8" : "max-w-none px-0"}`}>
         {/* Collapsible Left Sidebar */}
-        <Sidebar />
+        {showSidebar && <Sidebar />}
 
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col min-w-0 p-4 pb-20 md:pb-6">
@@ -46,7 +50,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       </div>
 
       {/* Mobile Responsive Navigation Drawer & Bottom Bar */}
-      <MobileMenu />
+      <MobileMenu showSidebar={showSidebar} />
 
       <FloatingChatAssistant />
 
