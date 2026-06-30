@@ -5,7 +5,8 @@ import {
   Globe, 
   BarChart3, 
   Bookmark, 
-  Settings 
+  Settings,
+  BookOpen,
 } from "lucide-react";
 
 export interface NavItem {
@@ -39,7 +40,7 @@ export const SIDEBAR_ITEMS: NavItem[] = [
   {
     id: "countries",
     label: "Countries",
-    view: "rankings", // redirect to rankings view and apply filter
+    view: "countries", // redirect to rankings view and apply filter
     icon: Globe,
   },
   {
@@ -55,9 +56,15 @@ export const SIDEBAR_ITEMS: NavItem[] = [
     icon: Bookmark,
   },
   {
+    id: "methodology",
+    label: "Methodology",
+    view: "methodology",
+    icon: BookOpen,
+  },
+  {
     id: "settings",
     label: "Settings",
-    view: "settings", // settings page/view
+    view: "settings",
     icon: Settings,
   },
 ];
@@ -65,5 +72,5 @@ export const SIDEBAR_ITEMS: NavItem[] = [
 export const TOP_NAV_LINKS = [
   { label: "Discovery Hub", view: "home" },
   { label: "Rankings Engine", view: "rankings" },
-  { label: "Institutional Analytics", view: "analytics" },
+  { label: "Methodology", view: "methodology" },
 ];

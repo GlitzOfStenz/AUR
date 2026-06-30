@@ -3,14 +3,18 @@
 import React, { useState } from "react";
 import dynamic from "next/dynamic";
 import Image from "next/image";
-import { ArrowLeft, MapPin, Globe, BookOpen, GraduationCap, Building2, ChevronRight, Award, LineChart, Trophy, ExternalLink, Bookmark, Square } from "lucide-react";
-import { motion } from "framer-motion";
+import {
+  ArrowLeft, MapPin, Globe, BookOpen, GraduationCap, Building2,
+  ChevronRight, Award, LineChart, Trophy, ExternalLink, Bookmark,
+  Square, Users, CalendarDays, Percent, BadgeCheck, BookMarked,
+} from "lucide-react";
+
 import { MOCK_UNIVERSITIES } from "../data";
 
 // Lazy load the heavy charting component
 const TrendChart = dynamic(() => import("./TrendChart"), {
   loading: () => (
-    <div className="w-full h-[300px] flex items-center justify-center border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-cyber-gray/40 text-slate-400 dark:text-slate-500 font-mono text-xs uppercase tracking-widest rounded-xl">
+    <div className="w-full h-[300px] flex items-center justify-center border border-[var(--aur-border)] bg-[var(--aur-surface-2)] text-[var(--aur-text-muted)] font-mono text-xs uppercase tracking-widest rounded-xl">
       Loading Analytics Engine...
     </div>
   ),
@@ -34,74 +38,75 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
   if (!uni) {
     return (
       <div className="mx-auto w-full px-4 py-16 text-center font-sans">
-        <h2 className="text-2xl font-bold text-slate-900 dark:text-white">University Record Not Found</h2>
-        <button onClick={onBack} className="mt-4 text-amber-700 dark:text-cyber-yellow hover:underline font-bold">Return to Rankings</button>
+        <h2 className="text-2xl font-bold text-[var(--aur-text)]">University Record Not Found</h2>
+        <button onClick={onBack} className="mt-4 text-[var(--aur-text-secondary)] hover:text-[var(--aur-text)] font-bold">Return to Rankings</button>
       </div>
     );
   }
 
   return (
-    <div className="mx-auto w-full px-4 sm:px-6 lg:px-8 py-8 font-sans flex-grow animate-fadeIn">
+    <div className="mx-auto w-full pb-16 font-sans flex-grow animate-fadeIn bg-[var(--background)]">
+      
       {/* Top Navigation */}
-      <div className="mb-6 flex items-center justify-between">
+      <div className="px-4 sm:px-6 lg:px-8 py-6 flex items-center justify-between border-b border-[var(--aur-border)] bg-[var(--aur-surface)]/80 backdrop-blur-md sticky top-0 z-40">
         <button
           onClick={onBack}
-          className="inline-flex items-center text-[10px] font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-cyber-yellow transition-colors bg-white dark:bg-cyber-gray/30 border border-slate-200 dark:border-slate-800/60 px-4 py-2 rounded-lg shadow-sm"
+          className="inline-flex items-center text-[10px] font-bold uppercase tracking-wider text-[var(--aur-text-secondary)] hover:text-[var(--aur-text)] transition-colors bg-[var(--aur-surface-hover)] border border-[var(--aur-border)] px-4 py-2 rounded-lg"
         >
           <ArrowLeft className="h-4 w-4 mr-1.5" />
           Back to Directory
         </button>
         
-        <span className="text-[10px] uppercase font-bold tracking-widest text-slate-400 dark:text-slate-500">
+        <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--aur-text-muted)]">
           Institutional Profile
         </span>
       </div>
 
-      {/* Hero Section QS Style */}
-      <div className="relative mb-24 rounded-2xl overflow-visible">
-        {/* Banner Image */}
-        <div className="relative h-[320px] w-full rounded-t-2xl overflow-hidden bg-slate-100 dark:bg-slate-900">
+      {/* Hero Section */}
+      <div className="relative mb-24 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6">
+        <div className="relative h-[380px] w-full rounded-3xl overflow-hidden bg-[var(--aur-surface-2)] shadow-[var(--aur-shadow)]">
           <Image
             src={uni.campusPhoto}
             alt={`${uni.name} Campus`}
             fill
-            className="object-cover"
+            className="object-cover opacity-90"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/90 via-[#000000]/40 to-transparent" />
           
           {/* Content inside banner */}
-          <div className="absolute bottom-[4.5rem] left-0 right-0 px-6 sm:px-10 flex flex-col md:flex-row items-center md:items-end gap-6 text-white">
-            <div className="h-28 w-28 bg-white rounded-xl shadow-lg border-[6px] border-white overflow-hidden shrink-0">
-               {/* Use the campus photo as a placeholder for logo */}
+          <div className="absolute bottom-16 left-0 right-0 px-8 sm:px-12 flex flex-col md:flex-row items-center md:items-end gap-8 text-white">
+            <div className="h-32 w-32 bg-[var(--aur-surface)] rounded-2xl shadow-2xl border-4 border-white/10 overflow-hidden shrink-0 flex items-center justify-center">
                <Image
                  src={uni.campusPhoto}
                  alt={`${uni.name} Logo`}
-                 width={112}
-                 height={112}
-                 className="object-cover w-full h-full"
+                 width={128}
+                 height={128}
+                 className="object-cover w-full h-full opacity-80 mix-blend-luminosity"
                />
             </div>
-            <div className="flex-grow flex flex-col md:flex-row justify-between items-center md:items-end w-full pb-1">
+            <div className="flex-grow flex flex-col md:flex-row justify-between items-center md:items-end w-full pb-2">
               <div className="text-center md:text-left">
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold font-sans tracking-tight mb-2 text-white">{uni.name}</h1>
-                <div className="flex items-center gap-2 text-sm text-slate-300 justify-center md:justify-start">
-                  <MapPin className="h-4 w-4" />
+                <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold font-serif tracking-tight mb-3 text-white drop-shadow-md">
+                  {uni.name}
+                </h1>
+                <div className="flex items-center gap-2 text-sm text-white/80 justify-center md:justify-start font-medium">
+                  <MapPin className="h-4 w-4 opacity-80" />
                   {uni.location}
                 </div>
               </div>
               <div className="flex flex-wrap justify-center gap-3 mt-6 md:mt-0">
-                <button className="bg-amber-500 hover:bg-amber-600 text-slate-900 font-bold px-5 py-2.5 rounded text-sm transition-colors shadow-sm">
-                  Apply to this University with QS
+                <button className="bg-white text-black hover:bg-gray-100 font-bold px-6 py-3 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-lg">
+                  Apply with QS
                 </button>
                 <button 
                   onClick={() => onToggleSave(universityId)}
-                  className={`${isShortlisted ? "bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/30 dark:border-amber-700 dark:text-amber-400" : "bg-white hover:bg-slate-100 text-slate-700 dark:bg-cyber-gray dark:text-slate-300 dark:hover:bg-slate-800"} font-semibold px-4 py-2.5 rounded text-sm flex items-center gap-2 transition-colors shadow-sm`}>
-                  <Bookmark className={`h-4 w-4 ${isShortlisted ? "fill-current" : ""}`} /> {isShortlisted ? "Shortlisted" : "Shortlist"}
+                  className={`${isShortlisted ? "bg-red-500 text-white" : "bg-black/50 hover:bg-black/70 text-white border border-white/20"} font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg backdrop-blur-sm`}>
+                  <Bookmark className={`h-4 w-4 ${isShortlisted ? "fill-current" : ""}`} /> {isShortlisted ? "Saved" : "Save"}
                 </button>
                 <button 
                   onClick={() => onViewChange("rankings")}
-                  className="bg-white hover:bg-slate-100 text-slate-700 font-semibold px-4 py-2.5 rounded text-sm flex items-center gap-2 transition-colors shadow-sm">
+                  className="bg-black/50 hover:bg-black/70 text-white border border-white/20 font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg backdrop-blur-sm">
                   <Square className="h-4 w-4" /> Compare
                 </button>
               </div>
@@ -110,314 +115,339 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
         </div>
 
         {/* 3 Overlapping Stat Cards */}
-        <div className="absolute -bottom-10 left-0 right-0 px-6 sm:px-10 grid grid-cols-1 md:grid-cols-3 gap-4">
-           {/* Card 1 */}
-           <div className="bg-white dark:bg-cyber-gray border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-lg flex flex-col items-center justify-center text-center">
-             <span className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white mb-1">
+        <div className="absolute -bottom-12 left-0 right-0 px-10 sm:px-16 grid grid-cols-1 md:grid-cols-3 gap-6">
+           <div className="bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-2xl p-6 shadow-[var(--aur-shadow)] flex flex-col items-center justify-center text-center transform transition-transform hover:-translate-y-1">
+             <span className="text-3xl lg:text-4xl font-serif font-bold text-[var(--aur-text)] mb-2">
                 #={uni.history[0] || uni.qsSubjectRankings?.[0]?.worldRank || 587}
              </span>
-             <span className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">QS World University Rankings</span>
+             <span className="text-[10px] uppercase tracking-widest text-[var(--aur-text-muted)] font-bold">QS World Rank</span>
            </div>
-           {/* Card 2 */}
-           <div className="bg-white dark:bg-cyber-gray border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-lg flex flex-col items-center justify-center text-center">
-             <span className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white mb-1">
+           <div className="bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-2xl p-6 shadow-[var(--aur-shadow)] flex flex-col items-center justify-center text-center transform transition-transform hover:-translate-y-1">
+             <span className="text-3xl lg:text-4xl font-serif font-bold text-[var(--aur-text)] mb-2">
                 {uni.subjects.length * 15}
              </span>
-             <span className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">Undergrad & Postgrad Programmes</span>
+             <span className="text-[10px] uppercase tracking-widest text-[var(--aur-text-muted)] font-bold">Total Programmes</span>
            </div>
-           {/* Card 3 */}
-           <div className="bg-white dark:bg-cyber-gray border border-slate-200 dark:border-slate-800 rounded-xl p-5 shadow-lg flex flex-col items-center justify-center text-center">
-             <span className="text-2xl lg:text-3xl font-bold text-slate-900 dark:text-white mb-1">
+           <div className="bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-2xl p-6 shadow-[var(--aur-shadow)] flex flex-col items-center justify-center text-center transform transition-transform hover:-translate-y-1">
+             <span className="text-3xl lg:text-4xl font-serif font-bold text-[var(--aur-text)] mb-2">
                 {uni.intlStudents || 12}%
              </span>
-             <span className="text-[11px] uppercase tracking-wider text-slate-500 font-bold">International students</span>
+             <span className="text-[10px] uppercase tracking-widest text-[var(--aur-text-muted)] font-bold">Intl Students</span>
            </div>
         </div>
       </div>
 
-      {/* Accessible Tab Navigation */}
-      <div className="border-b border-slate-200 dark:border-slate-800 mb-10 flex overflow-x-auto hide-scrollbar">
-        {[
-          { id: "overview", label: "Overview & Context", icon: Building2 },
-          { id: "metrics", label: "QS Academic Metrics", icon: LineChart },
-          { id: "admissions", label: "Admissions & Programs", icon: GraduationCap },
-        ].map((tab) => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
-            className={`inline-flex items-center whitespace-nowrap border-b-2 px-6 py-4 text-xs font-bold uppercase tracking-wider transition-colors -mb-[1px] ${
-              activeTab === tab.id
-                ? "border-amber-700 dark:border-cyber-yellow text-slate-900 dark:text-white"
-                : "border-transparent text-slate-400 dark:text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:border-slate-300 dark:hover:border-slate-700"
-            }`}
-          >
-            <tab.icon className={`h-4 w-4 mr-2.5 ${activeTab === tab.id ? "text-amber-700 dark:text-cyber-yellow" : "text-slate-400 dark:text-slate-600"}`} />
-            {tab.label}
-          </button>
-        ))}
-      </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-16">
+        {/* Accessible Tab Navigation */}
+        <div className="border-b border-[var(--aur-border)] mb-12 flex overflow-x-auto hide-scrollbar gap-8">
+          {[
+            { id: "overview", label: "Overview & Context", icon: Building2 },
+            { id: "metrics", label: "Academic Metrics", icon: LineChart },
+            { id: "admissions", label: "Admissions", icon: GraduationCap },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id as any)}
+              className={`inline-flex items-center whitespace-nowrap border-b-2 pb-4 text-xs font-bold uppercase tracking-widest transition-all -mb-[1px] ${
+                activeTab === tab.id
+                  ? "border-[var(--aur-text)] text-[var(--aur-text)]"
+                  : "border-transparent text-[var(--aur-text-muted)] hover:text-[var(--aur-text-secondary)] hover:border-[var(--aur-border-strong)]"
+              }`}
+            >
+              <tab.icon className={`h-4 w-4 mr-2.5 ${activeTab === tab.id ? "text-[var(--aur-text)]" : "text-[var(--aur-text-muted)]"}`} />
+              {tab.label}
+            </button>
+          ))}
+        </div>
 
-      {/* Tab Contents */}
-      <div className="min-h-[400px]">
-        
-        {/* Overview Tab */}
-        {activeTab === "overview" && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
-            <div className="md:col-span-2">
-              <h3 className="font-serif text-2xl font-bold text-slate-900 dark:text-white mb-4">Institutional Profile</h3>
-              <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-8">
-                {uni.description}
-              </p>
-              
-              <h4 className="font-serif text-lg font-bold text-slate-900 dark:text-white mb-4">Regional Context & Infrastructure</h4>
-              <p className="text-slate-600 dark:text-slate-400 text-sm leading-relaxed mb-8">
-                Located in the heart of {uni.location}, this institution benefits from robust regional infrastructure and deep academic networks. 
-                International students frequently choose this destination for its unique blend of cultural heritage and advanced research facilities. 
-                {uni.hasMedicine && " Its medical faculties are internationally recognized, providing rigorous clinical instruction tailored for global medical practice."}
-              </p>
+        {/* Tab Contents */}
+        <div className="min-h-[400px]">
+          
+          {/* Overview Tab */}
+          {activeTab === "overview" && (
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+              <div className="lg:col-span-2">
+                <h3 className="font-serif text-3xl font-bold text-[var(--aur-text)] mb-6">Institutional Profile</h3>
+                <p className="text-[var(--aur-text-secondary)] text-base leading-relaxed mb-10">
+                  {uni.description}
+                </p>
+                
+                <h4 className="font-serif text-2xl font-bold text-[var(--aur-text)] mb-6">Regional Context & Infrastructure</h4>
+                <p className="text-[var(--aur-text-secondary)] text-base leading-relaxed mb-12">
+                  Located in the heart of {uni.location}, this institution benefits from robust regional infrastructure and deep academic networks. 
+                  International students frequently choose this destination for its unique blend of cultural heritage and advanced research facilities. 
+                  {uni.hasMedicine && " Its medical faculties are internationally recognized, providing rigorous clinical instruction tailored for global medical practice."}
+                </p>
 
-              {/* TopUniversities style Subject Ranking Highlights */}
-              {uni.qsSubjectRankings && uni.qsSubjectRankings.length > 0 && (
-                <div className="mt-10">
-                  <div className="flex items-center justify-between mb-6 pb-2 border-b border-slate-200 dark:border-slate-800">
-                    <h4 className="font-serif text-xl font-bold text-slate-900 dark:text-white">QS World University Rankings by Subject</h4>
-                    <Trophy className="h-5 w-5 text-amber-700 dark:text-cyber-yellow" />
+                {/* Subject Ranking Highlights */}
+                {uni.qsSubjectRankings && uni.qsSubjectRankings.length > 0 && (
+                  <div className="mt-12 bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-3xl p-8 shadow-[var(--aur-shadow-sm)]">
+                    <div className="flex items-center justify-between mb-8 pb-4 border-b border-[var(--aur-border)]">
+                      <h4 className="font-serif text-2xl font-bold text-[var(--aur-text)]">Rankings by Subject</h4>
+                      <Trophy className="h-6 w-6 text-[var(--aur-text-muted)]" />
+                    </div>
+                    
+                    <div className="space-y-4">
+                      {uni.qsSubjectRankings.map((qs, i) => (
+                        <div key={i} className="flex items-center justify-between p-5 bg-[var(--aur-surface-2)] border border-[var(--aur-border)] rounded-2xl hover:border-[var(--aur-border-strong)] transition-all group">
+                          <div className="flex items-center gap-4">
+                            <div className="h-10 w-10 rounded-xl bg-[var(--aur-surface)] border border-[var(--aur-border)] flex items-center justify-center shadow-sm">
+                              <BookOpen className="h-5 w-5 text-[var(--aur-text-secondary)] group-hover:text-[var(--aur-text)] transition-colors" />
+                            </div>
+                            <span className="font-bold text-sm text-[var(--aur-text)]">{qs.subject}</span>
+                          </div>
+                          <div className="flex items-center gap-6">
+                            <div className="text-right">
+                              <span className="block text-[10px] uppercase tracking-widest text-[var(--aur-text-muted)] font-bold mb-1">World Rank</span>
+                              <span className="font-mono text-lg font-bold text-[var(--aur-text)]">#{qs.worldRank}</span>
+                            </div>
+                            <div className="w-px h-10 bg-[var(--aur-border)]"></div>
+                            <div className="text-right min-w-[4rem]">
+                              <span className="block text-[10px] uppercase tracking-widest text-[var(--aur-text-muted)] font-bold mb-1">Score</span>
+                              <span className="font-mono text-lg font-bold text-[var(--aur-text)]">{qs.score.toFixed(1)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  
-                  <div className="space-y-3">
-                    {uni.qsSubjectRankings.map((qs, i) => (
-                      <div key={i} className="flex items-center justify-between p-4 bg-white dark:bg-cyber-gray/30 border border-slate-200 dark:border-slate-800/60 rounded-xl hover:border-amber-300 dark:hover:border-cyber-yellow/40 transition-colors group">
-                        <div className="flex items-center gap-3">
-                          <div className="h-8 w-8 rounded-lg bg-slate-50 dark:bg-cyber-black border border-slate-100 dark:border-slate-800 flex items-center justify-center">
-                            <BookOpen className="h-4 w-4 text-slate-400 dark:text-slate-600 group-hover:text-amber-700 dark:group-hover:text-cyber-yellow transition-colors" />
+                )}
+              </div>
+
+              <div className="lg:col-span-1">
+                <div className="border border-[var(--aur-border)] bg-[var(--aur-surface)] rounded-3xl p-8 sticky top-28 shadow-[var(--aur-shadow)]">
+                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)] mb-6 border-b border-[var(--aur-border)] pb-4 flex items-center justify-between">
+                    Fast Facts
+                    <ExternalLink className="h-4 w-4" />
+                  </h4>
+                  <ul className="space-y-6">
+                    <li>
+                      <span className="block text-[10px] text-[var(--aur-text-muted)] uppercase tracking-wider mb-2">Location</span>
+                      <span className="text-sm font-bold text-[var(--aur-text)] flex items-center gap-2">
+                        <MapPin className="h-4 w-4 text-[var(--aur-text-secondary)]" />
+                        {uni.location}
+                      </span>
+                    </li>
+                    <li>
+                      <span className="block text-[10px] text-[var(--aur-text-muted)] uppercase tracking-wider mb-2">Primary Language</span>
+                      <span className="text-sm font-bold text-[var(--aur-text)]">{uni.languages[0]}</span>
+                    </li>
+                    <li>
+                      <span className="block text-[10px] text-[var(--aur-text-muted)] uppercase tracking-wider mb-2">Est. Tuition (Intl)</span>
+                      <span className="text-sm font-bold text-[var(--aur-text)] font-mono bg-[var(--aur-surface-2)] px-3 py-1.5 rounded-lg border border-[var(--aur-border)] inline-block">{uni.tuition}</span>
+                    </li>
+                  </ul>
+
+                  {/* Core Metrics Visual Bar Chart */}
+                  <div className="mt-8 border-t border-[var(--aur-border)] pt-6">
+                    <h5 className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)] mb-5">
+                      Core Metrics
+                    </h5>
+                    <div className="space-y-5">
+                      {[
+                        { label: "Academic Reputation", value: uni.academicReputation || uni.research },
+                        { label: "Employer Reputation", value: uni.employerReputation || uni.employability },
+                        { label: "Citations per Faculty", value: uni.citations },
+                        { label: "Faculty/Student Ratio", value: uni.facultyStudentRatio || uni.teaching },
+                        { label: "International Students", value: uni.intlStudents }
+                      ].map((metric) => (
+                        <div key={metric.label}>
+                          <div className="flex justify-between text-xs font-bold mb-2">
+                            <span className="text-[var(--aur-text-secondary)]">{metric.label}</span>
+                            <span className="font-mono text-[var(--aur-text)]">{metric.value.toFixed(1)}%</span>
                           </div>
-                          <span className="font-semibold text-sm text-slate-800 dark:text-slate-200">{qs.subject}</span>
+                          <div className="w-full h-2.5 bg-[var(--aur-surface-hover)] rounded-full overflow-hidden border border-[var(--aur-border)]">
+                            <div
+                              
+                              
+                              
+                              className="h-full bg-[var(--aur-text)] rounded-full"
+                            />
+                          </div>
                         </div>
-                        <div className="flex items-center gap-4">
-                          <div className="text-right">
-                            <span className="block text-[9px] uppercase tracking-widest text-slate-400 dark:text-slate-500 font-bold mb-0.5">World Rank</span>
-                            <span className="font-mono text-sm font-bold text-slate-900 dark:text-white">#{qs.worldRank}</span>
-                          </div>
-                          <div className="w-px h-8 bg-slate-200 dark:bg-slate-800"></div>
-                          <div className="text-right w-16">
-                            <span className="block text-[9px] uppercase tracking-widest text-slate-400 dark:text-slate-500 font-bold mb-0.5">Score</span>
-                            <span className="font-mono text-sm font-bold text-amber-700 dark:text-cyber-yellow">{qs.score.toFixed(1)}</span>
-                          </div>
-                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Metrics Tab */}
+          {activeTab === "metrics" && (
+            <div className="space-y-12 animate-fadeIn max-w-5xl mx-auto">
+              
+              <div className="text-center mb-10">
+                <h3 className="font-serif text-3xl font-bold text-[var(--aur-text)] mb-4">Academic Intelligence Metrics</h3>
+                <p className="text-sm text-[var(--aur-text-secondary)] max-w-2xl mx-auto leading-relaxed">
+                  Scores are aggregated from the Global Employer Survey, Academic Reputation Index, and peer-reviewed citation registries to ensure maximum fidelity.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+                {[
+                  { label: "Overall Score", value: uni.overall, highlight: true },
+                  { label: "Academic Rep", value: uni.academicReputation || uni.research },
+                  { label: "Employer Rep", value: uni.employerReputation || uni.employability },
+                  { label: "Citations/Faculty", value: uni.citations },
+                  { label: "Faculty/Student", value: uni.facultyStudentRatio || uni.teaching },
+                  { label: "Intl Students", value: uni.intlStudents },
+                ].map((metric, idx) => (
+                  <div key={idx} className={`rounded-3xl p-8 flex flex-col justify-between shadow-sm transition-transform hover:-translate-y-1 ${
+                    metric.highlight 
+                      ? "bg-[var(--aur-text)] text-[var(--background)]" 
+                      : "border border-[var(--aur-border)] bg-[var(--aur-surface)]"
+                  }`}>
+                    <span className={`block text-[10px] uppercase font-bold tracking-widest mb-4 ${
+                      metric.highlight ? "text-[var(--background)] opacity-70" : "text-[var(--aur-text-muted)]"
+                    }`}>
+                      {metric.label}
+                    </span>
+                    <span className={`text-4xl font-black font-serif ${
+                      metric.highlight ? "text-[var(--background)]" : "text-[var(--aur-text)]"
+                    }`}>
+                      {metric.value.toFixed(1)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="border border-[var(--aur-border)] rounded-3xl bg-[var(--aur-surface)] p-8 sm:p-10 shadow-[var(--aur-shadow-sm)] mt-12">
+                <div className="flex items-center justify-between mb-10">
+                  <div>
+                    <h4 className="font-serif text-2xl font-bold text-[var(--aur-text)]">5-Year Rank Progression</h4>
+                    <p className="text-[10px] uppercase font-bold tracking-widest text-[var(--aur-text-muted)] mt-2">Historical Performance Chart</p>
+                  </div>
+                  <LineChart className="h-6 w-6 text-[var(--aur-text-muted)]" />
+                </div>
+                {/* Lazy Loaded Chart */}
+                <div className="bg-[var(--aur-surface-2)] rounded-2xl border border-[var(--aur-border)] p-6">
+                  <TrendChart history={uni.history} />
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Admissions & Programs Tab */}
+          {activeTab === "admissions" && (
+            <div className="space-y-10 animate-fadeIn max-w-5xl mx-auto">
+
+              {/* ── Key Admission Facts ── only shown when data exists ── */}
+              {(uni.acceptanceRate || uni.applicationDeadline || uni.founded || uni.studentCount || uni.scholarshipDetails) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                  {uni.acceptanceRate !== undefined && (
+                    <div className="p-6 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] flex flex-col gap-2">
+                      <div className="h-9 w-9 rounded-xl bg-[var(--aur-surface-2)] border border-[var(--aur-border)] flex items-center justify-center mb-1">
+                        <Percent className="h-4 w-4 text-[var(--aur-text-secondary)]" />
                       </div>
-                    ))}
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)]">Acceptance Rate</span>
+                      <span className="text-2xl font-black font-mono text-[var(--aur-text)]">{uni.acceptanceRate}%</span>
+                    </div>
+                  )}
+                  {uni.founded !== undefined && (
+                    <div className="p-6 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] flex flex-col gap-2">
+                      <div className="h-9 w-9 rounded-xl bg-[var(--aur-surface-2)] border border-[var(--aur-border)] flex items-center justify-center mb-1">
+                        <Award className="h-4 w-4 text-[var(--aur-text-secondary)]" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)]">Established</span>
+                      <span className="text-2xl font-black font-mono text-[var(--aur-text)]">{uni.founded}</span>
+                    </div>
+                  )}
+                  {uni.studentCount !== undefined && (
+                    <div className="p-6 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] flex flex-col gap-2">
+                      <div className="h-9 w-9 rounded-xl bg-[var(--aur-surface-2)] border border-[var(--aur-border)] flex items-center justify-center mb-1">
+                        <Users className="h-4 w-4 text-[var(--aur-text-secondary)]" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)]">Students</span>
+                      <span className="text-2xl font-black font-mono text-[var(--aur-text)]">{uni.studentCount.toLocaleString()}</span>
+                    </div>
+                  )}
+                  {uni.applicationDeadline && (
+                    <div className="p-6 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] flex flex-col gap-2">
+                      <div className="h-9 w-9 rounded-xl bg-[var(--aur-surface-2)] border border-[var(--aur-border)] flex items-center justify-center mb-1">
+                        <CalendarDays className="h-4 w-4 text-[var(--aur-text-secondary)]" />
+                      </div>
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)]">Application Deadline</span>
+                      <span className="text-sm font-bold text-[var(--aur-text)] leading-tight">{uni.applicationDeadline}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── Scholarship Banner ── */}
+              {uni.scholarshipDetails && (
+                <div className="flex gap-4 p-6 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface-2)]">
+                  <div className="h-10 w-10 rounded-xl bg-[var(--aur-surface)] border border-[var(--aur-border)] flex items-center justify-center shrink-0">
+                    <BadgeCheck className="h-5 w-5 text-[var(--aur-text)]" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)] mb-1">Financial Aid & Scholarships</p>
+                    <p className="text-sm text-[var(--aur-text-secondary)] leading-relaxed">{uni.scholarshipDetails}</p>
                   </div>
                 </div>
               )}
-            </div>
 
-            <div className="md:col-span-1">
-              <div className="border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-cyber-gray/20 rounded-2xl p-6 self-start sticky top-24">
-                <h4 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-5 border-b border-slate-200 dark:border-slate-800 pb-3 flex items-center justify-between">
-                  Fast Facts
-                  <ExternalLink className="h-3.5 w-3.5" />
-                </h4>
-                <ul className="space-y-5">
-                  <li>
-                    <span className="block text-[10px] text-slate-500 dark:text-slate-500 uppercase tracking-wider mb-1">Location</span>
-                    <span className="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
-                      <MapPin className="h-3.5 w-3.5 text-amber-700 dark:text-cyber-yellow" />
-                      {uni.location}
-                    </span>
-                  </li>
-                  <li>
-                    <span className="block text-[10px] text-slate-500 dark:text-slate-500 uppercase tracking-wider mb-1">Primary Language</span>
-                    <span className="text-sm font-bold text-slate-900 dark:text-white">{uni.languages[0]}</span>
-                  </li>
-                  <li>
-                    <span className="block text-[10px] text-slate-500 dark:text-slate-500 uppercase tracking-wider mb-1">Est. Tuition (Intl)</span>
-                    <span className="text-sm font-bold text-slate-900 dark:text-white font-mono bg-white dark:bg-cyber-black px-2 py-1 rounded border border-slate-200 dark:border-slate-800 inline-block">{uni.tuition}</span>
-                  </li>
-                  {uni.academicReputation && (
-                    <li>
-                      <span className="block text-[10px] text-slate-500 dark:text-slate-500 uppercase tracking-wider mb-1">Academic Reputation</span>
-                      <span className="text-sm font-bold text-emerald-700 dark:text-emerald-400 font-mono">{uni.academicReputation.toFixed(1)} / 100</span>
-                    </li>
-                  )}
-                </ul>
-
-                {/* Core Metrics Visual Bar Chart */}
-                <div className="mt-6 border-t border-slate-200 dark:border-slate-800 pt-5">
-                  <h5 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-4">
-                    Core Metrics Profile
-                  </h5>
-                  <div className="space-y-4">
-                    {[
-                      { label: "Academic Reputation", value: uni.academicReputation || uni.research, color: "from-amber-500 to-amber-700 dark:from-cyber-yellow dark:to-amber-500" },
-                      { label: "Employer Reputation", value: uni.employerReputation || uni.employability, color: "from-blue-500 to-indigo-600 dark:from-blue-400 dark:to-indigo-500" },
-                      { label: "Citations per Faculty", value: uni.citations, color: "from-emerald-500 to-teal-600 dark:from-emerald-400 dark:to-teal-500" },
-                      { label: "Faculty/Student Ratio", value: uni.facultyStudentRatio || uni.teaching, color: "from-rose-500 to-red-600 dark:from-rose-400 dark:to-red-500" },
-                      { label: "International Students", value: uni.intlStudents, color: "from-purple-500 to-violet-600 dark:from-purple-400 dark:to-violet-500" }
-                    ].map((metric) => (
-                      <div key={metric.label}>
-                        <div className="flex justify-between text-[11px] font-medium mb-1.5">
-                          <span className="text-slate-500 dark:text-slate-400">{metric.label}</span>
-                          <span className="font-mono font-bold text-slate-900 dark:text-white">{metric.value.toFixed(1)}%</span>
-                        </div>
-                        <div className="w-full h-2 bg-slate-100 dark:bg-cyber-black rounded-full overflow-hidden border border-slate-200/50 dark:border-slate-800/50">
-                          <motion.div
-                            initial={{ width: 0 }}
-                            animate={{ width: `${metric.value}%` }}
-                            transition={{ duration: 1.2, ease: "easeOut" }}
-                            className={`h-full bg-gradient-to-r ${metric.color} rounded-full`}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Mini-line chart showing 5-Year Rank progression inside sidebar */}
-                <div className="mt-6 border-t border-slate-200 dark:border-slate-800 pt-5">
-                  <h5 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 dark:text-slate-500 mb-3">
-                    5-Year Ranking Progression
-                  </h5>
-                  <div className="bg-white dark:bg-cyber-black/40 rounded-xl border border-slate-150 dark:border-slate-800/50 p-3 h-28 flex items-end justify-between gap-1.5 relative overflow-hidden">
-                    {/* Horizontal grid lines */}
-                    <div className="absolute inset-0 flex flex-col justify-between p-3 pointer-events-none opacity-40">
-                      <div className="border-b border-dashed border-slate-200 dark:border-slate-800 w-full h-px" />
-                      <div className="border-b border-dashed border-slate-200 dark:border-slate-800 w-full h-px" />
-                      <div className="border-b border-dashed border-slate-200 dark:border-slate-800 w-full h-px" />
-                    </div>
-                    {/* Render visual trend bars representing ranks */}
-                    {uni.history.map((rank, index) => {
-                      const maxRank = Math.max(...uni.history, 10);
-                      const minRank = Math.min(...uni.history, 1);
-                      // Invert because rank 1 (lowest number) is the best/highest bar
-                      const pct = 15 + ((maxRank - rank) / (maxRank - minRank || 1)) * 75;
-                      const year = 2026 - index;
-
-                      return (
-                        <div key={index} className="flex-1 flex flex-col items-center group/bar z-10">
-                          <span className="text-[9px] font-mono text-slate-400 dark:text-slate-500 opacity-0 group-hover/bar:opacity-100 transition-opacity mb-1 bg-slate-900 text-white dark:bg-cyber-yellow dark:text-cyber-black px-1 rounded absolute -top-4">
-                            #{rank}
-                          </span>
-                          <motion.div
-                            initial={{ height: 0 }}
-                            animate={{ height: `${pct}%` }}
-                            transition={{ duration: 0.8, delay: index * 0.1 }}
-                            className="w-full bg-slate-200 dark:bg-slate-800 group-hover/bar:bg-amber-600 dark:group-hover/bar:bg-cyber-yellow rounded-t-sm transition-colors cursor-pointer"
-                          />
-                          <span className="text-[8px] font-mono text-slate-400 dark:text-slate-500 mt-1.5 scale-90">
-                            '{String(year).slice(2)}
-                          </span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* QS Academic Metrics Tab (Includes Lazy Chart) */}
-        {activeTab === "metrics" && (
-          <div className="space-y-10 animate-fadeIn">
-            
-            <div className="mb-6">
-              <h3 className="font-serif text-2xl font-bold text-slate-900 dark:text-white mb-2">QS Intelligence Unit Metrics</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400 max-w-2xl">
-                Scores are compiled using the latest Global Employer Survey, Academic Reputation Index, and Scopus/Elsevier citation data.
-              </p>
-            </div>
-
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-              {[
-                { label: "Overall Score", value: uni.overall, highlight: true },
-                { label: "Academic Rep", value: uni.academicReputation || uni.research },
-                { label: "Employer Rep", value: uni.employerReputation || uni.employability },
-                { label: "Citations/Faculty", value: uni.citations },
-                { label: "Faculty/Student", value: uni.facultyStudentRatio || uni.teaching },
-                { label: "Intl Students", value: uni.intlStudents },
-              ].map((metric, idx) => (
-                <div key={idx} className={`border rounded-xl p-5 flex flex-col justify-between ${
-                  metric.highlight 
-                    ? "border-amber-300 dark:border-cyber-yellow/50 bg-amber-50/50 dark:bg-cyber-yellow/10" 
-                    : "border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-gray/30"
-                }`}>
-                  <span className={`block text-[9px] uppercase font-bold tracking-widest mb-3 ${
-                    metric.highlight ? "text-amber-800 dark:text-cyber-yellow" : "text-slate-400 dark:text-slate-500"
-                  }`}>
-                    {metric.label}
-                  </span>
-                  <span className={`text-2xl font-black font-mono ${
-                    metric.highlight ? "text-amber-700 dark:text-cyber-yellow-bright" : "text-slate-900 dark:text-white"
-                  }`}>
-                    {metric.value.toFixed(1)}
-                  </span>
-                </div>
-              ))}
-            </div>
-
-            <div className="border border-slate-200 dark:border-slate-800 rounded-2xl bg-white dark:bg-cyber-gray/20 p-6 sm:p-8">
-              <div className="flex items-center justify-between mb-8">
+              {/* ── Faculties + Programs ── */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                 <div>
-                  <h4 className="font-serif text-lg font-bold text-slate-900 dark:text-white">5-Year Rank Progression</h4>
-                  <p className="text-[10px] uppercase font-bold tracking-widest text-slate-400 dark:text-slate-500 mt-1">Historical Performance</p>
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="h-12 w-12 rounded-2xl bg-[var(--aur-surface-hover)] border border-[var(--aur-border)] flex items-center justify-center">
+                      <Building2 className="h-5 w-5 text-[var(--aur-text)]" />
+                    </div>
+                    <h3 className="font-serif text-2xl font-bold text-[var(--aur-text)]">Core Faculties</h3>
+                  </div>
+                  <ul className="divide-y divide-[var(--aur-border)] border border-[var(--aur-border)] rounded-3xl bg-[var(--aur-surface)] overflow-hidden shadow-sm">
+                    {uni.subjects.map((sub, idx) => (
+                      <li key={idx} className="px-6 py-5 flex items-center text-sm font-bold text-[var(--aur-text)] hover:bg-[var(--aur-surface-hover)] transition-colors">
+                        <div className="h-2 w-2 rounded-full bg-[var(--aur-text)] opacity-40 mr-4" />
+                        {sub}
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <LineChart className="h-5 w-5 text-slate-300 dark:text-slate-600" />
-              </div>
-              {/* Lazy Loaded Chart */}
-              <div className="bg-slate-50/50 dark:bg-cyber-black rounded-xl border border-slate-100 dark:border-slate-800/50 p-4">
-                <TrendChart history={uni.history} />
-              </div>
-            </div>
-            
-          </div>
-        )}
 
-        {/* Admissions & Programs Tab */}
-        {activeTab === "admissions" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 animate-fadeIn">
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-8 w-8 rounded-lg bg-amber-50 dark:bg-cyber-yellow/10 border border-amber-200 dark:border-cyber-yellow/20 flex items-center justify-center">
-                  <Building2 className="h-4 w-4 text-amber-700 dark:text-cyber-yellow" />
+                <div>
+                  <div className="flex items-center gap-4 mb-6">
+                    <div className="h-12 w-12 rounded-2xl bg-[var(--aur-surface-hover)] border border-[var(--aur-border)] flex items-center justify-center">
+                      <BookMarked className="h-5 w-5 text-[var(--aur-text)]" />
+                    </div>
+                    <h3 className="font-serif text-2xl font-bold text-[var(--aur-text)]">Featured Programs</h3>
+                  </div>
+                  <ul className="space-y-3">
+                    {uni.programs.map((prog, idx) => (
+                      <li
+                        key={idx}
+                        className="p-5 border border-[var(--aur-border)] bg-[var(--aur-surface)] rounded-2xl flex items-center justify-between group cursor-pointer hover:border-[var(--aur-border-strong)] hover:shadow-[var(--aur-shadow-sm)] transition-all"
+                      >
+                        <span className="text-sm text-[var(--aur-text)] font-bold">{prog}</span>
+                        <span className="text-[10px] text-[var(--aur-text-muted)] uppercase tracking-widest font-bold flex items-center gap-1.5 group-hover:text-[var(--aur-text)] transition-colors shrink-0 ml-4">
+                          Details <ChevronRight className="h-3.5 w-3.5" />
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <h3 className="font-serif text-xl font-bold text-slate-900 dark:text-white">Core Faculties</h3>
               </div>
-              <ul className="divide-y divide-slate-100 dark:divide-slate-800/60 border border-slate-200 dark:border-slate-800/60 rounded-xl bg-white dark:bg-cyber-gray/30 overflow-hidden">
-                {uni.subjects.map((sub, idx) => (
-                  <li key={idx} className="px-5 py-4 flex items-center text-sm font-medium text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-cyber-dark/40 transition-colors cursor-default">
-                    <div className="h-1.5 w-1.5 rounded-full bg-amber-500 dark:bg-cyber-yellow mr-3"></div>
-                    {sub}
-                  </li>
+
+              {/* ── Languages of Instruction ── */}
+              <div className="p-6 rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] flex flex-wrap gap-3 items-center">
+                <Globe className="h-4 w-4 text-[var(--aur-text-muted)] shrink-0" />
+                <span className="text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-muted)] mr-2">Languages of Instruction</span>
+                {uni.languages.map((lang) => (
+                  <span
+                    key={lang}
+                    className="text-xs font-bold px-3 py-1.5 rounded-lg border border-[var(--aur-border-strong)] bg-[var(--aur-surface-2)] text-[var(--aur-text)]"
+                  >
+                    {lang}
+                  </span>
                 ))}
-              </ul>
-            </div>
-            
-            <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="h-8 w-8 rounded-lg bg-amber-50 dark:bg-cyber-yellow/10 border border-amber-200 dark:border-cyber-yellow/20 flex items-center justify-center">
-                  <GraduationCap className="h-4 w-4 text-amber-700 dark:text-cyber-yellow" />
-                </div>
-                <h3 className="font-serif text-xl font-bold text-slate-900 dark:text-white">Featured Degree Programs</h3>
               </div>
-              <ul className="space-y-3">
-                {uni.programs.map((prog, idx) => (
-                  <li key={idx} className="p-4 border border-slate-200 dark:border-slate-800/60 bg-white dark:bg-cyber-gray/30 rounded-xl flex items-center justify-between group cursor-pointer hover:border-amber-300 dark:hover:border-cyber-yellow/40 hover:shadow-md transition-all">
-                    <span className="text-sm text-slate-800 dark:text-slate-200 font-semibold group-hover:text-amber-700 dark:group-hover:text-cyber-yellow transition-colors">
-                      {prog}
-                    </span>
-                    <span className="text-[10px] text-slate-400 dark:text-slate-500 uppercase tracking-widest font-mono group-hover:text-amber-700 dark:group-hover:text-cyber-yellow flex items-center gap-1">
-                      Details
-                      <ChevronRight className="h-3 w-3" />
-                    </span>
-                  </li>
-                ))}
-              </ul>
+
             </div>
-          </div>
-        )}
+          )}
+        </div>
+
       </div>
-
     </div>
   );
 }
-

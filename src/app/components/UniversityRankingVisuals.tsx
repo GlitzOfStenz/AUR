@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { motion } from "framer-motion";
+
 
 const METRICS = [
   { label: "Academic Reputation", value: 30 },
@@ -34,12 +34,12 @@ export default function UniversityRankingVisuals() {
                 <span>{metric.value}%</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-                <motion.div
+                <div
                   className="h-full rounded-full bg-amber-700 dark:bg-cyber-yellow"
-                  initial={{ width: 0 }}
-                  whileInView={{ width: `${metric.value * 3}%` }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5 }}
+                  
+                  
+                  
+                  
                 />
               </div>
             </div>
@@ -49,12 +49,12 @@ export default function UniversityRankingVisuals() {
         <div className="flex items-end gap-3 rounded-lg bg-slate-50 p-4 dark:bg-cyber-dark">
           {TREND.map((rank, index) => (
             <div key={rank} className="flex flex-1 flex-col items-center gap-2">
-              <motion.div
+              <div
                 className="w-full rounded-t bg-slate-900 dark:bg-cyber-yellow"
-                initial={{ height: 0 }}
-                whileInView={{ height: `${Math.max(18, 90 - rank * 3)}%` }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.45, delay: index * 0.05 }}
+                
+                
+                
+                
               />
               <span className="font-mono text-[10px] text-slate-500 dark:text-slate-400">
                 #{rank}

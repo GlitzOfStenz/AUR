@@ -2,14 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { X, Bot, Send, Sparkles, Loader2 } from "lucide-react";
-import {
-  motion,
-  AnimatePresence,
-  useMotionValue,
-  useVelocity,
-  useTransform,
-  useSpring,
-} from "framer-motion";
+
 import { useSidebar } from "./navigation/SidebarContext";
 
 // ─── Types & Mock Intelligence ────────────────────────────────────────────────
@@ -84,72 +77,6 @@ export default function FloatingChatAssistant() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // ─── Framer Motion Physics Drag ───────────────────────────────────────────
-
-  // Core position motion values — Framer Motion writes to these during drag
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  // Real-time velocity sampling on the X axis
-  const xVelocity = useVelocity(x);
-  const yVelocity = useVelocity(y);
-
-  // Map horizontal velocity → rotation angle
-  // Drag fast right → +18° tilt; drag fast left → -18°; stop → 0°
-  const rawRotation = useTransform(xVelocity, [-2400, 0, 2400], [-18, 0, 18]);
-
-  // Add subtle Y influence: circular swirls produce diagonal tilts
-  const yTiltContrib = useTransform(yVelocity, [-1200, 0, 1200], [-4, 0, 4]);
-
-  // Combine X and Y tilt contributions
-  const combinedRotation = useTransform(
-    [rawRotation, yTiltContrib],
-    ([rx, ry]: number[]) => rx + ry
-  );
-
-  // Spring-smooth the tilt — gives the elastic "swing then settle" physics
-  const rotation = useSpring(combinedRotation, {
-    stiffness: 55,   // low stiffness = wide, slow oscillation
-    damping: 10,     // low damping  = more oscillations before rest
-    mass: 0.6,       // heavier mass = more inertia in the swing
-  });
-
-  // Subtle scale pulse on high-velocity drag — feels "alive"
-  const absVelocity = useTransform(xVelocity, (v) => Math.abs(v));
-  const rawScale = useTransform(absVelocity, [0, 1800], [1, 1.035]);
-  const liveScale = useSpring(rawScale, { stiffness: 180, damping: 28 });
-
-  // ─── Viewport-aware Drag Constraints ─────────────────────────────────────
-
-  const [constraints, setConstraints] = useState({
-    left: -2400,
-    right: 0,
-    top: -1000,
-    bottom: 0,
-  });
-
-  useEffect(() => {
-    // Panel is fixed at: bottom-24 (96px), right-6 (24px)
-    // Width ≈ 368px (sm:w-[360px] + borders), Height ≈ 520px
-    const PANEL_W = 368;
-    const PANEL_H = 520;
-    const RIGHT_OFFSET = 24;
-    const BOTTOM_OFFSET = 96;
-
-    const update = () => {
-      setConstraints({
-        left: -(window.innerWidth - PANEL_W - RIGHT_OFFSET),
-        right: 0,
-        top: -(window.innerHeight - PANEL_H - BOTTOM_OFFSET),
-        bottom: 0,
-      });
-    };
-
-    update();
-    window.addEventListener("resize", update);
-    return () => window.removeEventListener("resize", update);
-  }, []);
-
   // ─── Side Effects ─────────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -163,11 +90,6 @@ export default function FloatingChatAssistant() {
 
   const handleClose = () => {
     setIsChatOpen(false);
-    // Animate back to origin after exit completes
-    setTimeout(() => {
-      x.set(0);
-      y.set(0);
-    }, 340);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -209,44 +131,10 @@ export default function FloatingChatAssistant() {
   return (
     <>
       {/* ── Physics Chat Panel ──────────────────────────────────────────── */}
-      <AnimatePresence>
+      <>
         {isChatOpen && (
-          <motion.div
+          <div
             key="chat-panel"
-
-            // ── Enter / Exit spring ──
-            initial={{ opacity: 0, scale: 0.78 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.78 }}
-            transition={{ type: "spring", stiffness: 310, damping: 24 }}
-
-            // ── Physics-based omnidirectional drag ──
-            drag
-            dragConstraints={constraints}
-            dragElastic={{              // elastic resistance at every boundary edge
-              top: 0.14,
-              bottom: 0.14,
-              left: 0.14,
-              right: 0.14,
-            }}
-            dragMomentum                // keep velocity on release for glide
-            dragTransition={{
-              power: 0.42,             // how much velocity carries after release
-              timeConstant: 380,       // ms; longer = longer glide
-              bounceDamping: 22,       // damping of edge bounce-back
-              bounceStiffness: 260,    // spring stiffness of edge bounce
-              modifyTarget: (t) => Math.round(t), // snap to nearest pixel
-            }}
-            whileDrag={{ cursor: "grabbing" }}
-
-            // ── Live physics style bindings ──
-            style={{
-              x,
-              y,
-              rotate: rotation,
-              scale: liveScale,
-            }}
-
             className={[
               "fixed bottom-24 right-6 z-50",
               "w-80 sm:w-[360px]",
@@ -398,58 +286,60 @@ export default function FloatingChatAssistant() {
                 <Send className="h-3.5 w-3.5" />
               </button>
             </form>
-          </motion.div>
+          </div>
         )}
-      </AnimatePresence>
+      </>
 
       {/* ── Floating Trigger Button ─────────────────────────────────────── */}
-      <AnimatePresence>
-        {!isChatOpen && activeView === "home" && isIdle && (
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 20, transition: { duration: 0.2 } }}
+      <>
+        {!isChatOpen && (
+          <div
             className="fixed bottom-6 right-6 z-50 flex items-end gap-4 pointer-events-none"
+            style={{
+              opacity: isIdle ? 1 : 0,
+              transform: isIdle ? "translate3d(0, 0, 0)" : "translate3d(0, 8px, 0)",
+              transition: "opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
+              willChange: "opacity, transform",
+              pointerEvents: isIdle ? "auto" : "none",
+            }}
           >
-            {/* The "Come talk to me" tooltip */}
-            <motion.div
-              initial={{ opacity: 0, x: 20, rotate: -5 }}
-              animate={{ opacity: 1, x: 0, rotate: 0 }}
-              transition={{ delay: 0.3, type: "spring", stiffness: 200, damping: 15 }}
-              className={[
-                "relative mb-2 px-3.5 py-2.5 rounded-2xl text-[11px] font-bold shadow-xl cursor-pointer pointer-events-auto transition-transform hover:scale-105",
-                isDark 
-                  ? "bg-cyber-gray border border-cyber-yellow/30 text-cyber-yellow" 
-                  : "bg-white border border-slate-200 text-amber-700 shadow-slate-900/10"
-              ].join(" ")}
-              onClick={() => setIsChatOpen(true)}
-            >
-              👋 Come talk to me!
-              {/* Tooltip triangle pointing right/down */}
-              <div 
+            {/* "Come talk to me" tooltip — only on homepage */}
+            {activeView === "home" && (
+              <div
                 className={[
-                  "absolute -right-1.5 bottom-3.5 w-3.5 h-3.5 rotate-45 border-r border-b",
-                  isDark ? "bg-cyber-gray border-cyber-yellow/30" : "bg-white border-slate-200"
-                ].join(" ")} 
-              />
-            </motion.div>
+                  "relative mb-2 px-3.5 py-2.5 rounded-2xl text-[11px] font-bold shadow-xl cursor-pointer pointer-events-auto transition-transform hover:scale-105",
+                  isDark
+                    ? "bg-cyber-gray border border-cyber-yellow/30 text-cyber-yellow"
+                    : "bg-white border border-slate-200 text-amber-700 shadow-slate-900/10",
+                ].join(" ")}
+                onClick={() => setIsChatOpen(true)}
+              >
+                👋 Come talk to me!
+                <div
+                  className={[
+                    "absolute -right-1.5 bottom-3.5 w-3.5 h-3.5 rotate-45 border-r border-b",
+                    isDark ? "bg-cyber-gray border-cyber-yellow/30" : "bg-white border-slate-200",
+                  ].join(" ")}
+                />
+              </div>
+            )}
 
-            {/* The FAB */}
-            <motion.button
+            {/* FAB — always visible on all pages */}
+            <button
               key="chat-trigger"
               onClick={() => setIsChatOpen(true)}
-              whileHover={{ scale: 1.12 }}
-              whileTap={{ scale: 0.92 }}
               className="pointer-events-auto shrink-0 h-14 w-14 rounded-full bg-amber-600 dark:bg-cyber-yellow text-white dark:text-cyber-black shadow-lg shadow-amber-600/30 dark:shadow-cyber-yellow/25 flex items-center justify-center relative"
               title="Open AI Rankings Assistant"
             >
               <Bot className="h-6 w-6" />
-              {/* Pulsing attention ring */}
-              <span className="absolute inset-0 rounded-full animate-ping bg-amber-500/30 dark:bg-cyber-yellow/20 pointer-events-none" />
-            </motion.button>
-          </motion.div>
+              {/* Pulsing ring only on home */}
+              {activeView === "home" && (
+                <span className="absolute inset-0 rounded-full animate-ping bg-amber-500/30 dark:bg-cyber-yellow/20 pointer-events-none" />
+              )}
+            </button>
+          </div>
         )}
-      </AnimatePresence>
+      </>
     </>
   );
 }

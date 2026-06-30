@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useMemo, useEffect, useDeferredValue } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -57,7 +57,7 @@ export default function RankingsEngine({
   onUniversitySelect,
 }: RankingsEngineProps) {
   const focusRing =
-    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyber-yellow dark:focus-visible:ring-offset-cyber-black";
+    "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--aur-text)] focus-visible:ring-offset-2 focus-visible:ring-offset-[var(--background)]";
   const router = useRouter();
   const searchParams = useSearchParams();
   const { filters } = useSidebar();
@@ -103,7 +103,7 @@ export default function RankingsEngine({
   }, []);
 
   // 3. Serialize state back to URL query strings smoothly
-  // We use window.history.replaceState to prevent Next.js from triggering heavy layout flushes or re-renders
+  // We use window.history.replaceState to prevent Next.js from triggering heavy  flushes or re-renders
   const serializeStateToUrl = (
     newSearch: string,
     newLocs: string[],
@@ -117,7 +117,7 @@ export default function RankingsEngine({
     if (newSubs.length > 0) params.set("subjects", newSubs.join(","));
     if (newLangs.length > 0) params.set("languages", newLangs.join(","));
     
-    // Only serialize custom weights if they differ from default
+    // Only serialize  weights if they differ from default
     if (JSON.stringify(newWeights) !== JSON.stringify(DEFAULT_WEIGHTS)) {
       params.set("w_cit", newWeights.citations.toString());
       params.set("w_res", newWeights.research.toString());
@@ -184,7 +184,7 @@ export default function RankingsEngine({
       weights.intlStudents +
       weights.teaching;
 
-    // Apply custom formula weights to recalculate scores dynamically
+    // Apply  formula weights to recalculate scores dynamically
     const recalculated = MOCK_UNIVERSITIES.map((uni) => {
       let calculatedScore = uni.overall;
       if (totalWeight > 0) {
@@ -370,7 +370,7 @@ export default function RankingsEngine({
         header: "Score",
         accessorKey: "calculatedScore",
         cell: ({ getValue }) => (
-          <span className="aur-score-pill aur-tabular text-slate-900 dark:text-slate-100">
+          <span className="aur-score-pill aur-tabular text-[var(--aur-text)]">
             {(getValue() as number).toFixed(1)}
           </span>
         ),
@@ -424,7 +424,7 @@ export default function RankingsEngine({
             >
               {isSelected ? (
                 <>
-                  <CheckSquare className="h-3.5 w-3.5 text-amber-700" />
+                  <CheckSquare className="h-3.5 w-3.5 text-[var(--aur-text)]" />
                   <span className="text-[10px]">Added</span>
                 </>
               ) : (
@@ -452,12 +452,6 @@ export default function RankingsEngine({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 15,
-      },
-    },
   });
 
   return (
@@ -470,8 +464,8 @@ export default function RankingsEngine({
           <h2 className="aur-section-title text-3xl md:text-4xl leading-tight mt-2">
             Asia Institutional Ranking Table
           </h2>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-mono mt-3 tracking-wide">
-            Index refreshed · Jun 2026 · {filteredData.length} institutions indexed
+          <p className="text-[11px] text-[var(--aur-text-muted)] font-mono mt-3 tracking-wide">
+            Index refreshed Â· Jun 2026 Â· {filteredData.length} institutions indexed
           </p>
         </div>
         
@@ -481,7 +475,7 @@ export default function RankingsEngine({
           onClick={() => setIsWeightsDrawerOpen(true)}
           className={`aur-rankings-action mt-2 md:mt-0 inline-flex w-full sm:w-auto items-center justify-center px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider transition-all aur-focus-ring ${focusRing}`}
         >
-          <SlidersHorizontal className="h-4 w-4 mr-2 text-amber-700" />
+          <SlidersHorizontal className="h-4 w-4 mr-2" />
           Weights Recalculator
         </button>
       </div>
@@ -528,7 +522,7 @@ export default function RankingsEngine({
               onChange={(e) => handleSearchChange(e.target.value)}
               className="aur-input pl-9"
             />
-            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
+            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-[var(--aur-text-muted)]" />
           </div>
         </div>
 
@@ -548,7 +542,7 @@ export default function RankingsEngine({
               <option value="">Filter Location...</option>
               {uniqueLocations.map((loc) => (
                 <option key={loc} value={loc}>
-                  {loc} {locations.includes(loc) ? "✓" : ""}
+                  {loc} {locations.includes(loc) ? "âœ“" : ""}
                 </option>
               ))}
             </select>
@@ -562,7 +556,7 @@ export default function RankingsEngine({
                   onClick={() => handleLocationToggle(loc)}
                   className="inline-flex max-w-full items-center rounded-sm text-[9px] font-mono border border-slate-350 bg-white dark:bg-cyber-gray dark:border-cyber-border text-slate-700 dark:text-slate-300 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
                 >
-                  {loc} <X className="h-2 w-2 ml-1" />
+                  {loc} <X className="h-2.5 w-2.5 ml-1" />
                 </span>
               ))}
             </div>
@@ -585,7 +579,7 @@ export default function RankingsEngine({
               <option value="">Filter Subject...</option>
               {uniqueSubjects.map((sub) => (
                 <option key={sub} value={sub}>
-                  {sub} {selectedSubjects.includes(sub) ? "✓" : ""}
+                  {sub} {selectedSubjects.includes(sub) ? "âœ“" : ""}
                 </option>
               ))}
             </select>
@@ -599,7 +593,7 @@ export default function RankingsEngine({
                   onClick={() => handleSubjectToggle(sub)}
                   className="inline-flex max-w-full items-center rounded-sm text-[9px] font-mono border border-slate-350 bg-white dark:bg-cyber-gray dark:border-cyber-border text-slate-700 dark:text-slate-300 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
                 >
-                  {sub} <X className="h-2 w-2 ml-1" />
+                  {sub} <X className="h-2.5 w-2.5 ml-1" />
                 </span>
               ))}
             </div>
@@ -622,7 +616,7 @@ export default function RankingsEngine({
               <option value="">Filter Language...</option>
               {uniqueLanguages.map((lang) => (
                 <option key={lang} value={lang}>
-                  {lang} {selectedLanguages.includes(lang) ? "✓" : ""}
+                  {lang} {selectedLanguages.includes(lang) ? "âœ“" : ""}
                 </option>
               ))}
             </select>
@@ -636,7 +630,7 @@ export default function RankingsEngine({
                   onClick={() => handleLanguageToggle(lang)}
                   className="inline-flex max-w-full items-center rounded-sm text-[9px] font-mono border border-slate-350 bg-white dark:bg-cyber-gray dark:border-cyber-border text-slate-700 dark:text-slate-300 px-1.5 py-0.5 cursor-pointer hover:border-red-500 hover:text-red-500"
                 >
-                  {lang} <X className="h-2 w-2 ml-1" />
+                  {lang} <X className="h-2.5 w-2.5 ml-1" />
                 </span>
               ))}
             </div>
@@ -662,7 +656,7 @@ export default function RankingsEngine({
         <table className="aur-table table-fixed min-w-[760px] w-full">
           <thead className="sticky top-0 z-10 aur-thead-shadow">
             {table.getHeaderGroups().map((headerGroup) => (
-              <tr key={headerGroup.id} className="border-b border-slate-200 dark:border-slate-800">
+              <tr key={headerGroup.id} className="border-b border-[var(--aur-border)]">
                 {headerGroup.headers.map((header, idx) => {
                   const isPinnedCol = idx < 2; // rank and name columns pinned
                   const columnId = header.column.id;
@@ -697,7 +691,7 @@ export default function RankingsEngine({
                           : ""
                       } ${widthClass} ${alignClass} ${
                         isMobileHiddenCol ? "hidden sm:table-cell" : ""
-                      } ${header.column.getCanSort() ? "cursor-pointer hover:text-amber-300 dark:hover:text-cyber-yellow-bright" : ""}`}
+                      } ${header.column.getCanSort() ? "cursor-pointer hover:text-[var(--aur-text)]" : ""}`}
                       onClick={header.column.getToggleSortingHandler()}
                     >
                       <div className={`flex items-center space-x-1.5 ${alignClass ? "justify-end" : ""}`}>
@@ -720,7 +714,7 @@ export default function RankingsEngine({
               </tr>
             ))}
           </thead>
-          <tbody className="font-sans text-slate-700 dark:text-slate-300">
+          <tbody className="font-sans text-[var(--aur-text-secondary)]">
             {table.getRowModel().rows.map((row) => (
               <tr key={row.id} className="group">
                 {row.getVisibleCells().map((cell, idx) => {
@@ -752,8 +746,8 @@ export default function RankingsEngine({
                       className={`px-3 sm:px-4 py-3 align-middle ${
                         isPinnedCol
                           ? idx === 0
-                            ? `sticky-pin sticky left-0 z-10 border-r border-slate-200/80 dark:border-cyber-border/40 font-bold text-slate-900 dark:text-white ${widthClass}`
-                            : `sticky-pin sticky left-[56px] z-10 border-r border-slate-200/80 dark:border-cyber-border/40 font-bold text-slate-900 dark:text-white ${widthClass}`
+                            ? `sticky-pin sticky left-0 z-10 border-r border-[var(--aur-border)] font-bold text-[var(--aur-text)] ${widthClass}`
+                            : `sticky-pin sticky left-[56px] z-10 border-r border-[var(--aur-border)] font-bold text-[var(--aur-text)] ${widthClass}`
                           : ""
                       } ${widthClass} ${alignClass} ${isMobileHiddenCol ? "hidden sm:table-cell" : ""}`}
                     >
@@ -767,15 +761,15 @@ export default function RankingsEngine({
               <tr>
                 <td colSpan={columns.length} className="py-16 px-6">
                   <div className="flex flex-col items-center text-center max-w-md mx-auto">
-                    <div className="flex h-12 w-12 items-center justify-center border border-slate-200 dark:border-cyber-border bg-slate-50 dark:bg-cyber-gray mb-4">
-                      <FilterX className="h-5 w-5 text-amber-700 dark:text-cyber-yellow" />
+                    <div className="flex h-12 w-12 items-center justify-center border border-[var(--aur-border)] bg-[var(--aur-surface-2)] rounded-xl mb-4">
+                      <FilterX className="h-5 w-5 text-[var(--aur-text-muted)]" />
                     </div>
                     <p className="aur-caption mb-2">No matches</p>
-                    <h3 className="font-serif text-lg font-semibold text-slate-900 dark:text-white mb-2">
+                    <h3 className="font-serif text-lg font-semibold text-[var(--aur-text)] mb-2">
                       No institutions match your filters
                     </h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 leading-relaxed mb-6">
-                      Try widening location, subject, or rank ranges—or reset all filters to browse the full index.
+                    <p className="text-xs text-[var(--aur-text-muted)] leading-relaxed mb-6">
+                      Try widening location, subject, or rank rangesâ€”or reset all filters to browse the full index.
                     </p>
                     <button
                       type="button"
@@ -798,38 +792,38 @@ export default function RankingsEngine({
           <button
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className={`relative inline-flex items-center border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 ${focusRing}`}
+            className={`relative inline-flex items-center border border-[var(--aur-border)] bg-[var(--aur-surface-2)] px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--aur-text)] hover:bg-[var(--aur-surface-hover)] disabled:opacity-50 rounded-lg ${focusRing}`}
           >
             Previous
           </button>
           <button
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className={`relative ml-3 inline-flex items-center border border-slate-300 bg-white px-4 py-2 text-xs font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-50 ${focusRing}`}
+            className={`relative ml-3 inline-flex items-center border border-[var(--aur-border)] bg-[var(--aur-surface-2)] px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--aur-text)] hover:bg-[var(--aur-surface-hover)] disabled:opacity-50 rounded-lg ${focusRing}`}
           >
             Next
           </button>
         </div>
         <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
           <div>
-            <p className="text-[10px] text-slate-400 font-semibold uppercase tracking-wider">
-              Showing page <span className="font-mono text-slate-700">{table.getState().pagination.pageIndex + 1}</span> of{" "}
-              <span className="font-mono text-slate-700">{table.getPageCount()}</span>
+            <p className="text-[10px] text-[var(--aur-text-muted)] font-bold uppercase tracking-widest">
+              Showing page <span className="font-mono text-[var(--aur-text)]">{table.getState().pagination.pageIndex + 1}</span> of{" "}
+              <span className="font-mono text-[var(--aur-text)]">{table.getPageCount()}</span>
             </p>
           </div>
           <div>
-            <nav className="isolate inline-flex -space-x-px" aria-label="Pagination">
+            <nav className="isolate inline-flex -space-x-px rounded-md shadow-sm" aria-label="Pagination">
               <button
                 onClick={() => table.previousPage()}
                 disabled={!table.getCanPreviousPage()}
-                className={`relative inline-flex items-center border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 ${focusRing}`}
+                className={`relative inline-flex items-center border border-[var(--aur-border)] bg-[var(--aur-surface)] px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[var(--aur-text-secondary)] hover:bg-[var(--aur-surface-hover)] disabled:opacity-50 rounded-l-md transition-colors ${focusRing}`}
               >
                 Previous
               </button>
               <button
                 onClick={() => table.nextPage()}
                 disabled={!table.getCanNextPage()}
-                className={`relative inline-flex items-center border border-slate-300 bg-white px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50 disabled:opacity-50 ${focusRing}`}
+                className={`relative inline-flex items-center border border-l-0 border-[var(--aur-border)] bg-[var(--aur-surface)] px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-[var(--aur-text-secondary)] hover:bg-[var(--aur-surface-hover)] disabled:opacity-50 rounded-r-md transition-colors ${focusRing}`}
               >
                 Next
               </button>
@@ -841,29 +835,29 @@ export default function RankingsEngine({
       {/* 11. Custom Recalculation Weights Slide-Out Drawer */}
       {isWeightsDrawerOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden font-sans">
-          <div className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity" onClick={() => setIsWeightsDrawerOpen(false)} />
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-xs transition-opacity" onClick={() => setIsWeightsDrawerOpen(false)} />
           <div className="fixed inset-y-0 right-0 pl-10 max-w-full flex">
-            <div className="w-screen max-w-md bg-white border-l border-slate-900 flex flex-col justify-between shadow-2xl">
+            <div className="w-screen max-w-md bg-[var(--aur-surface)] border-l border-[var(--aur-border)] flex flex-col justify-between shadow-2xl">
               
               {/* Drawer Header */}
-              <div className="p-6 border-b border-slate-200">
+              <div className="p-6 border-b border-[var(--aur-border)]">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700">
+                    <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--aur-text-muted)]">
                       Calculations Lab
                     </span>
-                    <h3 className="font-serif text-xl font-bold text-slate-900 mt-0.5">
+                    <h3 className="font-serif text-xl font-bold text-[var(--aur-text)] mt-0.5">
                       Recalculate Rank Weights
                     </h3>
                   </div>
                   <button
                     onClick={() => setIsWeightsDrawerOpen(false)}
-                    className="p-1 hover:bg-slate-100 rounded text-slate-500 hover:text-slate-900"
+                    className="p-1 hover:bg-[var(--aur-hover)] rounded-lg text-[var(--aur-text-muted)] hover:text-[var(--aur-text)]"
                   >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
-                <p className="text-slate-500 text-xs mt-3 leading-relaxed">
+                <p className="text-[var(--aur-text-secondary)] text-xs mt-3 leading-relaxed">
                   Modify the relative priority weights below. The system automatically recalculates total scores using instant frontend arithmetic.
                 </p>
               </div>
@@ -882,10 +876,10 @@ export default function RankingsEngine({
                     <div key={slider.key} className="space-y-2">
                       <div className="flex items-center justify-between">
                         <div>
-                          <label className="text-xs font-bold text-slate-900 block">{slider.label}</label>
-                          <span className="text-[10px] text-slate-400 block">{slider.desc}</span>
+                          <label className="text-xs font-bold text-[var(--aur-text)] block">{slider.label}</label>
+                          <span className="text-[10px] text-[var(--aur-text-muted)] block">{slider.desc}</span>
                         </div>
-                        <span className="font-mono text-xs font-bold text-amber-700 bg-amber-50 px-2 py-0.5 border border-amber-200 rounded">
+                        <span className="font-mono text-xs font-bold text-[var(--aur-text)] bg-[var(--aur-surface-2)] px-2 py-0.5 border border-[var(--aur-border-strong)] rounded-md">
                           {currentValue}%
                         </span>
                       </div>
@@ -896,7 +890,8 @@ export default function RankingsEngine({
                         step="5"
                         value={currentValue}
                         onChange={(e) => handleWeightChange(slider.key as any, parseInt(e.target.value))}
-                        className="w-full accent-amber-700 cursor-pointer bg-slate-100"
+                        className="w-full cursor-pointer"
+                        style={{ accentColor: "var(--aur-text)" }}
                       />
                     </div>
                   );
@@ -904,20 +899,20 @@ export default function RankingsEngine({
               </div>
 
               {/* Drawer Footer controls */}
-              <div className="p-6 border-t border-slate-200 bg-slate-50 flex items-center justify-between">
+              <div className="p-6 border-t border-[var(--aur-border)] bg-[var(--aur-surface-2)] flex items-center justify-between">
                 <button
                   onClick={() => {
                     setWeights(DEFAULT_WEIGHTS);
                     serializeStateToUrl(searchQuery, locations, selectedSubjects, selectedLanguages, DEFAULT_WEIGHTS);
                   }}
-                  className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
+                  className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] transition-colors"
                 >
                   <RotateCcw className="h-4 w-4 mr-1.5" />
                   Default Weights
                 </button>
                 <button
                   onClick={() => setIsWeightsDrawerOpen(false)}
-                  className="bg-slate-900 text-white text-xs font-bold uppercase tracking-wider px-6 py-2.5 hover:bg-slate-800 transition-colors border border-slate-900"
+                  className="aur-btn-primary px-6 py-2.5"
                 >
                   Apply Recalculation
                 </button>

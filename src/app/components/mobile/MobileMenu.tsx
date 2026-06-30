@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useSidebar } from "../navigation/SidebarContext";
 import { SIDEBAR_ITEMS, NavItem } from "../navigation/config";
 import FilterPanel from "../filters/FilterPanel";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { X, SlidersHorizontal, Home, Trophy, Settings, Bookmark } from "lucide-react";
 
 export default function MobileMenu() {
@@ -28,25 +28,25 @@ export default function MobileMenu() {
   return (
     <>
       {/* 1. Mobile Left Drawer (Sidebar & Filter Panel) */}
-      <AnimatePresence>
+      <>
         {isMobileOpen && (
           <div className="fixed inset-0 z-50 md:hidden flex font-sans">
             
             {/* Backdrop Blur Overlay */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
+            <div
+              
+              
+              
               onClick={() => setIsMobileOpen(false)}
               className="absolute inset-0 bg-slate-950/60 backdrop-blur-sm"
             />
 
             {/* Slide-in Drawer Content */}
-            <motion.div
-              initial={{ x: "-100%" }}
-              animate={{ x: 0 }}
-              exit={{ x: "-100%" }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            <div
+              
+              
+              
+              
               className={`relative w-80 max-w-[85vw] h-full flex flex-col shadow-2xl z-10 ${
                 theme === "dark"
                   ? "bg-cyber-dark border-r border-cyber-border/40 text-slate-100"
@@ -139,10 +139,10 @@ export default function MobileMenu() {
               <div className="p-4 border-t border-slate-200 dark:border-cyber-border/40 bg-slate-50 dark:bg-cyber-dark/50 text-[10px] text-center text-slate-400 uppercase tracking-widest font-mono">
                 System Version: 2026.01
               </div>
-            </motion.div>
+            </div>
           </div>
         )}
-      </AnimatePresence>
+      </>
 
       {/* 2. Bottom Mobile Quick Navigation Pinned Bar */}
       <nav

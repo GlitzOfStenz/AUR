@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, SlidersHorizontal, ChevronDown } from "lucid
 import { useSidebar } from "../navigation/SidebarContext";
 import { SIDEBAR_ITEMS, NavItem } from "../navigation/config";
 import FilterPanel from "../filters/FilterPanel";
-import { motion, AnimatePresence } from "framer-motion";
+
 
 export default function Sidebar() {
   const {
@@ -39,12 +39,8 @@ export default function Sidebar() {
 
   return (
     <aside
-      className={`hidden md:flex flex-col shrink-0 h-[calc(100vh-4rem)] sticky top-16 border-r transition-all duration-300 z-30 select-none ${
+      className={`hidden md:flex flex-col shrink-0 h-[calc(100vh-3.5rem)] sticky top-14 border-r border-[var(--aur-border)] transition-all duration-300 z-30 select-none bg-[var(--aur-surface)] ${
         isCollapsed ? "w-20" : "w-64"
-      } ${
-        theme === "dark"
-          ? "bg-cyber-dark/40 border-cyber-border/40 cyber-glass"
-          : "bg-white border-slate-200"
       }`}
     >
       {/* 1. Sidebar Links Section */}
@@ -59,16 +55,16 @@ export default function Sidebar() {
                 onClick={() => handleItemClick(item)}
                 className={`w-full flex items-center p-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 relative z-10 cursor-pointer ${
                   isActive
-                    ? "text-slate-900 dark:text-cyber-black"
-                    : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white hover:bg-slate-200/40 dark:hover:bg-cyber-gray/30"
+                    ? "text-[var(--background)]"
+                    : "text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)]"
                 }`}
               >
                 {/* Background highlight using Framer Motion for active state */}
                 {isActive && (
-                  <motion.div
-                    layoutId="sidebarActiveBackground"
-                    className="absolute inset-0 bg-white shadow-sm border border-slate-200 dark:border-transparent dark:bg-cyber-yellow dark:shadow-[0_0_12px_rgba(234,179,8,0.2)] rounded-lg z-[-1]"
-                    transition={{ type: "spring", stiffness: 350, damping: 28 }}
+                  <div
+                    
+                    className="absolute inset-0 bg-[var(--aur-text)] shadow-sm rounded-lg z-[-1]"
+                    
                   />
                 )}
 
@@ -84,7 +80,7 @@ export default function Sidebar() {
 
                 {/* Badge (e.g. "Live") */}
                 {!isCollapsed && item.badge && (
-                  <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded font-mono font-bold uppercase bg-amber-100 text-amber-900 dark:bg-cyber-black dark:text-cyber-yellow-bright border dark:border-cyber-yellow/20">
+                  <span className="ml-auto text-[9px] px-1.5 py-0.5 rounded font-mono font-bold uppercase bg-[var(--aur-hover)] text-[var(--aur-text)] border border-[var(--aur-border)]">
                     {item.badge}
                   </span>
                 )}
@@ -92,14 +88,10 @@ export default function Sidebar() {
 
               {/* Collapsed Hover Tooltip */}
               {isCollapsed && (
-                <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-4 px-2.5 py-1.5 rounded border pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 text-[10px] font-bold uppercase tracking-widest shadow-lg ${
-                  theme === 'dark'
-                    ? 'bg-cyber-gray border-cyber-yellow/20 text-cyber-yellow-bright'
-                    : 'bg-slate-900 border-slate-900 text-white'
-                }`}>
+                <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-2.5 py-1.5 rounded border border-[var(--aur-border)] pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 text-[10px] font-bold uppercase tracking-widest shadow-lg bg-[var(--aur-surface)] text-[var(--aur-text)]">
                   {item.label}
                   {item.badge && (
-                    <span className="ml-2 font-mono bg-amber-500/10 px-1 py-0.2 rounded">
+                    <span className="ml-2 font-mono bg-[var(--aur-hover)] px-1 py-0.2 rounded">
                       {item.badge}
                     </span>
                   )}
@@ -110,14 +102,14 @@ export default function Sidebar() {
         })}
 
         {/* 2. Collapsible Filter Accordion Section inside Sidebar */}
-        <div className="pt-4 border-t border-slate-200 dark:border-cyber-border/40 mt-4">
+        <div className="pt-4 border-t border-[var(--aur-border)] mt-4">
           <button
             onClick={handleFilterAccordionClick}
             className={`w-full flex items-center p-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
               isFilterExpanded && !isCollapsed
-                ? "text-slate-900 dark:text-cyber-yellow-bright"
-                : "text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
-            } hover:bg-slate-200/40 dark:hover:bg-cyber-gray/30`}
+                ? "text-[var(--aur-text)]"
+                : "text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)]"
+            }`}
           >
             <div className={`shrink-0 ${isCollapsed ? "mx-auto" : "mr-3.5"}`}>
               <SlidersHorizontal className="h-4.5 w-4.5" />
@@ -136,45 +128,37 @@ export default function Sidebar() {
 
             {/* Collapsed Hover Tooltip for filters */}
             {isCollapsed && (
-              <div className={`absolute left-full top-1/2 -translate-y-1/2 ml-4 px-2.5 py-1.5 rounded border pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 text-[10px] font-bold uppercase tracking-widest shadow-lg ${
-                theme === 'dark'
-                  ? 'bg-cyber-gray border-cyber-yellow/20 text-cyber-yellow-bright'
-                  : 'bg-slate-900 border-slate-900 text-white'
-              }`}>
+              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-2.5 py-1.5 rounded border border-[var(--aur-border)] pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 text-[10px] font-bold uppercase tracking-widest shadow-lg bg-[var(--aur-surface)] text-[var(--aur-text)]">
                 University Filters
               </div>
             )}
           </button>
 
           {/* Expandable Filter Content */}
-          <AnimatePresence initial={false}>
+          <>
             {isFilterExpanded && !isCollapsed && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: "auto", opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.25, ease: "easeInOut" }}
+              <div
+                
+                
+                
+                
                 className="overflow-hidden"
               >
-                <div className="px-3 pt-4 pb-2 border border-slate-200/50 dark:border-cyber-border/20 rounded-lg mt-2 bg-slate-100/50 dark:bg-cyber-dark/30">
+                <div className="px-3 pt-4 pb-2 border border-[var(--aur-border)] rounded-lg mt-2 bg-[var(--aur-surface-2)]">
                   <FilterPanel />
                 </div>
-              </motion.div>
+              </div>
             )}
-          </AnimatePresence>
+          </>
         </div>
 
       </div>
 
       {/* 3. Bottom Expand / Collapse Toggle Button */}
-      <div className="p-4 pb-12 border-t border-slate-200 dark:border-cyber-border/40 flex justify-center">
+      <div className="p-4 pb-12 border-t border-[var(--aur-border)] flex justify-center">
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className={`p-2 rounded-lg border transition-all duration-150 cursor-pointer ${
-            theme === "dark"
-              ? "bg-cyber-gray border-cyber-border/30 text-cyber-yellow hover:bg-cyber-yellow hover:text-cyber-black"
-              : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-          }`}
+          className="p-2 rounded-lg border transition-all duration-150 cursor-pointer border-[var(--aur-border)] text-[var(--aur-text-secondary)] hover:bg-[var(--aur-text)] hover:text-[var(--background)] hover:border-[var(--aur-text)]"
           title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
           {isCollapsed ? (
@@ -194,11 +178,8 @@ export default function Sidebar() {
           width: 4px;
         }
         .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: rgba(0, 0, 0, 0.1);
+          background: var(--aur-border-strong);
           border-radius: 2px;
-        }
-        html.dark .scrollbar-thin::-webkit-scrollbar-thumb {
-          background: rgba(234, 179, 8, 0.1);
         }
       `}</style>
     </aside>

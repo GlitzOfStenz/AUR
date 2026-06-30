@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useCallback, useContext, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { CheckCircle2, Info, AlertTriangle } from "lucide-react";
 
 export type ToastVariant = "info" | "success" | "warning";
@@ -61,26 +61,26 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
         aria-live="polite"
         aria-relevant="additions"
       >
-        <AnimatePresence>
+        <>
           {toasts.map((toast) => {
             const style = variantStyles[toast.variant];
             const Icon = style.icon;
             return (
-              <motion.div
+              <div
                 key={toast.id}
                 role="status"
-                initial={{ opacity: 0, y: 12, scale: 0.98 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, x: 24, scale: 0.98 }}
-                transition={{ duration: 0.2 }}
+                
+                
+                
+                
                 className={`pointer-events-auto flex items-start gap-3 border bg-white px-4 py-3 text-xs font-medium text-slate-800 shadow-xl dark:bg-cyber-gray dark:text-slate-100 ${style.border}`}
               >
                 <Icon className={`h-4 w-4 shrink-0 mt-0.5 ${style.iconClass}`} />
                 <span className="leading-relaxed">{toast.message}</span>
-              </motion.div>
+              </div>
             );
           })}
-        </AnimatePresence>
+        </>
       </div>
     </ToastContext.Provider>
   );

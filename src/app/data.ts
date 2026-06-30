@@ -28,6 +28,13 @@ export interface University {
   // Optional flags used by filters. When missing, UI falls back to legacy ID-based rules.
   isPublic?: boolean;
   hasScholarship?: boolean;
+  // ── Expanded admission-depth fields (PRD item 4) ──
+  founded?: number;           // year the university was established
+  studentCount?: number;      // total enrolled students (approx)
+  facultyCount?: number;      // total academic staff
+  acceptanceRate?: number;    // percentage 0-100
+  applicationDeadline?: string; // e.g. "March 31, 2027"
+  scholarshipDetails?: string;  // short description of available aid
 }
 
 export const MOCK_UNIVERSITIES: University[] = [
@@ -50,7 +57,13 @@ export const MOCK_UNIVERSITIES: University[] = [
     campusPhoto: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
     hasMedicine: true,
     isPublic: true,
-    hasScholarship: true
+    hasScholarship: true,
+    founded: 1911,
+    studentCount: 47400,
+    facultyCount: 3600,
+    acceptanceRate: 2.1,
+    applicationDeadline: "December 31, 2026",
+    scholarshipDetails: "Chinese Government Scholarship (CSC), Tsinghua Excellence Award covering full tuition + stipend for top international applicants.",
   },
   {
     id: "nus",
@@ -71,7 +84,13 @@ export const MOCK_UNIVERSITIES: University[] = [
     campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
     hasMedicine: true,
     isPublic: true,
-    hasScholarship: true
+    hasScholarship: true,
+    founded: 1905,
+    studentCount: 40200,
+    facultyCount: 2900,
+    acceptanceRate: 6.5,
+    applicationDeadline: "February 28, 2027",
+    scholarshipDetails: "NUS Research Scholarship (PhD), ASEAN Undergraduate Scholarship for top ASEAN nationals covering full fees and living allowance.",
   },
   {
     id: "peking",
@@ -92,7 +111,13 @@ export const MOCK_UNIVERSITIES: University[] = [
     campusPhoto: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=800&q=80",
     hasMedicine: true,
     isPublic: true,
-    hasScholarship: true
+    hasScholarship: true,
+    founded: 1898,
+    studentCount: 48000,
+    facultyCount: 4100,
+    acceptanceRate: 2.8,
+    applicationDeadline: "January 15, 2027",
+    scholarshipDetails: "Peking University Scholarship for International Students, covering tuition and dormitory fees for selected programs.",
   },
   {
     id: "tokyo",
@@ -113,7 +138,13 @@ export const MOCK_UNIVERSITIES: University[] = [
     campusPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
     hasMedicine: true,
     isPublic: true,
-    hasScholarship: true
+    hasScholarship: true,
+    founded: 1877,
+    studentCount: 28000,
+    facultyCount: 4000,
+    acceptanceRate: 9.0,
+    applicationDeadline: "November 30, 2026",
+    scholarshipDetails: "MEXT Scholarship (Japanese Government) for international students covering tuition, travel, and monthly stipend.",
   },
   {
     id: "hku",
@@ -132,7 +163,13 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [5, 6, 5, 5, 6],
     programs: ["Bachelor of Medicine and Bachelor of Surgery (MBBS)", "Bachelor of Laws (LLB)", "MBA"],
     campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    founded: 1911,
+    studentCount: 18000,
+    facultyCount: 1400,
+    acceptanceRate: 12.5,
+    applicationDeadline: "March 31, 2027",
+    scholarshipDetails: "HKU Presidential PhD Scholarship and HKSAR Government bursaries for eligible international undergraduates.",
   },
   {
     id: "ntu",
@@ -151,7 +188,13 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [6, 5, 6, 6, 5],
     programs: ["B.Eng. Computer Science", "MBBS Medicine (Imperial College Partner)", "MBA Strategy"],
     campusPhoto: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    founded: 1991,
+    studentCount: 33500,
+    facultyCount: 2200,
+    acceptanceRate: 8.0,
+    applicationDeadline: "February 15, 2027",
+    scholarshipDetails: "NTU Research Scholarship and ASEAN undergraduate scholarships for high-performing applicants.",
   },
   {
     id: "snu",
@@ -170,7 +213,13 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [7, 7, 7, 7, 7],
     programs: ["MD Doctor of Medicine", "B.Sc. Semiconductor Engineering", "Global MBA"],
     campusPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    founded: 1946,
+    studentCount: 28600,
+    facultyCount: 2100,
+    acceptanceRate: 3.5,
+    applicationDeadline: "January 31, 2027",
+    scholarshipDetails: "Korean Government Scholarship Program (NIIED-GKS) for international students. SNU also offers need-based grants.",
   },
   {
     id: "kyoto",
@@ -189,7 +238,13 @@ export const MOCK_UNIVERSITIES: University[] = [
     history: [8, 8, 8, 8, 8],
     programs: ["MD Medicine", "B.Sc. Chemistry", "Ph.D. Quantum Science"],
     campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
-    hasMedicine: true
+    hasMedicine: true,
+    founded: 1897,
+    studentCount: 22000,
+    facultyCount: 2800,
+    acceptanceRate: 7.2,
+    applicationDeadline: "December 15, 2026",
+    scholarshipDetails: "MEXT Scholarship (Japanese Government) and Kyoto University Scholarship for international research students.",
   },
   {
     id: "kaist",
@@ -1008,9 +1063,9 @@ export interface Article {
   subtitle: string;
   source: string;
   date: string;
-  readTime?: string;
   contentSummary: string;
   image: string;
+  readTime?: string;
   content?: string;
   category?: string;
   tags?: string[];
@@ -1044,7 +1099,7 @@ export const FEATURED_ARTICLES: Article[] = [
     source: "Institutional Analytics Quarterly",
     date: "March 2, 2026",
     readTime: "11 min read",
-    contentSummary: "For-hire rankings often mask true career outcomes. A breakdown of why student recruitment teams must pivot to customized metrics and how to utilize client-side custom weights to guide university advisory.",
+    contentSummary: "For-hire rankings often mask true career outcomes. A breakdown of why student recruitment teams must pivot to customized metrics and how to utilize client-side  weights to guide university advisory.",
     image: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=600&q=80"
   }
 ];

@@ -4,35 +4,37 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 export interface FilterState {
-  country: string;
-  qsRange: [number, number]; // Rank range: 1 to 50
-  tuitionRange: [number, number]; // Tuition range: 0 to 25000 (USD/year equivalent)
-  isPublic: boolean | null; // null = both, true = public, false = private
-  subjects: string[];
-  scholarshipOnly: boolean;
   searchQuery: string;
+  country: string;
+  subjects: string[];
+  qsRange: [number, number];
+  tuitionRange: [number, number];
+  isPublic: boolean | null;
+  scholarshipOnly: boolean;
 }
 
-const initialFilters: FilterState = {
+export const initialFilters: FilterState = {
+  searchQuery: "",
   country: "",
+  subjects: [],
   qsRange: [1, 50],
   tuitionRange: [0, 25000],
   isPublic: null,
-  subjects: [],
   scholarshipOnly: false,
-  searchQuery: "",
 };
 
 interface SidebarContextType {
+  filters: FilterState;
+  setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
+  clearFilters: () => void;
   isCollapsed: boolean;
   setIsCollapsed: (val: boolean) => void;
   isMobileOpen: boolean;
   setIsMobileOpen: (val: boolean) => void;
   theme: "dark" | "light";
   toggleTheme: () => void;
-  filters: FilterState;
-  setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
-  clearFilters: () => void;
+  searchQuery: string;
+  setSearchQuery: (val: string) => void;
   activeView: string;
   handleViewChange: (view: string) => void;
   selectedUniId: string | null;
@@ -60,6 +62,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [theme, setTheme] = useState<"dark" | "light">("light");
   const [filters, setFilters] = useState<FilterState>(initialFilters);
+  const [searchQuery, setSearchQuery] = useState("");
   const [selectedUniIds, setSelectedUniIds] = useState<string[]>([]);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -125,6 +128,10 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
+
   // Write collapse state to localStorage
   const setIsCollapsed = (val: boolean) => {
     setIsCollapsedState(val);
@@ -154,11 +161,11 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   }, [theme]);
 
-  // Synchronize initial URL search query if exists
+  // Synchronize  URL search query if exists
   useEffect(() => {
     const q = searchParams.get("search");
-    if (q) {
-      setFilters(prev => ({ ...prev, searchQuery: q }));
+    if (q !== null) {
+      setSearchQuery(q);
     }
   }, [searchParams]);
 
@@ -169,6 +176,12 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
     if (view !== "profile") {
       current.delete("id");
     }
+    
+    // Auto-expand sidebar when navigating to rankings engine
+    if (view === "rankings") {
+      setIsCollapsed(false);
+    }
+
     router.push(`?${current.toString()}`);
     setIsMobileOpen(false); // Close mobile drawer when navigating
   };
@@ -185,27 +198,20 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
     router.push(`?${current.toString()}`);
   };
 
-  // Reset filters helper
-  const clearFilters = () => {
-    setFilters({
-      ...initialFilters,
-      // Retain the query unless it was cleared
-      searchQuery: "",
-    });
-  };
-
   return (
     <SidebarContext.Provider
       value={{
+        filters,
+        setFilters,
+        clearFilters,
         isCollapsed,
         setIsCollapsed,
         isMobileOpen,
         setIsMobileOpen,
         theme,
         toggleTheme,
-        filters,
-        setFilters,
-        clearFilters,
+        searchQuery,
+        setSearchQuery,
         activeView,
         handleViewChange,
         selectedUniId,

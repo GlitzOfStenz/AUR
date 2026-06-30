@@ -4,7 +4,7 @@ import React from "react";
 import { TrendingUp } from "lucide-react";
 import { University } from "../../data";
 
-/** Pin layout on the 400×280 map viewBox */
+/** Pin  on the 400×280 map viewBox */
 const MAP_PINS: { x: number; y: number; cardStyle: React.CSSProperties }[] = [
   { x: 118, y: 98, cardStyle: { top: "6%", left: "2%", maxWidth: "168px" } },
   { x: 198, y: 188, cardStyle: { bottom: "10%", left: "28%", maxWidth: "175px" } },
@@ -40,18 +40,18 @@ export function AsiaMapNetwork() {
     >
       <defs>
         <linearGradient id="asiaLand" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#dbeafe" />
-          <stop offset="50%" stopColor="#eff6ff" />
-          <stop offset="100%" stopColor="#fef9c3" stopOpacity="0.5" />
+          <stop offset="0%" stopColor="var(--aur-surface-hover)" />
+          <stop offset="50%" stopColor="var(--aur-surface-2)" />
+          <stop offset="100%" stopColor="var(--aur-surface)" stopOpacity="0.5" />
         </linearGradient>
         <linearGradient id="networkLine" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stopColor="#93c5fd" stopOpacity="0.2" />
-          <stop offset="50%" stopColor="#3b82f6" stopOpacity="0.55" />
-          <stop offset="100%" stopColor="#93c5fd" stopOpacity="0.2" />
+          <stop offset="0%" stopColor="var(--aur-text-muted)" stopOpacity="0.1" />
+          <stop offset="50%" stopColor="var(--aur-text)" stopOpacity="0.3" />
+          <stop offset="100%" stopColor="var(--aur-text-muted)" stopOpacity="0.1" />
         </linearGradient>
         <radialGradient id="nodeGlow">
-          <stop offset="0%" stopColor="#fbbf24" stopOpacity="0.9" />
-          <stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--aur-text)" stopOpacity="0.6" />
+          <stop offset="100%" stopColor="var(--aur-text)" stopOpacity="0" />
         </radialGradient>
         <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
           <feGaussianBlur stdDeviation="3" result="blur" />
@@ -66,16 +66,16 @@ export function AsiaMapNetwork() {
       <path
         d="M 55 115 Q 95 72 155 78 L 210 62 Q 285 58 340 88 L 365 125 Q 372 168 348 198 L 310 228 Q 255 248 195 238 L 130 252 Q 78 242 62 205 L 48 165 Q 42 135 55 115 Z"
         fill="url(#asiaLand)"
-        stroke="#bfdbfe"
+        stroke="var(--aur-border-strong)"
         strokeWidth="1.5"
         opacity="0.95"
       />
       <path
         d="M 95 130 Q 130 110 175 118 L 220 105 Q 270 100 300 125"
         fill="none"
-        stroke="#93c5fd"
+        stroke="var(--aur-border)"
         strokeWidth="0.75"
-        opacity="0.35"
+        opacity="0.5"
       />
 
       {/* Mesh network */}
@@ -100,15 +100,15 @@ export function AsiaMapNetwork() {
         [165, 175],
         [240, 130],
       ].map(([cx, cy], i) => (
-        <circle key={i} cx={cx} cy={cy} r="2.5" fill="#60a5fa" opacity="0.5" />
+        <circle key={i} cx={cx} cy={cy} r="2.5" fill="var(--aur-text-muted)" opacity="0.3" />
       ))}
 
       {/* Primary hub pulses */}
       {MAP_PINS.map((pin, i) => (
         <g key={i} filter="url(#softGlow)">
           <circle cx={pin.x} cy={pin.y} r="14" fill="url(#nodeGlow)" className="ref-map-pulse" />
-          <circle cx={pin.x} cy={pin.y} r="5" fill="#f59e0b" />
-          <circle cx={pin.x} cy={pin.y} r="2" fill="#fffbeb" />
+          <circle cx={pin.x} cy={pin.y} r="5" fill="var(--aur-text)" />
+          <circle cx={pin.x} cy={pin.y} r="2" fill="var(--aur-surface)" />
         </g>
       ))}
     </svg>
