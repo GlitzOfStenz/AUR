@@ -53,7 +53,7 @@ export default function UserDashboard({
 }: UserDashboardProps) {
   const [activeTab, setActiveTab] = useState<TabType>("portfolio");
 
-  const tabs: { id: TabType; label: string; icon: React.ElementType }[] = [
+  const tabs: { id: TabType; label: string; icon: React.ElementType<{ className?: string }> }[] = [
     { id: "portfolio", label: "Saved Portfolio", icon: Bookmark },
     { id: "preferences", label: "System Preferences", icon: Settings2 },
     { id: "account", label: "Account Security", icon: ShieldAlert },

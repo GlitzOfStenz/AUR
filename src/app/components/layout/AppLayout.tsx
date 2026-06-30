@@ -36,7 +36,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       }`}
     >
       {/* Top Navigation Bar */}
-      <Navbar showSidebar={showSidebar} />
+      <Navbar />
 
       {/* Main Core Layout */}
       <div className={`flex-grow flex w-full mx-auto ${showSidebar ? "max-w-7xl px-0 sm:px-4 lg:px-8" : "max-w-none px-0"}`}>
@@ -50,7 +50,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       </div>
 
       {/* Mobile Responsive Navigation Drawer & Bottom Bar */}
-      <MobileMenu showSidebar={showSidebar} />
+      <MobileMenu />
 
       <FloatingChatAssistant />
 

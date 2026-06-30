@@ -107,7 +107,7 @@ function IntelligenceNetwork() {
 
 // ─── Floating Data Chip ───────────────────────────────────────────────────────
 function Chip({ icon: Icon, value, label, delay, className = "" }:
-  { icon: React.ElementType; value: string; label: string; delay: number; className?: string }) {
+  { icon: any; value: string; label: string; delay: number; className?: string }) {
   return (
     <div 
       

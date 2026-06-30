@@ -26,7 +26,7 @@ interface MetricDefinition {
   label: string;
   weight: number;
   color: string;
-  icon: React.ElementType;
+  icon: any;
   description: string;
   dataSource: string;
   subIndicators: string[];

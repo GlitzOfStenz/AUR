@@ -427,8 +427,8 @@
   width: 100%;
   padding: 0.75rem;
   margin-top: 0.25rem;
-  background: var(--aur-text);
-  color: var(--background);
+  background: #111827;
+  color: #ffffff;
   border: none;
   border-radius: 8px;
   font-size: 0.9rem;
@@ -443,6 +443,7 @@
 }
 .lp-submit:hover:not(:disabled) {
   transform: translateY(-1px);
+  background: #1f2937;
   box-shadow: 0 6px 16px rgba(0,0,0,0.15);
 }
 .lp-submit:active:not(:disabled) { transform: translateY(0); }
