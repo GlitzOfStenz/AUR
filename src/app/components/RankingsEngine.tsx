@@ -440,15 +440,17 @@ export default function RankingsEngine({
             Search
           </label>
           <div className="relative">
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="aur-input pl-9"
-            />
-            <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-[var(--aur-text-muted)]" />
-          </div>
+            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--aur-text-muted)]"/>
+
+          <input
+            type="text"
+            placeholder="Search..."
+            value={searchQuery}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="aur-input"
+            style={{ paddingLeft: "2.75rem" }}
+          />
+        </div>
         </div>
 
         {/* Location Dropdown */}

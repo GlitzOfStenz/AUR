@@ -4185,7 +4185,13 @@ h1, h2, h3, h4, h5, h6 {
   width: 100%;
   border: 1px solid var(--aur-border);
   background: var(--aur-surface-2);
-  padding: 0.625rem 0.875rem;
+
+  /* Don't use shorthand padding */
+  padding-top: 0.625rem;
+  padding-bottom: 0.625rem;
+  padding-right: 0.875rem;
+  padding-left: 0.875rem;
+
   font-size: 0.8125rem;
   color: var(--aur-text);
   border-radius: 10px;
