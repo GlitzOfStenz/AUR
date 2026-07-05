@@ -55,8 +55,11 @@ async def upload_dataset(
     except Exception:
         pass
 
-    await redis.delete("countries:list")
-    await redis.delete("analytics:summary")
+    try:
+        await redis.delete("countries:list")
+        await redis.delete("analytics:summary")
+    except Exception:
+        pass
     return {
         "status": "success",
         "filename": filename,
@@ -147,8 +150,11 @@ async def publish_dataset(
     }
 
     PUBLISH_FILE.write_text(json.dumps(info, indent=4))
-    await redis.delete("countries:list")
-    await redis.delete("analytics:summary")
+    try:
+        await redis.delete("countries:list")
+        await redis.delete("analytics:summary")
+    except Exception:
+        pass
     return info
 
 

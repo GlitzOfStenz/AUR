@@ -22,10 +22,19 @@ def create_access_token(data: dict) -> str:
     return jwt.encode(payload, SECRET_KEY, algorithm=ALGORITHM)
 
 
-async def create_refresh_token(user_id: uuid) -> str:
+async def create_refresh_token(user_id: UUID) -> str:
     token = str(uuid.uuid4())
     ttl_seconds = REFRESH_TOKEN_EXPIRE_DAYS * 24 * 3600
-    await redis_client.setex(f"refresh:{token}", ttl_seconds, str(user_id))
+
+    try:
+        await redis_client.setex(
+            f"refresh:{token}",
+            ttl_seconds,
+            str(user_id)
+        )
+    except Exception:
+        pass
+
     return token
 
 def decode_access_token(token: str) -> dict:
@@ -42,16 +51,25 @@ def decode_access_token(token: str) -> dict:
     except JWTError:
         raise credentials_exception
 
+async def validate_refresh_token(token: str) -> UUID:
+    try:
+        user_id = await redis_client.get(f"refresh:{token}")
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid or expired refresh token",
+        )
 
-async def validate_refresh_token(token: str) -> int:
-    user_id = await redis_client.get(f"refresh:{token}")
     if not user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired refresh token",
         )
+
     return UUID(user_id)
 
-
 async def revoke_refresh_token(token: str) -> None:
-    await redis_client.delete(f"refresh:{token}")
+    try:
+        await redis_client.delete(f"refresh:{token}")
+    except Exception:
+        pass
