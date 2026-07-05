@@ -24,10 +24,13 @@ async def get_summary(
 ):
     cache_key = "analytics:summary"
 
-    cached_data = await redis.get(cache_key)
+    try:
+        cached_data = await redis.get(cache_key)
 
-    if cached_data:
-        return json.loads(cached_data)
+        if cached_data:
+            return json.loads(cached_data)
+    except Exception:
+        pass
 
     data = get_data()
 
@@ -35,11 +38,14 @@ async def get_summary(
         "total_universities": len(data)
     }
 
-    await redis.setex(
-        cache_key,
-        300,
-        json.dumps(result)
-    )
+    try:
+        await redis.setex(
+            cache_key,
+            300,
+            json.dumps(result)
+        )
+    except Exception:
+        pass
 
     return result
 

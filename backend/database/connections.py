@@ -38,7 +38,12 @@ async def close_db() -> None:
     await engine.dispose()
 
 async def close_redis() -> None:
-    await redis_client.aclose()
+    try:
+        await redis_client.aclose()
+    except RuntimeError:
+        pass
+    except Exception:
+        pass
 
 # FastAPI dependencies
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
@@ -49,8 +54,4 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
             await session.close()
 
 async def get_redis() -> AsyncGenerator[aioredis.Redis, None]:
-    try:
-        yield redis_client
-    except Exception as e:
-        await redis_client.aclose()
-        raise
+    yield redis_client

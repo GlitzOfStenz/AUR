@@ -17,10 +17,13 @@ async def get_countries(
 ):
     cache_key = "countries:list"
 
-    cached_data = await redis.get(cache_key)
+    try:
+        cached_data = await redis.get(cache_key)
 
-    if cached_data:
-        return json.loads(cached_data)
+        if cached_data:
+            return json.loads(cached_data)
+    except Exception:
+        pass
 
     data = get_data()
     country_map = {}
@@ -40,12 +43,14 @@ async def get_countries(
         key=lambda x: x["university_count"],
         reverse=True
     )
-    await redis.setex(
-        cache_key,
-        300,
-        json.dumps(result)
-    )
-
+    try:
+        await redis.setex(
+            cache_key,
+            300,
+            json.dumps(result)
+        )
+    except Exception:
+        pass
 
     return result
 
