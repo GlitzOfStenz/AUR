@@ -21,3 +21,6 @@ __pycache__/
 # env files
 .env
 >>>>>>> main
+
+# ranking_engine test
+test_ranking.py

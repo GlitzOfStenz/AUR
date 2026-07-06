@@ -1,0 +1,60 @@
+{
+  "version": "QS-Asia-2026",
+  "weights": {
+    "ar_score": {
+      "weight": 0.3,
+      "label": "Academic Reputation",
+      "description": "Based on a global survey of academics identifying the best universities in their field. Makes up 30% of the overall score."
+    },
+    "er_score": {
+      "weight": 0.2,
+      "label": "Employer Reputation",
+      "description": "Based on a global survey of graduate employers identifying universities producing the best graduates. Makes up 20% of the overall score."
+    },
+    "fsr_score": {
+      "weight": 0.1,
+      "label": "Faculty Student Ratio",
+      "description": "Measures teaching commitment by looking at the number of academic staff relative to enrolled students. Makes up 10% of the overall score."
+    },
+    "cpp_score": {
+      "weight": 0.1,
+      "label": "Citations per Paper",
+      "description": "Measures research impact by dividing the number of citations received by the number of papers produced. Makes up 10% of the overall score."
+    },
+    "irn_score": {
+      "weight": 0.1,
+      "label": "International Research Network",
+      "description": "Measures a university's success in establishing and maintaining international research partnerships. Makes up 10% of the overall score."
+    },
+    "ppf_score": {
+      "weight": 0.05,
+      "label": "Papers per Faculty",
+      "description": "Measures research productivity by dividing the number of papers produced by the number of faculty members. Makes up 5% of the overall score."
+    },
+    "swp_score": {
+      "weight": 0.05,
+      "label": "Staff with PhD",
+      "description": "Measures the proportion of academic staff who hold a doctoral degree. Makes up 5% of the overall score."
+    },
+    "ifr_score": {
+      "weight": 0.025,
+      "label": "International Faculty Ratio",
+      "description": "Measures the proportion of international faculty relative to total staff. Makes up 2.5% of the overall score."
+    },
+    "isr_score": {
+      "weight": 0.025,
+      "label": "International Student Ratio",
+      "description": "Measures the ratio of international students to domestic students. Makes up 2.5% of the overall score."
+    },
+    "inbound_score": {
+      "weight": 0.025,
+      "label": "Inbound Exchange Students",
+      "description": "Measures the number of inbound exchange students relative to total student population. Makes up 2.5% of the overall score."
+    },
+    "outbound_score": {
+      "weight": 0.025,
+      "label": "Outbound Exchange Students",
+      "description": "Measures the number of outbound exchange students relative to total student population. Makes up 2.5% of the overall score."
+    }
+  }
+}

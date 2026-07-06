@@ -41,7 +41,6 @@ def safe_int(val) -> int | None:
     
 def load_dataframe() -> pd.DataFrame:
     df = pd.read_excel(DATA_PATH, header=2, skiprows=[3])
-    df = df.iloc[1:].reset_index(drop=True)
     df.columns = [
         "index", "rank_2026", "rank_2025", "institution", "country", "subregion",
         "subregional_rank", "size", "focus", "research_level", "status",
