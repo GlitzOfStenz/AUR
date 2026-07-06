@@ -6,7 +6,7 @@ import { Search, Bell, Sun, Moon, Menu, X, ChevronDown, User, Shield, LogOut, Ma
 import { useSidebar } from "../navigation/SidebarContext";
 import { useToast } from "../feedback/ToastContext";
 import { TOP_NAV_LINKS } from "../navigation/config";
-import Image from "next/image";
+
 
 export default function Navbar() {
   const { showToast } = useToast();
