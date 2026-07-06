@@ -1,4 +1,4 @@
-@import "tailwindcss";
+﻿@import "tailwindcss";
 
 @theme {
 
@@ -121,7 +121,7 @@ h1, h2, h3, h4, h5, h6 {
   background: var(--aur-surface);
   box-shadow: var(--aur-shadow);
   border-radius: 16px;
-  /* NO backdrop-filter here — it forces GPU repaint on every scroll tick */
+  /* NO backdrop-filter here â€” it forces GPU repaint on every scroll tick */
   transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
               border-color 0.2s ease;
@@ -258,7 +258,7 @@ html.dark .aur-input {
   letter-spacing: 0.04em;
   border-radius: 10px;
   box-shadow: var(--aur-shadow-sm);
-  /* Only animate transform + box-shadow — both GPU composited */
+  /* Only animate transform + box-shadow â€” both GPU composited */
   transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1),
               box-shadow 0.18s cubic-bezier(0.16, 1, 0.3, 1),
               opacity 0.15s ease;
@@ -272,7 +272,284 @@ html.dark .aur-input {
   transform: translateY(0);
 }
 
-/* Rankings table aesthetics */
+.aur-home-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 85% 15%, rgba(180, 83, 9, 0.08), transparent 45%);
+  pointer-events: none;
+}
+html.dark .aur-home-hero::before {
+  background: radial-gradient(circle at 85% 15%, rgba(234, 179, 8, 0.1), transparent 45%);
+}
+
+.aur-home-stat {
+  border: 1px solid var(--aur-border);
+  background: rgba(255, 255, 255, 0.85);
+  padding: 0.75rem 1rem;
+  text-align: center;
+}
+html.dark .aur-home-stat {
+  background: rgba(24, 24, 31, 0.6);
+}
+
+.aur-home-search {
+  box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
+  border: 1px solid rgba(15, 23, 42, 0.12);
+}
+html.dark .aur-home-search {
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  border-color: rgba(234, 179, 8, 0.2);
+}
+
+.aur-score-bar {
+  height: 3px;
+  border-radius: 2px;
+  background: rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+  margin-top: 0.375rem;
+  width: 4.5rem;
+}
+.aur-score-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #b45309, #d97706);
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+html.dark .aur-score-bar-fill {
+  background: linear-gradient(90deg, #ca8a04, #eab308);
+}
+
+.aur-editorial-card {
+  transition: background-color 0.2s ease;
+}
+.aur-editorial-card:hover {
+  background: rgba(255, 251, 235, 0.35);
+}
+html.dark .aur-editorial-card:hover {
+  background: rgba(234, 179, 8, 0.04);
+}
+
+.aur-editorial-img-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.aur-editorial-img-wrap::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 50%, rgba(15, 23, 42, 0.15) 100%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.aur-editorial-card:hover .aur-editorial-img-wrap::after {
+  opacity: 1;
+}
+
+.aur-chat-fab {
+  position: fixed;
+  z-index: 55;
+  width: 4rem;
+  height: 4rem;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.aur-chat-fab:active {
+  cursor: grabbing;
+}
+
+/* Rankings table */
+.aur-rankings-shell {
+  --rank-blue: #2563eb;
+  --rank-blue-soft: #dbeafe;
+  --rank-yellow: #eab308;
+  --rank-yellow-soft: #fffbeb;
+  color: #0f172a;
+}
+
+.aur-rankings-hero {
+  border: 1px solid rgba(226, 232, 240, 0.9);
+  background:
+    radial-gradient(ellipse 55% 60% at 88% 10%, rgba(219, 234, 254, 0.58), transparent 58%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 251, 235, 0.58) 52%, rgba(239, 246, 255, 0.92) 100%);
+  box-shadow: 0 4px 24px rgba(37, 99, 235, 0.06);
+  padding: 1.25rem 1.5rem;
+}
+
+.aur-rankings-action {
+  border: 1px solid #fde047;
+  background: linear-gradient(135deg, #facc15 0%, #eab308 100%);
+  color: #422006;
+  box-shadow: 0 2px 8px rgba(234, 179, 8, 0.22);
+}
+.aur-rankings-action:hover {
+  border-color: #eab308;
+  background: linear-gradient(135deg, #fde047 0%, #ca8a04 100%);
+  box-shadow: 0 4px 14px rgba(234, 179, 8, 0.32);
+  transform: translateY(-1px);
+}
+
+.aur-rankings-filter {
+  border-color: #dbeafe;
+  background:
+    radial-gradient(ellipse 65% 70% at 100% 0%, rgba(219, 234, 254, 0.5), transparent 58%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 251, 235, 0.34) 100%);
+  box-shadow: 0 4px 20px rgba(37, 99, 235, 0.06);
+}
+
+.aur-rankings-insight-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #dbeafe;
+  background:
+    radial-gradient(ellipse 75% 80% at 100% 0%, rgba(219, 234, 254, 0.55), transparent 58%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 251, 235, 0.45) 100%);
+  box-shadow: 0 4px 18px rgba(37, 99, 235, 0.055);
+  padding: 1rem;
+}
+.aur-rankings-insight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 3px;
+  background: linear-gradient(180deg, #2563eb, #eab308);
+}
+.aur-rankings-insight-icon {
+  display: inline-flex;
+  height: 2.25rem;
+  width: 2.25rem;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.aur-rankings-filter .aur-input {
+  border-color: rgba(37, 99, 235, 0.16);
+  background: #ffffff;
+}
+.aur-rankings-filter .aur-input:focus {
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.aur-rankings-reset {
+  color: #2563eb;
+}
+.aur-rankings-reset:hover {
+  color: #1d4ed8;
+}
+
+.aur-rankings-table {
+  border-color: #dbeafe;
+  box-shadow: 0 4px 24px rgba(37, 99, 235, 0.07);
+}
+.aur-rankings-table .aur-table thead {
+  background: linear-gradient(180deg, #fffbeb 0%, #eff6ff 100%);
+  color: #475569;
+}
+.aur-rankings-table .aur-rankings-th {
+  background: linear-gradient(180deg, #fffbeb 0%, #eff6ff 100%);
+  color: #0f172a;
+}
+.aur-rankings-table .aur-table tbody tr:hover {
+  background: rgba(239, 246, 255, 0.9) !important;
+  box-shadow: inset 3px 0 0 #2563eb;
+}
+.aur-rankings-table .aur-rank-badge--elite {
+  border-color: #eab308;
+  background: linear-gradient(135deg, #fffbeb 0%, #eff6ff 100%);
+  color: #92400e;
+}
+.aur-rankings-table .aur-score-pill {
+  background: #eff6ff;
+  border-color: #dbeafe;
+  color: #1d4ed8;
+}
+
+.aur-rankings-pagination {
+  border-color: #dbeafe;
+  background: rgba(255, 255, 255, 0.94);
+}
+
+html.dark .aur-rankings-shell {
+  --rank-blue: #facc15;
+  --rank-blue-soft: rgba(234, 179, 8, 0.18);
+  --rank-yellow: #eab308;
+  --rank-yellow-soft: rgba(234, 179, 8, 0.08);
+  color: #f8fafc;
+}
+html.dark .aur-rankings-hero {
+  border-color: rgba(234, 179, 8, 0.14);
+  background:
+    radial-gradient(ellipse 60% 55% at 90% 0%, rgba(234, 179, 8, 0.12), transparent 58%),
+    linear-gradient(135deg, rgba(13, 13, 17, 0.96) 0%, rgba(24, 24, 31, 0.92) 52%, rgba(5, 5, 6, 0.98) 100%);
+  box-shadow: 0 8px 34px rgba(0, 0, 0, 0.36);
+}
+html.dark .aur-rankings-filter {
+  border-color: rgba(234, 179, 8, 0.14);
+  background:
+    radial-gradient(ellipse 65% 70% at 100% 0%, rgba(234, 179, 8, 0.1), transparent 58%),
+    linear-gradient(180deg, rgba(24, 24, 31, 0.92) 0%, rgba(13, 13, 17, 0.96) 100%);
+  box-shadow: 0 8px 34px rgba(0, 0, 0, 0.34);
+}
+html.dark .aur-rankings-insight-card {
+  border-color: rgba(234, 179, 8, 0.14);
+  background:
+    radial-gradient(ellipse 75% 80% at 100% 0%, rgba(234, 179, 8, 0.1), transparent 58%),
+    linear-gradient(135deg, rgba(24, 24, 31, 0.94) 0%, rgba(13, 13, 17, 0.98) 100%);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.34);
+}
+html.dark .aur-rankings-insight-card::before {
+  background: linear-gradient(180deg, #eab308, rgba(234, 179, 8, 0.25));
+}
+html.dark .aur-rankings-insight-icon {
+  border-color: rgba(234, 179, 8, 0.2);
+  background: rgba(234, 179, 8, 0.08);
+  color: #facc15;
+}
+html.dark .aur-rankings-filter .aur-input {
+  border-color: rgba(234, 179, 8, 0.22);
+  background: #18181f;
+}
+html.dark .aur-rankings-filter .aur-input:focus {
+  border-color: #eab308;
+  box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.15);
+}
+html.dark .aur-rankings-reset {
+  color: #facc15;
+}
+html.dark .aur-rankings-reset:hover {
+  color: #fef3c7;
+}
+html.dark .aur-rankings-table {
+  border-color: rgba(234, 179, 8, 0.14);
+  box-shadow: 0 8px 34px rgba(0, 0, 0, 0.36);
+}
+html.dark .aur-rankings-table .aur-table thead,
+html.dark .aur-rankings-table .aur-rankings-th {
+  background: linear-gradient(180deg, rgba(234, 179, 8, 0.12) 0%, rgba(13, 13, 17, 0.98) 100%);
+  color: #facc15;
+}
+html.dark .aur-rankings-table .aur-table tbody tr:hover {
+  background: rgba(234, 179, 8, 0.06) !important;
+  box-shadow: inset 3px 0 0 #eab308;
+}
+html.dark .aur-rankings-table .aur-score-pill {
+  background: rgba(234, 179, 8, 0.08);
+  border-color: rgba(234, 179, 8, 0.2);
+  color: #f8fafc;
+}
+html.dark .aur-rankings-pagination {
+  border-color: rgba(234, 179, 8, 0.14);
+  background: rgba(13, 13, 17, 0.92);
+}
+
 .aur-table-wrap {
   border: 1px solid var(--aur-border);
   background: var(--aur-surface);
@@ -370,7 +647,7 @@ html.dark .border-slate-100 { border-color: var(--aur-border) !important; }
 html.dark .hover\:bg-slate-50:hover { background-color: var(--aur-surface-hover) !important; }
 html.dark .hover\:border-slate-300:hover { border-color: var(--aur-border-strong) !important; }
 
-/* Micro-animations — GPU-only (opacity + transform never trigger layout) */
+/* Micro-animations â€” GPU-only (opacity + transform never trigger layout) */
 @keyframes fadeInUp {
   from { opacity: 0; transform: translate3d(0, 12px, 0); }
   to   { opacity: 1; transform: translate3d(0, 0,  0); }
@@ -380,14 +657,14 @@ html.dark .hover\:border-slate-300:hover { border-color: var(--aur-border-strong
   will-change: opacity, transform;
 }
 
-/* ════════════════════════════════════════════════════════════
+/* â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•
    PERFORMANCE & SMOOTHNESS OPTIMIZATIONS
-   ════════════════════════════════════════════════════════════ */
+   â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â•â• */
 
 /*
   GPU layer promotion strategy:
   - Promote ONLY elements that actually animate transform/opacity
-  - Avoid blanket will-change: transform — it costs VRAM for every element
+  - Avoid blanket will-change: transform â€” it costs VRAM for every element
   - Use translate3d() instead of translateZ(0) for consistent cross-browser behaviour
 */
 .aur-btn-primary,
@@ -403,7 +680,7 @@ html.dark .hover\:border-slate-300:hover { border-color: var(--aur-border-strong
   will-change: transform;
 }
 
-/* Prevent layout thrash — keep transforms in compositing layer */
+/* Prevent layout thrash â€” keep transforms in compositing layer */
 .aur-btn-primary:hover {
   transform: translate3d(0, -1px, 0);
   box-shadow: var(--aur-shadow);
@@ -441,7 +718,7 @@ img {
   height: auto;
 }
 
-/* ── Responsive Typography Scale ───────────────────────────── */
+/* â”€â”€ Responsive Typography Scale â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
 /* Mobile first: slightly tighter */
 @media (max-width: 640px) {
@@ -472,7 +749,7 @@ img {
   html { font-size: 16px; }
 }
 
-/* ── Reduced Motion — respect user accessibility preference ── */
+/* â”€â”€ Reduced Motion â€” respect user accessibility preference â”€â”€ */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -484,14 +761,14 @@ img {
   }
 }
 
-/* ── View Transition API (Chrome 111+) — smooth page switching ── */
+/* â”€â”€ View Transition API (Chrome 111+) â€” smooth page switching â”€â”€ */
 ::view-transition-old(root),
 ::view-transition-new(root) {
   animation-duration: 0.25s;
   animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* ── Focus ring — keyboard navigation stays clean ── */
+/* â”€â”€ Focus ring â€” keyboard navigation stays clean â”€â”€ */
 :focus-visible {
   outline: 2px solid var(--aur-text);
   outline-offset: 3px;

@@ -4,13 +4,14 @@ import React from "react";
 
 import { Search, Globe, Award, DollarSign, BookOpen, Trophy, RotateCcw, ShieldCheck, Check, ChevronDown } from "lucide-react";
 import { useSidebar } from "../navigation/SidebarContext";
-import { MOCK_UNIVERSITIES } from "../../data";
+import { useUniversityData } from "../data/UniversityDataProvider";
 
 // List of all unique subjects in the mock data
 const ALL_SUBJECTS = ["Medicine", "Engineering", "Sciences", "Business", "Humanities", "Law", "Social Sciences"];
 
 export default function FilterPanel() {
   const { filters, setFilters, clearFilters, theme } = useSidebar();
+  const { universities } = useUniversityData();
 
   const [openSections, setOpenSections] = React.useState({
     search: true,
@@ -40,8 +41,8 @@ export default function FilterPanel() {
 
   // Extract unique locations dynamically
   const countries = React.useMemo(() => {
-    return Array.from(new Set(MOCK_UNIVERSITIES.map((u) => u.location))).sort();
-  }, []);
+    return Array.from(new Set(universities.map((u) => u.location))).sort();
+  }, [universities]);
 
   // Update query field
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {

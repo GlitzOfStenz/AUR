@@ -1,10 +1,4 @@
-"""
-Users router — bookmark management (save, list, delete).
-Requires authentication on all endpoints.
-"""
-
 from uuid import UUID
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,7 +11,6 @@ from auth.middleware import get_current_user
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-#  Schemas 
 
 class BookmarkCreate(BaseModel):
     university_id: UUID
@@ -32,7 +25,12 @@ class BookmarkResponse(BaseModel):
         from_attributes = True
 
 
-#  Endpoints 
+class PreferencesUpdate(BaseModel):
+    default_country: str | None = None
+    default_limit: int | None = None
+    preferred_metrics: list[str] | None = None
+
+
 
 @router.post("/bookmarks", status_code=status.HTTP_201_CREATED)
 async def add_bookmark(
@@ -40,8 +38,6 @@ async def add_bookmark(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Save a university to the authenticated user's bookmarks."""
-    # Prevent duplicates
     result = await db.execute(
         select(SavedUniversity).where(
             SavedUniversity.user_id == current_user.id,
@@ -74,11 +70,6 @@ async def get_bookmarks(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """
-    Return all bookmarked universities for the authenticated user.
-    NOTE: Enrich with full university data by joining with universities table
-    or calling the universities service — plugged in here as university_id for now.
-    """
     result = await db.execute(
         select(SavedUniversity).where(SavedUniversity.user_id == current_user.id)
     )
@@ -104,7 +95,6 @@ async def remove_bookmark(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
-    """Remove a bookmark by university_id for the authenticated user."""
     result = await db.execute(
         select(SavedUniversity).where(
             SavedUniversity.user_id == current_user.id,
@@ -121,3 +111,28 @@ async def remove_bookmark(
 
     await db.delete(bookmark)
     await db.commit()
+
+
+
+@router.patch("/preferences")
+async def update_preferences(
+    body: PreferencesUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    
+    existing = current_user.preferences or {}
+    updated = {**existing, **body.model_dump(exclude_none=True)}
+    current_user.preferences = updated
+    db.add(current_user)
+    await db.commit()
+    await db.refresh(current_user)
+    return {"message": "Preferences updated", "preferences": current_user.preferences}
+
+
+@router.get("/preferences")
+async def get_preferences(
+    current_user: User = Depends(get_current_user),
+):
+    
+    return current_user.preferences or {}

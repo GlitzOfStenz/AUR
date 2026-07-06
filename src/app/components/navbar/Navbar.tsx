@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
+import Image from "next/image";
 import { Search, Bell, Sun, Moon, Menu, X, ChevronDown, User, Shield, LogOut, Maximize2, Minimize2, SlidersHorizontal } from "lucide-react";
 import { useSidebar } from "../navigation/SidebarContext";
 import { useToast } from "../feedback/ToastContext";

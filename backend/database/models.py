@@ -47,13 +47,11 @@ class User(Base):
     role = Column(String(50), nullable=False, default="user")  # "user" or "admin"
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+    preferences = Column(JSONB, nullable=True, default=dict)
 
-    preferences   = Column(JSONB, nullable=True, default=dict)
-
-    #relationships
+    # relationships
     saved_universities = relationship("SavedUniversity", back_populates="user", 
                                       cascade="all, delete-orphan", lazy="selectin")
-
 
     def __repr__(self) -> str:
         return f"<User id={self.id} email={self.email!r} role={self.role!r}>"
@@ -71,30 +69,29 @@ class University(Base):
 
     # Location
     country = Column(String(100), nullable=False, index=True)
-    subregion = Column(String(100))         #e.g. "Southeast Asia", "East Asia", "South Asia"
+    subregion = Column(String(100))
     state = Column(String(100))
     city = Column(String(100))
 
     # Classification
-    size = Column(String(20))               # XL, L, M, S
-    focus = Column(String(30))              # Comprehensive, Medical, Research, etc.
-    research_level = Column(String(30))          # Very High, High, Medium, Low
+    size = Column(String(20))
+    focus = Column(String(30))
+    research_level = Column(String(30))
     is_public = Column(Boolean, default=True)
 
     # Institutional facts
     established_year = Column(Integer)
     total_students = Column(Integer)
     total_faculty = Column(Integer)
-    avg_fees = Column(Numeric(12, 2))                  # average annual fees in USD
-    placement_percentage = Column(Numeric(5, 2))       # % of graduates placed in jobs or further study
+    avg_fees = Column(Numeric(12, 2))
+    placement_percentage = Column(Numeric(5, 2))
     
-    # Enricment - nullable until filled via admin / data pipeline
+    # Enrichment
     description = Column(Text)
     website_url = Column(String(300))
-    campus_photo = Column(String(300))  # URL to campus photo
+    campus_photo = Column(String(300))
     has_medicine = Column(Boolean)
     has_scholarship = Column(Boolean)
-
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
@@ -102,16 +99,12 @@ class University(Base):
     # Relationships
     ranking_scores = relationship("RankingScore", back_populates="university", cascade="all, delete-orphan", 
                                   lazy="selectin")
-    
     metrics = relationship("UniversityMetric", back_populates="university", uselist=False, 
                            cascade="all, delete-orphan", lazy="selectin")
-    
     courses = relationship("Course", back_populates="university", cascade="all, delete-orphan",
                            lazy="selectin")
-    
     admission_details = relationship("AdmissionDetail", back_populates="university", uselist=False, 
                                      cascade="all, delete-orphan", lazy="selectin")
-    
     saved_universities = relationship("SavedUniversity", back_populates="university",
                                       cascade="all, delete-orphan", lazy="selectin")
 
@@ -120,45 +113,18 @@ class University(Base):
 
 
 class RankingScore(Base):
-    """
-    Based on the QS metric scores.
- 
-    Column naming follows the QS Asia methodology:
-      ar   — Academic Reputation
-      er   — Employer Reputation
-      fsr  — Faculty / Student Ratio
-      irn  — International Research Network
-      cpp  — Citations per Paper
-      ppf  — Papers per Faculty
-      swp  — Staff with PhD
-      ifr  — International Faculty Ratio
-      isr  — International Student Ratio
-      inb  — Inbound Exchange students
-      out  — Outbound Exchange students
- 
-    `rank` is the published QS Asia rank for that year.
-    `overall_score` is the composite weighted score (0–100).
-    """
-
     __tablename__ = "ranking_scores"
     __table_args__ = (
-        UniqueConstraint(
-            "university_id", "year", name="uq_university_year",
-            ),
+        UniqueConstraint("university_id", "year", name="uq_university_year"),
     )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
     university_id = Column(UUID(as_uuid=True), ForeignKey("universities.id", ondelete="CASCADE"), 
                            nullable=False, index=True)
-    year = Column(Integer, nullable=False, index=True)     #e.g. 2026
-
-    # Published rank(nullable - some university receive band ranks like "501-550")
+    year = Column(Integer, nullable=False, index=True)
     rank = Column(Integer)
-
-    # Composite Score
     overall_score = Column(Float(precision=2))
 
-    # Individual Metrics(Based on QS Asia methodology)
     ar_score       = Column(Float)   
     er_score       = Column(Float)   
     fsr_score      = Column(Float)   
@@ -173,7 +139,6 @@ class RankingScore(Base):
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    # Relationships
     university = relationship("University", back_populates="ranking_scores")
 
     def __repr__(self) -> str:
@@ -181,22 +146,11 @@ class RankingScore(Base):
 
 
 class UniversityMetric(Base):
-    """
-    Computed / aggregated quality indicators for a university.
- 
-    Kept as a separate table so metrics can be updated independently from the
-    core university record — e.g. by the analytics pipeline without touching
-    the universities table.
- 
-    Scores are on a 0–100 scale.
-    """
-
     __tablename__ = "university_metrics"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
-    university_id = Column(UUID(as_uuid=True), ForeignKey("universities.id", 
-                                                          ondelete="CASCADE"), unique=True, 
-                                                          nullable=False, index=True)
+    university_id = Column(UUID(as_uuid=True), ForeignKey("universities.id", ondelete="CASCADE"), 
+                           unique=True, nullable=False, index=True)
     
     research_score = Column(Numeric(5, 2)) 
     placement_score = Column(Numeric(5, 2))
@@ -204,7 +158,6 @@ class UniversityMetric(Base):
 
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
-    #Relationships
     university = relationship("University", back_populates="metrics")
 
     def __repr__(self) -> str:
@@ -212,14 +165,6 @@ class UniversityMetric(Base):
     
 
 class Course(Base):
-    """
-    A degree program offered by a university.
- 
-    `degree_type` examples: "Bachelor", "Master", "PhD", "Diploma"
-    `duration` is in years.
-    `fees` is the per-year fee in USD (nullable — not always disclosed).
-    """
-
     __tablename__ = "courses"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
@@ -227,28 +172,21 @@ class Course(Base):
                            nullable=False, index=True)
     
     name = Column(String(300), nullable=False)
-    degree_type = Column(String(50), nullable=False)     # "Bachelor", "Master", "PhD", "Diploma"
-    duration = Column(Integer)             # in years
+    degree_type = Column(String(50), nullable=False)
+    duration = Column(Integer)
     total_seats = Column(Integer)
-    fees = Column(Numeric(12, 2))          # per-year fee in USD
-    eligibility = Column(Text)          # admission requirements
+    fees = Column(Numeric(12, 2))
+    eligibility = Column(Text)
 
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    # Relationships
     university = relationship("University", back_populates="courses")
 
     def __repr__(self) -> str:
         return f"<Course id={self.id} name={self.name!r} degree_type={self.degree_type!r}>"
 
-class AdmissionDetail(Base):
-    """
-    Admission process, deadlines, and eligibility for a university.
- 
-    `application_deadline` is the last date to submit applications.
-    `eligibility_criteria` is a text description of the requirements.
-    """
 
+class AdmissionDetail(Base):
     __tablename__ = "admission_details"
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
@@ -256,29 +194,22 @@ class AdmissionDetail(Base):
                            nullable=False, index=True)
     
     admission_process = Column(Text)
-    entrance_exams = Column(String(200))  # e.g. "SAT, GRE, IELTS"
+    entrance_exams = Column(String(200))
     application_deadline = Column(Date)
-    minimum_gpa = Column(Numeric(3, 2))  # e.g. 3.5
+    minimum_gpa = Column(Numeric(3, 2))
 
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
-    # Relationships
     university = relationship("University", back_populates="admission_details")
-
 
     def __repr__(self) -> str:
         return f"<AdmissionDetail university_id={self.university_id} application_deadline={self.application_deadline}>"
 
-class SavedUniversity(Base):
-    """
-    Bookmark: a user saves a university for quick access later.
 
-    """
+class SavedUniversity(Base):
     __tablename__ = "saved_universities"
     __table_args__ = (
-        UniqueConstraint(
-            "user_id", "university_id", name="uq_user_university",
-            ),
+        UniqueConstraint("user_id", "university_id", name="uq_user_university"),
     )
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
@@ -287,7 +218,6 @@ class SavedUniversity(Base):
                            nullable=False, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
-    #Relationships
     user = relationship("User", back_populates="saved_universities")
     university = relationship("University", back_populates="saved_universities")
 

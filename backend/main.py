@@ -4,7 +4,6 @@ from contextlib import asynccontextmanager
 
 from database.connections import close_db, close_redis
 from routers import universities, rankings, countries, search
-from routers import auth
 from routers.auth import router as auth_router
 from routers.users import router as users_router
 from routers import analytics
@@ -19,7 +18,6 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="AUR - Asia University Ranking API", version="1.0.0", lifespan=lifespan)
 
-# Allow frontend (Next.js) to call this API
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -27,23 +25,28 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register all routes
 app.include_router(universities.router)
 app.include_router(rankings.router)
 app.include_router(countries.router)
 app.include_router(analytics.router)
 app.include_router(compare.router)
 app.include_router(search.router)
-app.include_router(auth.router)
-app.include_router(admin_router)
-
 app.include_router(auth_router)
+app.include_router(admin_router)
 app.include_router(users_router)
 
 @app.get("/")
 def root():
     return {"message": "AUR API is running!"}
 
-@app.get("/health")
+from fastapi.responses import JSONResponse
+
+@app.get("/health", tags=["Health"])
 async def health():
-    return {"status": "ok"}
+    return JSONResponse(
+        status_code=200,
+        content={
+            "status": "healthy",
+            "service": "AUR Backend"
+        }
+    )

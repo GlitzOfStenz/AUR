@@ -37,6 +37,8 @@ export interface University {
   scholarshipDetails?: string;  // short description of available aid
 }
 
+// Legacy seed data retained for reference. Runtime university views now load
+// live records through src/app/lib/universities.ts and UniversityDataProvider.
 export const MOCK_UNIVERSITIES: University[] = [
   {
     id: "tsinghua",

@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Query
 
+from schemas import RankingsResponse
+
 router = APIRouter(prefix="/api/rankings", tags=["Rankings"])
 
 def get_data():
     from data_loader import UNIVERSITIES
     return UNIVERSITIES
 
-@router.get("/")
+@router.get("/", response_model=RankingsResponse)
 def get_rankings(
     top: int = Query(100, ge=1, le=1533),
     metric: str = Query("overall"),  # overall, citations, employability, etc.

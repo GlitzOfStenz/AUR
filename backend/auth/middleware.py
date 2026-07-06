@@ -1,11 +1,8 @@
-# Auth middleware — FastAPI dependency that extracts & validates the current user.
-
-from uuid import UUID
-
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from uuid import UUID
 
 from database.connections import get_db
 from database.models import User
@@ -48,7 +45,6 @@ async def get_current_user(
 
 
 async def require_admin(user: User = Depends(get_current_user)) -> User:
-    
     if user.role != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,

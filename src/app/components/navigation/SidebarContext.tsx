@@ -26,6 +26,7 @@ export const initialFilters: FilterState = {
 interface SidebarContextType {
   filters: FilterState;
   setFilters: React.Dispatch<React.SetStateAction<FilterState>>;
+  clearFilters: () => void;
   isCollapsed: boolean;
   setIsCollapsed: (val: boolean) => void;
   isMobileOpen: boolean;
@@ -127,6 +128,10 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
     }
   };
 
+  const clearFilters = () => {
+    setFilters(initialFilters);
+  };
+
   // Write collapse state to localStorage
   const setIsCollapsed = (val: boolean) => {
     setIsCollapsedState(val);
@@ -198,6 +203,7 @@ export const SidebarProvider: React.FC<{ children: React.ReactNode }> = ({ child
       value={{
         filters,
         setFilters,
+        clearFilters,
         isCollapsed,
         setIsCollapsed,
         isMobileOpen,

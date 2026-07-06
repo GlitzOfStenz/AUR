@@ -1,0 +1,29 @@
+services:
+  backend:
+    build: ./backend
+    container_name: aur-backend
+    ports:
+      - "8000:8000"
+    env_file:
+        - ./backend/.env
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    image: postgres:17
+    container_name: aur-postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: university_db
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7
+    container_name: aur-redis
+    restart: always
+    ports:
+      - "6379:6379"

@@ -1,5 +1,3 @@
-# Auth router — register, login, refresh, logout.
-
 from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel, EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -16,9 +14,6 @@ from auth.jwt import (
 )
 
 router = APIRouter(prefix="/auth", tags=["auth"])
-
-
-#  Schemas 
 
 class RegisterRequest(BaseModel):
     first_name: str
@@ -45,9 +40,6 @@ class TokenResponse(BaseModel):
     refresh_token: str
     token_type: str = "bearer"
 
-
-#  Helpers
-
 def hash_password(plain: str) -> str:
     return bcrypt.hashpw(plain.encode(), bcrypt.gensalt()).decode()
 
@@ -55,13 +47,8 @@ def hash_password(plain: str) -> str:
 def verify_password(plain: str, hashed: str) -> bool:
     return bcrypt.checkpw(plain.encode(), hashed.encode())
 
-
-# Endpoints 
-
 @router.post("/register", response_model=TokenResponse, status_code=status.HTTP_201_CREATED)
 async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
-    """Register a new user, return tokens immediately."""
-    # Check duplicate email
     result = await db.execute(select(User).where(User.email == body.email))
     if result.scalar_one_or_none():
         raise HTTPException(
@@ -87,7 +74,6 @@ async def register(body: RegisterRequest, db: AsyncSession = Depends(get_db)):
 
 @router.post("/login", response_model=TokenResponse)
 async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
-    """Verify credentials and return JWT access + refresh tokens."""
     result = await db.execute(select(User).where(User.email == body.email))
     user = result.scalar_one_or_none()
 
@@ -104,10 +90,8 @@ async def login(body: LoginRequest, db: AsyncSession = Depends(get_db)):
 
 @router.post("/refresh", response_model=TokenResponse)
 async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
-    """Exchange a valid refresh token for a new access + refresh token pair (rotation)."""
     user_id = await validate_refresh_token(body.refresh_token)
 
-    # Rotate: revoke old, issue new refresh token
     await revoke_refresh_token(body.refresh_token)
 
     result = await db.execute(select(User).where(User.id == user_id))
@@ -122,5 +106,4 @@ async def refresh(body: RefreshRequest, db: AsyncSession = Depends(get_db)):
 
 @router.post("/logout", status_code=status.HTTP_204_NO_CONTENT)
 async def logout(body: LogoutRequest):
-    """Invalidate the refresh token (removes it from Redis)."""
     await revoke_refresh_token(body.refresh_token)

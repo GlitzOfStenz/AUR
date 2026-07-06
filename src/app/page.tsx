@@ -2,6 +2,7 @@ import React, { Suspense } from "react";
 import AppContent from "./AppContent";
 import { SidebarProvider } from "./components/navigation/SidebarContext";
 import { ToastProvider } from "./components/feedback/ToastContext";
+import { UniversityDataProvider } from "./components/data/UniversityDataProvider";
 
 export default function Home() {
   return (
@@ -25,7 +26,9 @@ export default function Home() {
     }>
       <SidebarProvider>
         <ToastProvider>
-          <AppContent />
+          <UniversityDataProvider>
+            <AppContent />
+          </UniversityDataProvider>
         </ToastProvider>
       </SidebarProvider>
     </Suspense>

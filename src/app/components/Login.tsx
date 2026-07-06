@@ -107,7 +107,7 @@ function IntelligenceNetwork() {
 
 // ─── Floating Data Chip ───────────────────────────────────────────────────────
 function Chip({ icon: Icon, value, label, delay, className = "" }:
-  { icon: React.ElementType; value: string; label: string; delay: number; className?: string }) {
+  { icon: any; value: string; label: string; delay: number; className?: string }) {
   return (
     <div 
       
@@ -176,35 +176,118 @@ export default function Login() {
     e.preventDefault();
     setError("");
 
-    if (!isLogin && !pwsMatch) {
-      setError("Passwords do not match.");
+    // 1. Basic Frontend Validation & Sanitization
+    if (!email || !password) {
+      setError("Email and password are required.");
       return;
+    }
+
+    if (!isLogin) {
+      if (!pwsMatch) {
+        setError("Passwords do not match.");
+        return;
+      }
+      if (strength.score < 3) {
+        setError("Please choose a stronger password for better security.");
+        return;
+      }
+      if (!name.trim()) {
+        setError("Full Name is required for registration.");
+        return;
+      }
     }
 
     setLoading(true);
-    await new Promise(r => setTimeout(r, 800));
-    setLoading(false);
 
-    // Admin authentication
-    const isAdmin = email === "admin" && password === "admin";
-                    
-    if (isAdmin) {
-      handleViewChange("admin");
-      return;
-    }
+    try {
+      // 2. Prepare API payload and secure headers
+      // BACKEND TEAM: Update this endpoint to your actual authentication service.
+      const endpoint = isLogin ? "/api/v1/auth/login" : "/api/v1/auth/register";
+      const payload = isLogin 
+        ? { email: email.trim(), password }
+        : { email: email.trim(), password, name: name.trim() };
 
-    if (email === "user@aur.edu" && password === "user123") {
-      handleViewChange("home");
-      return;
-    }
+      // Set a strict timeout to prevent hanging requests
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
 
-    // Default catch-all for demo purposes, since there's no backend
-    if (password.length >= 6) {
-      handleViewChange("home");
-      return;
-    } else {
-      setError("Invalid credentials. Use a valid account or navadeep@aur.edu / admin123 for Admin.");
-      return;
+      // ----------------------------------------------------------------------
+      // MOCK DEMO LOGIC - Remove in Production
+      // ----------------------------------------------------------------------
+      const isMockDemo = true; 
+      
+      if (isMockDemo) {
+        await new Promise(r => setTimeout(r, 1000));
+        clearTimeout(timeoutId);
+
+        if (isLogin) {
+          if (email === "admin" && password === "admin") {
+            handleViewChange("admin");
+            return;
+          } else if (email === "user@aur.edu" && password === "user123") {
+            handleViewChange("home");
+            return;
+          } else if (password.length >= 6 && email.includes("@")) {
+            handleViewChange("home");
+            return;
+          } else {
+            throw new Error("Invalid credentials. Use a valid account.");
+          }
+        } else {
+          handleViewChange("home");
+          return;
+        }
+      }
+      // ----------------------------------------------------------------------
+
+      // --- REAL API INTEGRATION START ---
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          // "X-CSRF-Token": getCsrfToken(), // BACKEND TEAM: Uncomment if using CSRF tokens
+        },
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+
+      clearTimeout(timeoutId);
+
+      // Handle standard authentication HTTP status codes securely
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        if (response.status === 401) throw new Error("Invalid credentials. Please try again.");
+        if (response.status === 403) throw new Error("Account locked or access denied.");
+        if (response.status === 429) throw new Error("Too many attempts. Please try again later.");
+        throw new Error(errorData.message || "An error occurred during authentication.");
+      }
+
+      const data = await response.json();
+      
+      // 3. Handle Secure Token Storage
+      // BACKEND TEAM: HttpOnly cookies are strongly recommended over localStorage for JWTs to prevent XSS.
+      // If you must use local storage, it goes here:
+      if (data.token) {
+        // sessionStorage.setItem("aur_session", data.token);
+      }
+
+      // 4. Redirect on success
+      if (data.role === "admin") {
+        handleViewChange("admin");
+      } else {
+        handleViewChange("home");
+      }
+      // --- REAL API INTEGRATION END ---
+
+    } catch (err: any) {
+      if (err.name === 'AbortError') {
+        setError("Connection timeout. Please check your network and try again.");
+      } else {
+        setError(err.message || "Authentication failed. Please contact support.");
+      }
+    } finally {
+      setLoading(false);
     }
   };
 

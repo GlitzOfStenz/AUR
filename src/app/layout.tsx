@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Lora } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
 const inter = Inter({
@@ -32,6 +33,31 @@ export const viewport: Viewport = {
   ],
 };
 
+const stripExtensionHydrationAttrs = `
+(() => {
+  const attr = "fdprocessedid";
+  const strip = (root = document) => {
+    root.querySelectorAll?.("[" + attr + "]").forEach((node) => {
+      node.removeAttribute(attr);
+    });
+  };
+
+  strip();
+
+  new MutationObserver((mutations) => {
+    for (const mutation of mutations) {
+      if (mutation.type === "attributes") {
+        mutation.target.removeAttribute(attr);
+      }
+    }
+  }).observe(document.documentElement, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: [attr],
+  });
+})();
+`;
+
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -43,6 +69,13 @@ export default function RootLayout({
       style={{ overscrollBehaviorY: "none" }}
     >
       <body className="min-h-full flex flex-col font-sans bg-[var(--background)] text-[var(--foreground)]" style={{ overscrollBehavior: "none" }}>
+        {process.env.NODE_ENV === "development" && (
+          <Script
+            id="strip-extension-hydration-attrs"
+            strategy="beforeInteractive"
+            dangerouslySetInnerHTML={{ __html: stripExtensionHydrationAttrs }}
+          />
+        )}
         {children}
       </body>
     </html>

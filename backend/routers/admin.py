@@ -10,10 +10,10 @@ contain Dataset/Audit tables.
 from fastapi import APIRouter, Depends, UploadFile, File, HTTPException, Body, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func
-from database.connections import get_db
+from database.connections import get_db, get_redis
 from database.models import User, University, RankingScore, UniversityMetric
 from auth.middleware import require_admin
-
+import redis.asyncio as aioredis
 from pathlib import Path
 from datetime import datetime
 import shutil
@@ -37,6 +37,7 @@ ALLOWED = {".csv", ".xlsx", ".xls"}
 async def upload_dataset(
     file: UploadFile = File(...),
     current_admin: User = Depends(require_admin),
+    redis: aioredis.Redis = Depends(get_redis),
     db: AsyncSession = Depends(get_db),
 ):
     ext = Path(file.filename).suffix.lower()
@@ -54,6 +55,11 @@ async def upload_dataset(
     except Exception:
         pass
 
+    try:
+        await redis.delete("countries:list")
+        await redis.delete("analytics:summary")
+    except Exception:
+        pass
     return {
         "status": "success",
         "filename": filename,
@@ -128,6 +134,7 @@ async def update_university(
 @router.post("/publish")
 async def publish_dataset(
     current_admin: User = Depends(require_admin),
+    redis: aioredis.Redis = Depends(get_redis),
 ):
     files = sorted(DATA_DIR.glob("dataset_*"))
 
@@ -143,7 +150,11 @@ async def publish_dataset(
     }
 
     PUBLISH_FILE.write_text(json.dumps(info, indent=4))
-
+    try:
+        await redis.delete("countries:list")
+        await redis.delete("analytics:summary")
+    except Exception:
+        pass
     return info
 
 

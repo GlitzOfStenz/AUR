@@ -1,12 +1,14 @@
 from fastapi import APIRouter, Query, HTTPException
 
+from schemas import CompareResponse
+
 router = APIRouter(prefix="/api/compare", tags=["Compare"])
 
 def get_data():
     from data_loader import UNIVERSITIES
     return UNIVERSITIES
 
-@router.get("/")
+@router.get("/", response_model=CompareResponse)
 def compare_universities(
     ids: str = Query(..., description="Comma separated university IDs e.g. nus,iit-bombay,tsinghua")
 ):

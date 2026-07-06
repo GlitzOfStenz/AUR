@@ -18,7 +18,8 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
-import { MOCK_UNIVERSITIES } from "../data";
+import type { University } from "../data";
+import { useUniversityData } from "./data/UniversityDataProvider";
 import { useSidebar } from "./navigation/SidebarContext";
 
 interface UniversitiesListProps {
@@ -63,7 +64,7 @@ const REGION_STATS = [
   },
 ];
 
-function getProgrammesCount(uni: (typeof MOCK_UNIVERSITIES)[0]) {
+function getProgrammesCount(uni: University) {
   return uni.subjects.length * 12 + Math.floor(uni.overall * 2);
 }
 
@@ -73,6 +74,7 @@ export default function UniversitiesList({
   savedUniIds,
   onToggleSave,
 }: UniversitiesListProps) {
+  const { universities } = useUniversityData();
   const { theme } = useSidebar();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string>("");
@@ -81,7 +83,7 @@ export default function UniversitiesList({
   const [compared, setCompared] = useState<string[]>([]);
 
   const filteredUniversities = useMemo(() => {
-    let results = [...MOCK_UNIVERSITIES];
+    let results = [...universities];
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       results = results.filter(
@@ -114,7 +116,7 @@ export default function UniversitiesList({
       return b.overall - a.overall;
     });
     return results;
-  }, [searchQuery, selectedRegion, showMedicine, sortBy]);
+  }, [searchQuery, selectedRegion, showMedicine, sortBy, universities]);
 
   const toggleShortlist = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
@@ -140,7 +142,7 @@ export default function UniversitiesList({
           University Directory &amp; Regional Intelligence
         </h2>
         <p className="text-[11px] text-[var(--aur-text-muted)] font-mono mt-3 tracking-wide">
-          Index refreshed · Jun 2026 · {MOCK_UNIVERSITIES.length} institutions indexed
+          Index refreshed · Jun 2026 · {universities.length} institutions indexed
         </p>
       </div>
 
@@ -283,7 +285,7 @@ export default function UniversitiesList({
           <span className="text-[var(--aur-text)]">
             {filteredUniversities.length}
           </span>{" "}
-          of {MOCK_UNIVERSITIES.length} institutions
+          of {universities.length} institutions
         </p>
         {compared.length > 0 && (
           <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--aur-text)] bg-[var(--aur-surface-hover)] border border-[var(--aur-border)] px-3 py-1 rounded-full">

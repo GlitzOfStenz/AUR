@@ -21,7 +21,8 @@ import {
   Activity,
   Mail,
 } from "lucide-react";
-import { MOCK_UNIVERSITIES, FEATURED_ARTICLES, University, Article } from "../data";
+import { FEATURED_ARTICLES, University, Article } from "../data";
+import { useUniversityData } from "./data/UniversityDataProvider";
 import { AsiaMapNetwork, MapUniversityCards } from "./home/AsiaMapHero";
 import "./home/ref-home.css";
 
@@ -402,9 +403,9 @@ function RadarChart({ universities }: { universities: University[] }) {
   );
 }
 
-function getCountryStats() {
+function getCountryStats(universities: University[]) {
   const map = new Map<string, University[]>();
-  MOCK_UNIVERSITIES.forEach((u) => {
+  universities.forEach((u) => {
     if (!map.has(u.location)) map.set(u.location, []);
     map.get(u.location)!.push(u);
   });
@@ -445,6 +446,7 @@ export default function Homepage({
   onArticleSelect,
   onViewChange,
 }: HomepageProps) {
+  const { universities } = useUniversityData();
   const [searchQuery, setSearchQuery] = useState("");
   const [suggestions, setSuggestions] = useState<{ universities: University[]; articles: Article[] }>({
     universities: [],
@@ -462,7 +464,7 @@ export default function Homepage({
       setSuggestions({ universities: [], articles: [] });
       return;
     }
-    const filteredUnis = MOCK_UNIVERSITIES.filter(
+    const filteredUnis = universities.filter(
       (uni) =>
         uni.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         uni.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -474,7 +476,7 @@ export default function Homepage({
         art.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
     ).slice(0, 3);
     setSuggestions({ universities: filteredUnis, articles: filteredArticles });
-  }, [searchQuery]);
+  }, [searchQuery, universities]);
 
   const flatSuggestions = useMemo((): SuggestionPick[] => {
     const items: SuggestionPick[] = [];
@@ -541,13 +543,13 @@ export default function Homepage({
   };
 
   const topTen = useMemo(
-    () => [...MOCK_UNIVERSITIES].sort((a, b) => b.overall - a.overall).slice(0, 10),
-    []
+    () => [...universities].sort((a, b) => b.overall - a.overall).slice(0, 10),
+    [universities]
   );
 
-  const countryStats = useMemo(() => getCountryStats(), []);
+  const countryStats = useMemo(() => getCountryStats(universities), [universities]);
   const compareUnis = topTen.slice(0, 4);
-  const uniqueCountries = useMemo(() => new Set(MOCK_UNIVERSITIES.map((u) => u.location)).size, []);
+  const uniqueCountries = useMemo(() => new Set(universities.map((u) => u.location)).size, [universities]);
   const mapUniversities = topTen.slice(0, 3);
 
   const scrollToMethodology = () => {
@@ -715,8 +717,8 @@ export default function Homepage({
               
             >
               {[
-                { icon: Building2, val: `${MOCK_UNIVERSITIES.length}+`, label: "Institutions" },
-                { icon: Globe2, val: `${uniqueCountries}+`, label: "Countries" },
+                { icon: Building2, val: "650+", label: "Institutions" },
+                { icon: Globe2, val: "20+", label: "Countries" },
                 { icon: Database, val: "1M+", label: "Data Points" },
                 { icon: Clock, val: "15+", label: "Years of Data" },
               ].map((s) => (
@@ -1102,14 +1104,14 @@ export default function Homepage({
         </div>
         <div className="mt-8 pt-6 border-t border-[var(--ref-border)] flex flex-col sm:flex-row justify-between gap-4 items-center">
           <span className="text-[10px] text-[var(--ref-muted)]">© 2026 Asia University Rankings. All rights reserved.</span>
-          <div className="flex items-center gap-2">
+          <div className="flex w-full flex-col items-stretch gap-2 sm:w-auto sm:flex-row sm:items-center">
             <Mail className="h-4 w-4 text-[var(--ref-muted)]" />
             <input
               type="email"
               placeholder="Newsletter email"
-              className="bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-900 w-48 focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
-            <button type="button" className="ref-btn-primary text-[10px] px-3 py-1.5">Subscribe</button>
+            <button type="button" className="ref-btn-primary text-[10px] px-3 py-2 justify-center">Subscribe</button>
           </div>
         </div>
       </footer>

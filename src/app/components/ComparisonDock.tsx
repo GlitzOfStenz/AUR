@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { X, ArrowRight, BarChart3, Shuffle, Trash } from "lucide-react";
-import { MOCK_UNIVERSITIES, University } from "../data";
+import { useUniversityData } from "./data/UniversityDataProvider";
 
 interface ComparisonDockProps {
   selectedIds: string[];
@@ -19,12 +19,13 @@ export default function ComparisonDock({
 }: ComparisonDockProps) {
   const focusRing =
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyber-yellow dark:focus-visible:ring-offset-cyber-black";
+  const { universities } = useUniversityData();
   const [isExpanded, setIsExpanded] = useState(false);
 
   if (selectedIds.length === 0) return null;
 
   // Fetch full details of selected universities
-  const selectedUnis = MOCK_UNIVERSITIES.filter((uni) => selectedIds.includes(uni.id));
+  const selectedUnis = universities.filter((uni) => selectedIds.includes(uni.id));
   const comparisonGridColsClass =
     selectedUnis.length <= 1
       ? "md:grid-cols-2"

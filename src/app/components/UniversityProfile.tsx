@@ -9,7 +9,7 @@ import {
   Square, Users, CalendarDays, Percent, BadgeCheck, BookMarked,
 } from "lucide-react";
 
-import { MOCK_UNIVERSITIES } from "../data";
+import { useUniversityData } from "./data/UniversityDataProvider";
 
 // Lazy load the heavy charting component
 const TrendChart = dynamic(() => import("./TrendChart"), {
@@ -30,9 +30,10 @@ interface UniversityProfileProps {
 }
 
 export default function UniversityProfile({ universityId, onBack, onViewChange, savedUniIds, onToggleSave }: UniversityProfileProps) {
+  const { universities } = useUniversityData();
   const [activeTab, setActiveTab] = useState<"overview" | "metrics" | "admissions">("overview");
 
-  const uni = MOCK_UNIVERSITIES.find((u) => u.id === universityId);
+  const uni = universities.find((u) => u.id === universityId);
   const isShortlisted = savedUniIds?.includes(universityId) || false;
 
   if (!uni) {

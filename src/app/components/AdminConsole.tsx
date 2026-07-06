@@ -5,7 +5,7 @@ import {
   Activity, Database, Shield, Users, Sliders, Globe, 
   ChevronRight, Lock, Eye, LogOut, Search, Settings, CheckCircle2, AlertCircle, Edit3
 } from "lucide-react";
-import { MOCK_UNIVERSITIES } from "../data";
+import { useUniversityData } from "./data/UniversityDataProvider";
 
 // Premium Enterprise Mock Data
 const MOCK_EVENTS = [
@@ -25,6 +25,7 @@ const MOCK_USERS = [
 
 export default function AdminConsole() {
   const { handleViewChange } = useSidebar();
+  const { universities } = useUniversityData();
   const [activeTab, setActiveTab] = useState<"overview" | "users" | "data_engine" | "security">("overview");
 
   // Live Metrics State
@@ -36,6 +37,12 @@ export default function AdminConsole() {
   const [selectedUniId, setSelectedUniId] = useState("tsinghua");
   const [overrideScore, setOverrideScore] = useState<number | string>("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  useEffect(() => {
+    if (universities.length > 0 && !universities.some((u) => u.id === selectedUniId)) {
+      setSelectedUniId(universities[0].id);
+    }
+  }, [selectedUniId, universities]);
 
   // Live simulation effect
   useEffect(() => {
@@ -51,10 +58,9 @@ export default function AdminConsole() {
     e.preventDefault();
     if (!overrideScore) return;
 
-    const target = MOCK_UNIVERSITIES.find(u => u.id === selectedUniId);
+    const target = universities.find(u => u.id === selectedUniId);
     if (target) {
-      target.overall = Number(overrideScore);
-      setSuccessMessage(`Successfully updated ${target.name} overall score to ${overrideScore}.`);
+      setSuccessMessage(`Prepared ${target.name} overall score override payload: ${overrideScore}.`);
       setTimeout(() => setSuccessMessage(""), 4000);
     }
   };
@@ -289,7 +295,7 @@ export default function AdminConsole() {
                           onChange={(e) => setSelectedUniId(e.target.value)}
                           className="aur-input w-full font-medium"
                         >
-                          {MOCK_UNIVERSITIES.map(u => (
+                          {universities.map(u => (
                             <option key={u.id} value={u.id}>
                               {u.name} (Current Score: {u.overall})
                             </option>

@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 
 import { Send, X, Bot, Sparkles } from "lucide-react";
-import { MOCK_UNIVERSITIES } from "../../data";
+import { useUniversityData } from "../data/UniversityDataProvider";
 
 interface Message {
   id: string;
@@ -49,6 +49,7 @@ function clampPosition(x: number, y: number) {
 }
 
 export default function Chatbot() {
+  const { universities } = useUniversityData();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
@@ -163,7 +164,7 @@ export default function Chatbot() {
       return "Hello! How can I help you today? You can ask me about regional admissions, tuition rankings, or specific subjects like engineering/medicine.";
     }
 
-    const matchedUnis = MOCK_UNIVERSITIES.filter(
+    const matchedUnis = universities.filter(
       (uni) =>
         query.includes(uni.name.toLowerCase()) ||
         query.includes(uni.id.toLowerCase()) ||
@@ -199,7 +200,7 @@ export default function Chatbot() {
       query.includes("md") ||
       query.includes("doctor")
     ) {
-      const medUnis = MOCK_UNIVERSITIES.filter((u) => u.hasMedicine);
+      const medUnis = universities.filter((u) => u.hasMedicine);
       return `Here are the top indexed universities offering **Medical / MD / MBBS Programs**:
 ${medUnis
   .slice(0, 5)
@@ -215,7 +216,7 @@ All Central Asian options feature WHO-recognized, English-medium MBBS courses fo
       query.includes("fergana") ||
       query.includes("bukhara")
     ) {
-      const uzUnis = MOCK_UNIVERSITIES.filter((u) => u.location.toLowerCase() === "uzbekistan");
+      const uzUnis = universities.filter((u) => u.location.toLowerCase() === "uzbekistan");
       return `**Uzbekistan Admissions & Universities**:
 ${uzUnis
   .map((u) => `• **${u.name}** (Rank #${u.history[0]}) - Estimated Tuition: ${u.tuition}`)
@@ -230,7 +231,7 @@ These medical schools hosts over 2,000 international scholars and provide intens
       query.includes("osaka") ||
       query.includes("tsukuba")
     ) {
-      const jpUnis = MOCK_UNIVERSITIES.filter((u) => u.location.toLowerCase() === "japan");
+      const jpUnis = universities.filter((u) => u.location.toLowerCase() === "japan");
       return `**Top Research Japanese Universities**:
 ${jpUnis
   .map((u) => `• **${u.name}** (Rank #${u.history[0]}) - Citations: ${u.citations}/100`)
@@ -239,7 +240,7 @@ These public institutions are highly competitive and offer excellent research fa
     }
 
     if (query.includes("singapore") || query.includes("nus") || query.includes("ntu")) {
-      const sgUnis = MOCK_UNIVERSITIES.filter((u) => u.location.toLowerCase() === "singapore");
+      const sgUnis = universities.filter((u) => u.location.toLowerCase() === "singapore");
       return `**Singapore Global Academic Nodes**:
 ${sgUnis
   .map((u) => `• **${u.name}** (Rank #${u.history[0]}) - Citation Index: ${u.citations}/100. Tuition is higher (approx. ${u.tuition}), but global merit-based scholarships are available.`)
@@ -253,7 +254,7 @@ ${sgUnis
       query.includes("bombay") ||
       query.includes("delhi")
     ) {
-      const inUnis = MOCK_UNIVERSITIES.filter((u) => u.location.toLowerCase() === "india");
+      const inUnis = universities.filter((u) => u.location.toLowerCase() === "india");
       return `**Top Indian Institutions**:
 ${inUnis
   .map((u) => `• **${u.name}** (Rank #${u.history[0]}) - Citations: ${u.citations}/100 (IISc holds the world's highest citations-per-faculty score!)`)
@@ -272,7 +273,7 @@ ${inUnis
         const num = parseInt(t.replace(/[^0-9]/g, ""));
         return isNaN(num) ? 99999 : num;
       };
-      const sorted = [...MOCK_UNIVERSITIES].sort(
+      const sorted = [...universities].sort(
         (a, b) => getTuitionVal(a.tuition) - getTuitionVal(b.tuition)
       );
       return `**Tuition Estimates Q&A**:
@@ -291,7 +292,7 @@ ${sorted
     }
 
     if (query.includes("rank") || query.includes("best") || query.includes("top")) {
-      const top5 = MOCK_UNIVERSITIES.slice(0, 5);
+      const top5 = universities.slice(0, 5);
       return `Here are the current **Top 5 Asia Universities** based on our audited indexes:
 ${top5
   .map((u, i) => `${i + 1}. **${u.name}** (Rank #${u.history[0]}, ${u.location}) - Index Score: ${u.overall}`)

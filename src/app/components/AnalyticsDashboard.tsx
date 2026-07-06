@@ -18,7 +18,6 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import { MOCK_UNIVERSITIES } from "../data";
 import { useSidebar } from "./navigation/SidebarContext";
 import {
   GraduationCap,
@@ -26,6 +25,7 @@ import {
   Award,
   TrendingUp,
 } from "lucide-react";
+import { useUniversityData } from "./data/UniversityDataProvider";
 
 // ── Premium Metric Color Palette ──
 const COLORS = {
@@ -51,9 +51,24 @@ const COUNTRY_COLORS: Record<string, string> = {
 };
 
 function useAnalytics() {
+  const { universities } = useUniversityData();
+
   return useMemo(() => {
-    const unis = MOCK_UNIVERSITIES;
+    const unis = universities;
     const count = unis.length;
+    if (count === 0) {
+      return {
+        count: 0,
+        avgOverall: 0,
+        avgCitations: 0,
+        avgEmployability: 0,
+        medCount: 0,
+        medPct: 0,
+        countryData: [],
+        radarData: [],
+        trendData: [],
+      };
+    }
 
     const avgOverall = +(unis.reduce((s, u) => s + u.overall, 0) / count).toFixed(1);
     const avgCitations = +(unis.reduce((s, u) => s + u.citations, 0) / count).toFixed(1);
@@ -106,7 +121,7 @@ function useAnalytics() {
     ];
 
     return { count, avgOverall, avgCitations, avgEmployability, medCount, medPct, countryData, radarData, trendData };
-  }, []);
+  }, [universities]);
 }
 
 // ── Custom tooltip perfectly styled with design tokens ──
