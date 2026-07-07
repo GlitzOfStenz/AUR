@@ -454,6 +454,7 @@ export default function RankingsEngine({
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
   return (
@@ -517,17 +518,16 @@ export default function RankingsEngine({
             Search
           </label>
           <div className="relative">
-            <Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--aur-text-muted)]"/>
-
-          <input
-            type="text"
-            placeholder="Search..."
-            value={searchQuery}
-            onChange={(e) => handleSearchChange(e.target.value)}
-            className="aur-input"
-            style={{ paddingLeft: "2.75rem" }}
-          />
-        </div>
+<Search className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-[var(--aur-text-muted)]"/>
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => handleSearchChange(e.target.value)}
+              className="aur-input"
+              style={{ paddingLeft: "2.75rem" }}
+            />
+          </div>
         </div>
 
         {/* Location Dropdown */}
