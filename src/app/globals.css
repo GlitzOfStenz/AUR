@@ -86,6 +86,11 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-serif), Georgia, serif;
 }
 
+/* Global: subtle rounded corners on all buttons */
+button {
+  border-radius: 6px;
+}
+
 /* Page atmosphere */
 .aur-page {
   background: var(--background);

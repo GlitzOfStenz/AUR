@@ -20,19 +20,19 @@ export interface NavItem {
 export const SIDEBAR_ITEMS: NavItem[] = [
   {
     id: "dashboard",
-    label: "Dashboard",
+    label: "Global Overview",
     view: "home",
     icon: LayoutDashboard,
   },
   {
     id: "universities",
-    label: "Universities",
+    label: "Institution Directory",
     view: "universities",
     icon: GraduationCap,
   },
   {
     id: "rankings",
-    label: "Rankings",
+    label: "Prestige Rankings",
     view: "rankings",
     icon: Trophy,
     badge: "Live",
@@ -51,7 +51,7 @@ export const SIDEBAR_ITEMS: NavItem[] = [
   },
   {
     id: "saved",
-    label: "Shortlisted",
+    label: "Comparison Matrix",
     view: "saved", // a view for saved universities or comparing ones
     icon: Bookmark,
   },
@@ -71,6 +71,8 @@ export const SIDEBAR_ITEMS: NavItem[] = [
 
 export const TOP_NAV_LINKS = [
   { label: "Discovery Hub", view: "home" },
+  { label: "Institution Directory", view: "universities" },
   { label: "Rankings Engine", view: "rankings" },
   { label: "Methodology", view: "methodology" },
+  { label: "Comparison Matrix", view: "saved" },
 ];
