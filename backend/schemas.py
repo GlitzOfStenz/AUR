@@ -9,7 +9,7 @@ FastAPI validates/filters the outgoing data.
 
 from typing import List, Optional
 from pydantic import BaseModel
-
+from datetime import datetime
 
 class University(BaseModel):
     id: str
@@ -128,3 +128,23 @@ class NewsletterSubscriberResponse(BaseModel):
 
     class Config:
         from_attributes = True  
+
+class NewsItemResponse(BaseModel):
+    id: str
+    university_id: str
+    headline: str
+    category: str
+    published_date: datetime
+    rank_change: Optional[str] = None
+
+    class Config:
+        from_attributes = True        
+
+class NewsFlashResponse(BaseModel):
+    data: List[NewsItemResponse]
+
+class NewsListResponse(BaseModel):
+    page: int
+    limit: int
+    total: int
+    data: List[NewsItemResponse]    
