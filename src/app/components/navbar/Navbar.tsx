@@ -75,11 +75,11 @@ export default function Navbar() {
             <Image
               src="/logo.png"
               alt="Asia University Rankings"
-              width={220}
-              height={65}
+              width={320}
+              height={100}
               priority
               quality={100}
-              style={{ height: "50px", width: "auto" }}
+              style={{ height: "63px", width: "auto" }}
               className="object-contain"
             />
           </div>
