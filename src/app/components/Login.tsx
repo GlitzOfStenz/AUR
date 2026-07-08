@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useSidebar } from "./navigation/SidebarContext";
 import { CanvasRevealEffect } from "./ui/canvas-reveal-effect";
+import LoginGlobe from "./LoginGlobe";
 
 // ─── Variants ─────────────────────────────────────────────────────────────────
 const ease = [0.16, 1, 0.3, 1] as [number, number, number, number];
@@ -61,49 +62,6 @@ function pwStrength(pw: string): { score: number; label: string; color: string }
   return       { score: 5, label: "Excellent", color: "#10b981" };
 }
 
-// ─── Intelligence Network SVG ─────────────────────────────────────────────────
-function IntelligenceNetwork() {
-  return (
-    <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg" className="lp-intel-svg">
-      {/* Central Node */}
-      <circle cx="250" cy="250" r="120" stroke="currentColor" strokeOpacity="0.05" strokeWidth="1"/>
-      <circle cx="250" cy="250" r="80" stroke="currentColor" strokeOpacity="0.1" strokeWidth="1"/>
-      <circle cx="250" cy="250" r="40" stroke="currentColor" strokeOpacity="0.15" strokeWidth="1" strokeDasharray="4 4"/>
-      
-      {/* Network Lines */}
-      <path d="M 250 210 L 150 150 M 250 290 L 150 350 M 290 250 L 380 200 M 250 250 L 320 340 M 210 250 L 120 250" stroke="currentColor" strokeOpacity="0.1" strokeWidth="1.5" />
-      
-      {/* Data Nodes */}
-      {[
-        { cx: 150, cy: 150, r: 6 },
-        { cx: 150, cy: 350, r: 8 },
-        { cx: 380, cy: 200, r: 5 },
-        { cx: 320, cy: 340, r: 7 },
-        { cx: 120, cy: 250, r: 4 },
-        { cx: 250, cy: 250, r: 12 }
-      ].map((n, i) => (
-        <g key={i}>
-          <circle cx={n.cx} cy={n.cy} r={n.r} fill="currentColor" fillOpacity="0.8"/>
-          <circle cx={n.cx} cy={n.cy} r={n.r + 10} stroke="currentColor" strokeOpacity="0.2" strokeWidth="1">
-            <animate attributeName="r" values={`${n.r+5};${n.r+15};${n.r+5}`} dur={`${2+i*0.5}s`} repeatCount="indefinite"/>
-            <animate attributeName="opacity" values="0.8;0;0.8" dur={`${2+i*0.5}s`} repeatCount="indefinite"/>
-          </circle>
-        </g>
-      ))}
-
-      {/* Abstract Bar Chart Projection */}
-      <g transform="translate(180, 280)" opacity="0.4">
-        <rect x="0" y="20" width="12" height="40" rx="2" fill="currentColor"/>
-        <rect x="20" y="35" width="12" height="25" rx="2" fill="currentColor"/>
-        <rect x="40" y="10" width="12" height="50" rx="2" fill="currentColor"/>
-        <rect x="60" y="5" width="12" height="55" rx="2" fill="currentColor"/>
-        <rect x="80" y="30" width="12" height="30" rx="2" fill="currentColor"/>
-        <rect x="100" y="15" width="12" height="45" rx="2" fill="currentColor"/>
-        <rect x="120" y="0" width="12" height="60" rx="2" fill="currentColor"/>
-      </g>
-    </svg>
-  );
-}
 
 // ─── Floating Data Chip ───────────────────────────────────────────────────────
 function Chip({ icon: Icon, value, label, delay, className = "" }:
@@ -222,18 +180,22 @@ export default function Login() {
 
         if (isLogin) {
           if (email === "admin" && password === "admin") {
+            localStorage.setItem("aur_logged_in", "true");
             handleViewChange("admin");
             return;
           } else if (email === "user@aur.edu" && password === "user123") {
+            localStorage.setItem("aur_logged_in", "true");
             handleViewChange("home");
             return;
           } else if (password.length >= 6 && email.includes("@")) {
+            localStorage.setItem("aur_logged_in", "true");
             handleViewChange("home");
             return;
           } else {
             throw new Error("Invalid credentials. Use a valid account.");
           }
         } else {
+          localStorage.setItem("aur_logged_in", "true");
           handleViewChange("home");
           return;
         }
@@ -328,13 +290,14 @@ export default function Login() {
       <div className="lp-left relative z-10"   >
         {/* Logo */}
         <div className="lp-logo">
-          <div className="lp-logo-mark">A</div>
-          <div className="lp-logo-text">Asia University Rankings</div>
+          <img src="/aur-logo-transparent.png" alt="Asia University Rankings" />
         </div>
 
         {/* Intelligence Graphic */}
         <div className="lp-intel-stage">
-          <IntelligenceNetwork />
+          <div className="lp-map-wrapper" style={{ width: "100%", height: "100%", display: "flex" }}>
+            <LoginGlobe />
+          </div>
           {chips.map((c) => (
             <Chip key={c.label} icon={c.icon} value={c.value} label={c.label} delay={c.delay} className={c.cls}/>
           ))}
@@ -365,28 +328,18 @@ export default function Login() {
         <div className="lp-glass-card">
           {/* Mobile brand */}
           <div className="lp-mobile-brand">
-            <div className="lp-logo-mark">A</div>
-            <div className="lp-logo-text">AUR</div>
+            <div className="lp-logo">
+              <img src="/aur-logo-transparent.png" alt="Asia University Rankings" />
+            </div>
           </div>
 
-          {/* Tab bar */}
-          <div className="lp-tabs">
-            <button className={`lp-tab ${isLogin ? "lp-tab-active" : ""}`} onClick={() => switchMode(true)}>
-              Sign In
-            </button>
-            <button className={`lp-tab ${!isLogin ? "lp-tab-active" : ""}`} onClick={() => switchMode(false)}>
-              Create Account
-            </button>
-          </div>
+          {/* Tab bar removed as per request */}
 
           {/* Animated form swap */}
           <>
             <div
               key={isLogin ? "login" : "signup"}
-              
-              
-              
-              
+              className="lp-form-anim-wrapper"
             >
               {/* Header */}
               <div className="lp-form-header">
@@ -559,13 +512,6 @@ export default function Login() {
                   </button>
                 </div>
 
-                {/* Admin hint */}
-                {isLogin && (
-                  <div className="lp-admin-hint">
-                    <Shield size={14} style={{ flexShrink: 0, marginTop: 2, color: "var(--aur-text-muted)" }}/>
-                    <div>Use <code>admin</code> / <code>admin</code> for admin access</div>
-                  </div>
-                )}
               </form>
 
               {/* Footer toggle */}

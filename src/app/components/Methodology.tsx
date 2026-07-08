@@ -17,6 +17,9 @@ import {
   Users,
   FlaskConical,
   Briefcase,
+  ShieldCheck,
+  SlidersHorizontal,
+  BadgeCheck,
 } from "lucide-react";
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -194,6 +197,76 @@ const FAQS: FaqItem[] = [
   },
 ];
 
+interface WorkflowStep {
+  id: string;
+  title: string;
+  stepNumber: string;
+  description: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const WORKFLOW_STEPS: WorkflowStep[] = [
+  {
+    id: "data-collection",
+    title: "Data Collection",
+    stepNumber: "01",
+    description:
+      "Collect institutional submissions, government datasets, bibliometric databases, verified academic records, and official survey information.",
+    icon: Database,
+  },
+  {
+    id: "data-verification",
+    title: "Data Verification",
+    stepNumber: "02",
+    description:
+      "Cross-check institutional submissions with third-party databases, accreditation authorities and audit records for provenance and authenticity.",
+    icon: ShieldCheck,
+  },
+  {
+    id: "data-normalization",
+    title: "Data Normalization",
+    stepNumber: "03",
+    description:
+      "Standardise raw inputs onto comparable scales and apply field normalisation to ensure fairness across disciplines.",
+    icon: BarChart3,
+  },
+  {
+    id: "metric-scoring",
+    title: "Metric Scoring",
+    stepNumber: "04",
+    description: "Compute indicator scores using approved scoring algorithms and normalisation procedures.",
+    icon: TrendingUp,
+  },
+  {
+    id: "weight-calculation",
+    title: "Weight Calculation",
+    stepNumber: "05",
+    description: "Apply indicator weights and combine scores into composite institution-level values.",
+    icon: SlidersHorizontal,
+  },
+  {
+    id: "quality-assurance",
+    title: "Quality Assurance",
+    stepNumber: "06",
+    description: "Run validation checks, audits and consistency tests before finalising scores.",
+    icon: BadgeCheck,
+  },
+  {
+    id: "final-rank",
+    title: "Final Rank Calculation",
+    stepNumber: "07",
+    description: "Generate the final ordered ranking list after validation and governance sign-off.",
+    icon: Award,
+  },
+  {
+    id: "publication",
+    title: "Publication",
+    stepNumber: "08",
+    description: "Publish the official rankings, methodology notes, and institution scorecards.",
+    icon: FileText,
+  },
+];
+
 // ── Sub-components ─────────────────────────────────────────────────────────
 
 function WeightDonut({ metrics }: { metrics: MetricDefinition[] }) {
@@ -348,9 +421,64 @@ function FaqRow({ item }: { item: FaqItem }) {
 
 export default function Methodology() {
   const [expandedMetric, setExpandedMetric] = useState<string | null>("academic-reputation");
+  const [activeWorkflowStep, setActiveWorkflowStep] = useState<string>(WORKFLOW_STEPS[0].id);
+  const [hoveredWorkflowStep, setHoveredWorkflowStep] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState<boolean>(false);
+
+  React.useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth < 768);
+    onResize();
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   const toggleMetric = (id: string) => {
     setExpandedMetric((prev) => (prev === id ? null : id));
+  };
+
+  const activeWorkflow = WORKFLOW_STEPS.find((step) => step.id === activeWorkflowStep) ?? WORKFLOW_STEPS[0];
+
+  const getWorkflowPosition = (index: number, total: number) => {
+    const angle = -Math.PI / 2 + (index / total) * Math.PI * 2;
+    const radius = 38;
+    const x = 50 + Math.cos(angle) * radius;
+    const y = 50 + Math.sin(angle) * radius;
+    const tx = Math.sin(angle);
+    const ty = -Math.cos(angle);
+    return { x, y, tx, ty };
+  };
+
+  const getWorkflowPath = () => {
+    const points = WORKFLOW_STEPS.map((_, index) => getWorkflowPosition(index, WORKFLOW_STEPS.length));
+    const curve = 10;
+    let path = "";
+
+    points.forEach((point, index) => {
+      const next = points[(index + 1) % points.length];
+      const cp1x = point.x + point.tx * curve;
+      const cp1y = point.y + point.ty * curve;
+      const cp2x = next.x - next.tx * curve;
+      const cp2y = next.y - next.ty * curve;
+
+      if (index === 0) {
+        path += `M ${point.x} ${point.y} `;
+      }
+      path += `C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${next.x} ${next.y} `;
+    });
+
+    return path;
+  };
+
+  const getSegmentPath = (index: number) => {
+    const points = WORKFLOW_STEPS.map((_, i) => getWorkflowPosition(i, WORKFLOW_STEPS.length));
+    const curve = 10;
+    const p = points[index];
+    const n = points[(index + 1) % points.length];
+    const cp1x = p.x + p.tx * curve;
+    const cp1y = p.y + p.ty * curve;
+    const cp2x = n.x - n.tx * curve;
+    const cp2y = n.y - n.ty * curve;
+    return `M ${p.x} ${p.y} C ${cp1x} ${cp1y} ${cp2x} ${cp2y} ${n.x} ${n.y}`;
   };
 
   return (
@@ -440,6 +568,148 @@ export default function Methodology() {
           ))}
         </div>
       </div>
+
+      {/* ── End-to-End Ranking Process (Circular Workflow) ── */}
+      <div className="mt-10">
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--aur-text-muted)]">Process</span>
+            <h2 className="text-2xl font-serif font-bold text-[var(--aur-text)] mt-2">End-to-End Ranking Process</h2>
+            <p className="text-sm text-[var(--aur-text-secondary)] mt-1">A single continuous lifecycle representing how rankings are produced.</p>
+          </div>
+        </div>
+
+        <div className="w-full flex flex-col lg:flex-row items-center gap-8">
+          {/* Visual */}
+          <div className="flex-1 flex items-center justify-center">
+            {isMobile ? (
+              // Mobile: vertical timeline
+              <div className="w-full">
+                <ol className="space-y-4">
+                  {WORKFLOW_STEPS.map((s) => {
+                    const Icon = s.icon as any;
+                    return (
+                      <li key={s.id} className={`flex items-start gap-4 p-4 bg-[var(--aur-surface)] rounded-2xl border border-[var(--aur-border)]`}>
+                        <div className="shrink-0">
+                          <div className="h-9 w-9 rounded-full bg-white border border-[var(--aur-border)] flex items-center justify-center shadow-sm">
+                            <Icon className="h-5 w-5 text-[var(--aur-primary)]" />
+                          </div>
+                        </div>
+                        <div className="flex-1">
+                          <button type="button" onClick={() => setActiveWorkflowStep(s.id)} className="text-left w-full">
+                            <div className="flex items-center justify-between">
+                              <span className="font-bold text-[var(--aur-text)]">{s.stepNumber} · {s.title}</span>
+                              <span className="text-xs text-[var(--aur-text-muted)]">View</span>
+                            </div>
+                          </button>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ol>
+              </div>
+            ) : (
+              // Desktop/Tablet: circular SVG workflow
+              <div className="relative" style={{ width: "min(760px, 80vw)", height: "min(760px, 80vw)" }}>
+                <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" className="w-full h-full">
+                  <defs>
+                    <linearGradient id="hub-grad" x1="0" x2="1">
+                      <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
+                      <stop offset="100%" stopColor="#eef2ff" stopOpacity="0.9" />
+                    </linearGradient>
+                    {/* arrow marker removed to avoid triangle artifact behind nodes */}
+                  </defs>
+
+                  {/* background circular path (glow) */}
+                  <path d={getWorkflowPath()} fill="none" stroke="rgba(59,130,246,0.08)" strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" />
+
+                  {/* main continuous path */}
+                  <path d={getWorkflowPath()} fill="none" stroke="var(--aur-primary)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+
+                  {/* highlighted segment on hover */}
+                  {hoveredWorkflowStep && (() => {
+                    const idx = WORKFLOW_STEPS.findIndex((s) => s.id === hoveredWorkflowStep);
+                    if (idx === -1) return null;
+                    return (
+                      <path key={hoveredWorkflowStep} d={getSegmentPath(idx)} fill="none" stroke="#60a5fa" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
+                    );
+                  })()}
+
+                  {/* Center hub */}
+                  <g>
+                    {/* rings and hub */}
+                    <circle cx="50" cy="50" r="12" fill="url(#hub-grad)" stroke="var(--aur-border)" strokeWidth="0.3" className="transition-shadow" style={{ filter: hoveredWorkflowStep ? "drop-shadow(0 6px 20px rgba(59,130,246,0.12))" : "drop-shadow(0 4px 12px rgba(2,6,23,0.06))" }} />
+                    <text x="50" y="46" textAnchor="middle" fontSize="4" fontWeight={800} fill="var(--aur-text)">AUR</text>
+                    <text x="50" y="50" textAnchor="middle" fontSize="2" fill="var(--aur-text-muted)">Ranking</text>
+                    <text x="50" y="53.5" textAnchor="middle" fontSize="1.8" fill="var(--aur-text-muted)">Engine</text>
+                    <text x="50" y="58" textAnchor="middle" fontSize="1.6" fill="var(--aur-text-muted)">Continuous • Transparent • Trusted</text>
+                  </g>
+
+                  {/* Nodes */}
+                  {WORKFLOW_STEPS.map((s, i) => {
+                    const pos = getWorkflowPosition(i, WORKFLOW_STEPS.length);
+                    const left = `${pos.x}%`;
+                    const top = `${pos.y}%`;
+                    const Icon = s.icon as any;
+                    return (
+                      <g key={s.id} transform={`translate(${pos.x}, ${pos.y})`}>
+                        {/* invisible anchoring circle for pointer events handled via foreignObject */}
+                      </g>
+                    );
+                  })}
+                </svg>
+
+                {/* Overlay HTML nodes (positioned with absolute percent) */}
+                {WORKFLOW_STEPS.map((s, i) => {
+                  const pos = getWorkflowPosition(i, WORKFLOW_STEPS.length);
+                  const Icon = s.icon as any;
+                  const isActive = activeWorkflowStep === s.id;
+                  const isHovered = hoveredWorkflowStep === s.id;
+                  return (
+                    <button
+                      key={s.id}
+                      type="button"
+                      onClick={() => setActiveWorkflowStep(s.id)}
+                      onMouseEnter={() => { setHoveredWorkflowStep(s.id); }}
+                      onMouseLeave={() => { setHoveredWorkflowStep(null); }}
+                      className={`absolute -translate-x-1/2 -translate-y-1/2 flex flex-col items-center gap-2 bg-transparent border-0 p-0 text-left`}
+                      style={{ left: `${pos.x}%`, top: `${pos.y}%`, width: 88, height: 88 }}
+                    >
+                      <div className={`rounded-full bg-[var(--aur-surface)] border border-[var(--aur-border)] flex items-center justify-center shadow transition-transform duration-200 ${isHovered || isActive ? "scale-105 shadow-[0_10px_30px_rgba(59,130,246,0.12)]" : ""}`} style={{ width: 56, height: 56 }}>
+                        <Icon className="h-5 w-5 text-[var(--aur-primary)]" />
+                      </div>
+                      <div className="text-[12px] text-center">
+                        <div className="text-xs font-mono text-[var(--aur-text-muted)]">{s.stepNumber}</div>
+                        <div className="text-sm font-bold text-[var(--aur-text)] leading-tight">{s.title}</div>
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          {/* Detail card */}
+          <div className="w-full lg:w-1/3">
+            <div className="p-6 bg-white rounded-2xl border border-[var(--aur-border)] shadow-sm">
+              <div className="flex items-start gap-4">
+                <div className="h-12 w-12 rounded-xl bg-[var(--aur-surface-2)] border border-[var(--aur-border)] flex items-center justify-center">
+                  {(() => {
+                    const Icon = activeWorkflow.icon as any;
+                    return <Icon className="h-6 w-6 text-[var(--aur-primary)]" />;
+                  })()}
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-[var(--aur-text)]">{activeWorkflow.title}</h3>
+                  <p className="text-sm text-[var(--aur-text-secondary)] mt-2 leading-relaxed">{activeWorkflow.description}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      
 
       {/* ── Data Sources ── */}
       <div>

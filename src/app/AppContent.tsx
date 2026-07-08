@@ -4,11 +4,12 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 
 import Navbar from "./components/navbar/Navbar";
-import Sidebar from "./components/sidebar/Sidebar";
 import MobileMenu from "./components/mobile/MobileMenu";
 import Homepage from "./components/Homepage";
 import RankingsEngine from "./components/RankingsEngine";
+import InstitutionDirectory from "./components/InstitutionDirectory";
 import ComparisonDock from "./components/ComparisonDock";
+import ComparisonMatrix from "./components/ComparisonMatrix";
 import UniversityProfile from "./components/UniversityProfile";
 import Footer from "./components/Footer";
 import FloatingChatAssistant from "./components/FloatingChatAssistant";
@@ -18,10 +19,13 @@ import Login from "./components/Login";
 import UserDashboard from "./components/UserDashboard";
 import UniversitiesList from "./components/UniversitiesList";
 import Methodology from "./components/Methodology";
+import EventsAndAwards from "./components/EventsAndAwards";
+import Membership from "./components/Membership";
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { useUniversityData } from "./components/data/UniversityDataProvider";
-import { Article } from "./data";
+import { Article, MOCK_UNIVERSITIES } from "./data";
 import { Bookmark, ShieldAlert } from "lucide-react";
+import Sidebar from "./components/sidebar/Sidebar";
 
 export default function AppContent() {
   const router = useRouter();
@@ -137,6 +141,12 @@ export default function AppContent() {
             />
           )}
 
+          {view === "universities" && (
+            <InstitutionDirectory
+              onUniversitySelect={handleUniversitySelect}
+            />
+          )}
+
           {view === "profile" && id && (
             <UniversityProfile
               universityId={id}
@@ -153,6 +163,12 @@ export default function AppContent() {
           {/* Methodology */}
           {view === "methodology" && <Methodology />}
 
+          {/* Membership */}
+          {view === "membership" && <Membership />}
+
+          {/* Events & Awards */}
+          {view === "events" && <EventsAndAwards />}
+
           {/* Admin Console */}
           {view === "admin" && <AdminConsole />}
 
@@ -160,7 +176,7 @@ export default function AppContent() {
           {view === "login" && <Login />}
 
           {/* User Dashboard (Combines Saved & Settings) */}
-          {(view === "saved" || view === "settings") && (
+          {view === "settings" && (
             <UserDashboard
               savedUniversities={savedUniversities}
               onUniversitySelect={handleUniversitySelect}
@@ -184,6 +200,9 @@ export default function AppContent() {
               onSignOut={() => handleViewChange("login")}
             />
           )}
+
+          {/* 2. Comparison Matrix */}
+          {view === "saved" && <ComparisonMatrix />}
 
             </div>
           </>

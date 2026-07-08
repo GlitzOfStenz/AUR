@@ -7,6 +7,8 @@ import {
   Bookmark, 
   Settings,
   BookOpen,
+  Calendar,
+  BadgeCheck,
 } from "lucide-react";
 
 export interface NavItem {
@@ -20,28 +22,22 @@ export interface NavItem {
 export const SIDEBAR_ITEMS: NavItem[] = [
   {
     id: "dashboard",
-    label: "Dashboard",
+    label: "Global Overview",
     view: "home",
     icon: LayoutDashboard,
   },
   {
     id: "universities",
-    label: "Universities",
+    label: "Institution Directory",
     view: "universities",
     icon: GraduationCap,
   },
   {
     id: "rankings",
-    label: "Rankings",
+    label: "Prestige Rankings",
     view: "rankings",
     icon: Trophy,
     badge: "Live",
-  },
-  {
-    id: "countries",
-    label: "Countries",
-    view: "countries", // redirect to rankings view and apply filter
-    icon: Globe,
   },
   {
     id: "analytics",
@@ -51,15 +47,27 @@ export const SIDEBAR_ITEMS: NavItem[] = [
   },
   {
     id: "saved",
-    label: "Shortlisted",
+    label: "Comparison Matrix",
     view: "saved", // a view for saved universities or comparing ones
     icon: Bookmark,
+  },
+  {
+    id: "membership",
+    label: "Membership",
+    view: "membership",
+    icon: BadgeCheck,
   },
   {
     id: "methodology",
     label: "Methodology",
     view: "methodology",
     icon: BookOpen,
+  },
+  {
+    id: "events",
+    label: "Events & Awards",
+    view: "events",
+    icon: Calendar,
   },
   {
     id: "settings",
@@ -71,6 +79,11 @@ export const SIDEBAR_ITEMS: NavItem[] = [
 
 export const TOP_NAV_LINKS = [
   { label: "Discovery Hub", view: "home" },
+  { label: "Institution Directory", view: "universities" },
   { label: "Rankings Engine", view: "rankings" },
   { label: "Methodology", view: "methodology" },
+  { label: "Comparison Matrix", view: "saved" },
+  { label: "Membership", view: "membership" },
+  { label: "Events & Awards", view: "events" },
+  { label: "News", view: "news" },
 ];

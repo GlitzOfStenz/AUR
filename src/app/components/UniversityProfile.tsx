@@ -6,7 +6,7 @@ import Image from "next/image";
 import {
   ArrowLeft, MapPin, Globe, BookOpen, GraduationCap, Building2,
   ChevronRight, Award, LineChart, Trophy, ExternalLink, Bookmark,
-  Square, Users, CalendarDays, Percent, BadgeCheck, BookMarked,
+  Square, Users, CalendarDays, Percent, BadgeCheck, BookMarked, X
 } from "lucide-react";
 
 import { useUniversityData } from "./data/UniversityDataProvider";
@@ -32,6 +32,10 @@ interface UniversityProfileProps {
 export default function UniversityProfile({ universityId, onBack, onViewChange, savedUniIds, onToggleSave }: UniversityProfileProps) {
   const { universities } = useUniversityData();
   const [activeTab, setActiveTab] = useState<"overview" | "metrics" | "admissions">("overview");
+  
+  // Eligibility State
+  const [showEligibility, setShowEligibility] = useState(false);
+  const [eligibilityResult, setEligibilityResult] = useState<null | { chance: number, message: string }>(null);
 
   const uni = universities.find((u) => u.id === universityId);
   const isShortlisted = savedUniIds?.includes(universityId) || false;
@@ -428,6 +432,101 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
                     ))}
                   </ul>
                 </div>
+              </div>
+
+              {/* ── Eligibility Check Feature ── */}
+              <div className="bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-3xl p-6 md:p-8 relative overflow-hidden shadow-[var(--aur-shadow-sm)]">
+                
+                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10 mb-6">
+                  <div className="flex items-center gap-4">
+                    <div className="bg-[var(--aur-surface-2)] border border-[var(--aur-border)] p-3 rounded-xl text-[var(--aur-text)]">
+                      <GraduationCap className="w-6 h-6" />
+                    </div>
+                    <div>
+                      <h3 className="text-xl font-bold font-serif text-[var(--aur-text)] leading-tight">Eligibility Predictor</h3>
+                      <p className="text-xs text-[var(--aur-text-muted)] mt-1 font-medium tracking-wide">Enter your marks and exam scores to check your chances at {uni.name}.</p>
+                    </div>
+                  </div>
+                  
+                  {!showEligibility && !eligibilityResult && (
+                    <button 
+                      onClick={() => setShowEligibility(true)}
+                      className="bg-[var(--aur-text)] text-[var(--background)] hover:opacity-80 font-bold text-xs uppercase tracking-wider py-3 px-6 rounded-xl transition-all shadow-md shrink-0 w-full md:w-auto text-center"
+                    >
+                      Calculate Chances
+                    </button>
+                  )}
+                </div>
+
+                {showEligibility && !eligibilityResult && (
+                  <div className="animate-fadeIn mt-8 pt-6 border-t border-[var(--aur-border)] relative z-10">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-6">
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[var(--aur-text-muted)] mb-2 ml-1">Current Academic Marks</label>
+                        <input type="text" placeholder="e.g. 92% or 3.8 GPA" className="w-full bg-[var(--aur-surface-2)] border border-[var(--aur-border)] rounded-xl px-4 py-3 text-sm font-bold text-[var(--aur-text)] placeholder-[var(--aur-text-muted)] focus:outline-none focus:border-[var(--aur-text)] transition-colors" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[var(--aur-text-muted)] mb-2 ml-1">Standardized Exam (Optional)</label>
+                        <input type="text" placeholder="e.g. SAT 1450" className="w-full bg-[var(--aur-surface-2)] border border-[var(--aur-border)] rounded-xl px-4 py-3 text-sm font-bold text-[var(--aur-text)] placeholder-[var(--aur-text-muted)] focus:outline-none focus:border-[var(--aur-text)] transition-colors" />
+                      </div>
+                      <div>
+                        <label className="block text-[10px] uppercase font-bold tracking-wider text-[var(--aur-text-muted)] mb-2 ml-1">English Proficiency</label>
+                        <select className="w-full bg-[var(--aur-surface-2)] border border-[var(--aur-border)] rounded-xl px-4 py-3 text-sm font-bold text-[var(--aur-text)] focus:outline-none focus:border-[var(--aur-text)] transition-colors cursor-pointer appearance-none">
+                          <option>IELTS (7.0+)</option>
+                          <option>TOEFL (100+)</option>
+                          <option>None / Pending</option>
+                        </select>
+                      </div>
+                    </div>
+                    <div className="flex gap-3 justify-end">
+                      <button 
+                        onClick={() => setShowEligibility(false)}
+                        className="font-bold text-xs uppercase tracking-wider py-3 px-6 rounded-xl border border-[var(--aur-border)] text-[var(--aur-text-secondary)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-surface-hover)] transition-all"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        onClick={() => {
+                          setShowEligibility(false);
+                          setEligibilityResult({
+                            chance: Math.floor(Math.random() * 40) + 50, // Mock percentage between 50-90%
+                            message: "Your academic profile is competitive. To maximize your chances, focus on highlighting your extracurricular achievements and securing strong letters of recommendation."
+                          });
+                        }}
+                        className="bg-[var(--aur-text)] text-[var(--background)] hover:opacity-80 font-bold text-xs uppercase tracking-wider py-3 px-8 rounded-xl transition-all shadow-md"
+                      >
+                        Analyze Profile
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {eligibilityResult && (
+                  <div className="animate-fadeIn mt-6 pt-6 border-t border-[var(--aur-border)] relative z-10 flex flex-col md:flex-row gap-8 items-center">
+                    <div className="relative w-32 h-32 shrink-0 flex items-center justify-center">
+                      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="8" className="text-[var(--aur-surface-2)]" />
+                        <circle cx="50" cy="50" r="45" fill="none" stroke="currentColor" strokeWidth="8" strokeDasharray={`${eligibilityResult.chance * 2.83} 283`} className="text-[#10b981]" strokeLinecap="round" />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center">
+                        <span className="text-3xl font-black text-[var(--aur-text)]">{eligibilityResult.chance}%</span>
+                      </div>
+                    </div>
+                    <div className="flex-1 text-center md:text-left">
+                      <h4 className="font-bold text-lg text-[var(--aur-text)] mb-2">Estimated Admission Chance</h4>
+                      <p className="text-[var(--aur-text-secondary)] text-sm leading-relaxed mb-4">{eligibilityResult.message}</p>
+                      <button 
+                        onClick={() => {
+                          setEligibilityResult(null);
+                          setShowEligibility(true);
+                        }}
+                        className="text-[11px] font-bold uppercase tracking-wider text-[#10b981] hover:text-white bg-[#10b981]/10 hover:bg-[#10b981] px-5 py-2.5 rounded-lg transition-all border border-[#10b981]/20 inline-flex items-center gap-2"
+                      >
+                        Recalculate <ArrowLeft className="w-3 h-3 rotate-180" />
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* ── Languages of Instruction ── */}

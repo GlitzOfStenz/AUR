@@ -1,10 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, SlidersHorizontal, ChevronDown } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useSidebar } from "../navigation/SidebarContext";
 import { SIDEBAR_ITEMS, NavItem } from "../navigation/config";
-import FilterPanel from "../filters/FilterPanel";
 
 
 export default function Sidebar() {
@@ -101,56 +100,6 @@ export default function Sidebar() {
           );
         })}
 
-        {/* 2. Collapsible Filter Accordion Section inside Sidebar */}
-        <div className="pt-4 border-t border-[var(--aur-border)] mt-4">
-          <button
-            onClick={handleFilterAccordionClick}
-            className={`w-full flex items-center p-3 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
-              isFilterExpanded && !isCollapsed
-                ? "text-[var(--aur-text)]"
-                : "text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)]"
-            }`}
-          >
-            <div className={`shrink-0 ${isCollapsed ? "mx-auto" : "mr-3.5"}`}>
-              <SlidersHorizontal className="h-4.5 w-4.5" />
-            </div>
-            
-            {!isCollapsed && (
-              <>
-                <span>Filters</span>
-                <ChevronDown
-                  className={`ml-auto h-4 w-4 transition-transform duration-200 ${
-                    isFilterExpanded ? "rotate-180" : "rotate-0"
-                  }`}
-                />
-              </>
-            )}
-
-            {/* Collapsed Hover Tooltip for filters */}
-            {isCollapsed && (
-              <div className="absolute left-full top-1/2 -translate-y-1/2 ml-4 px-2.5 py-1.5 rounded border border-[var(--aur-border)] pointer-events-none opacity-0 group-hover:opacity-100 transition-all duration-200 whitespace-nowrap z-50 text-[10px] font-bold uppercase tracking-widest shadow-lg bg-[var(--aur-surface)] text-[var(--aur-text)]">
-                University Filters
-              </div>
-            )}
-          </button>
-
-          {/* Expandable Filter Content */}
-          <>
-            {isFilterExpanded && !isCollapsed && (
-              <div
-                
-                
-                
-                
-                className="overflow-hidden"
-              >
-                <div className="px-3 pt-4 pb-2 border border-[var(--aur-border)] rounded-lg mt-2 bg-[var(--aur-surface-2)]">
-                  <FilterPanel />
-                </div>
-              </div>
-            )}
-          </>
-        </div>
 
       </div>
 

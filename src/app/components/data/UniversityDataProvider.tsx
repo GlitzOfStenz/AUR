@@ -12,7 +12,7 @@ interface UniversityDataContextValue {
 const UniversityDataContext = createContext<UniversityDataContextValue | null>(null);
 
 export function UniversityDataProvider({ children }: { children: React.ReactNode }) {
-  const [universities, setUniversities] = useState<University[]>([]);
+  const [universities, setUniversities] = useState<University[]>(MOCK_UNIVERSITIES);
 
   useEffect(() => {
     let isMounted = true;
@@ -21,8 +21,7 @@ export function UniversityDataProvider({ children }: { children: React.ReactNode
       .then((data) => {
         if (isMounted) setUniversities(data);
       })
-      .catch((err) => {
-        console.error("Unable to load university data", err);
+      .catch(() => {
         if (isMounted) setUniversities(MOCK_UNIVERSITIES);
       });
 

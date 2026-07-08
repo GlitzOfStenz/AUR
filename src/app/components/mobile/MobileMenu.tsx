@@ -11,11 +11,11 @@ export default function MobileMenu() {
   const focusRing =
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyber-yellow dark:focus-visible:ring-offset-cyber-black";
   const {
-    isMobileOpen,
-    setIsMobileOpen,
     activeView,
     handleViewChange,
     theme,
+    isMobileOpen,
+    setIsMobileOpen,
   } = useSidebar();
 
   const [activeTab, setActiveTab] = useState<"menu" | "filters">("menu");
@@ -164,10 +164,10 @@ export default function MobileMenu() {
             } ${focusRing}`}
           >
             <Home className="h-4.5 w-4.5 mb-1" />
-            <span className="text-[8px] font-bold uppercase tracking-wider">Discovery</span>
+            <span className="text-[8px] font-bold uppercase tracking-wider">Overview</span>
           </button>
 
-          {/* Item 2: Rankings Engine */}
+          {/* Item 2: Prestige Rankings */}
           <button
             type="button"
             onClick={() => handleViewChange("rankings")}
@@ -207,6 +207,7 @@ export default function MobileMenu() {
             <Settings className="h-4.5 w-4.5 mb-1" />
             <span className="text-[8px] font-bold uppercase tracking-wider">Settings</span>
           </button>
+
         </div>
       </nav>
     </>

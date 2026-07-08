@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect } from "react";
 import { X, Bot, Send, Sparkles, Loader2 } from "lucide-react";
+import { motion } from "framer-motion";
 
 import { useSidebar } from "./navigation/SidebarContext";
 
@@ -121,10 +122,10 @@ export default function FloatingChatAssistant() {
   const accent   = isDark ? "text-cyber-yellow" : "text-amber-700";
   const muted    = isDark ? "text-slate-400"    : "text-slate-500";
 
-  // Shadow that glows while dragging (matches cyber-yellow in dark, slate in light)
+  // Constant subtle glow to make the panel stand out beautifully
   const dragGlow = isDark
-    ? "shadow-[0_12px_48px_rgba(234,179,8,0.18)]"
-    : "shadow-[0_12px_48px_rgba(15,23,42,0.18)]";
+    ? "shadow-[0_0_30px_rgba(234,179,8,0.25)] border-cyber-yellow/40"
+    : "shadow-[0_0_30px_rgba(245,158,11,0.25)] border-amber-500/40";
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
@@ -133,8 +134,10 @@ export default function FloatingChatAssistant() {
       {/* ── Physics Chat Panel ──────────────────────────────────────────── */}
       <>
         {isChatOpen && (
-          <div
+          <motion.div
             key="chat-panel"
+            drag
+            dragMomentum={false}
             className={[
               "fixed bottom-24 right-6 z-50",
               "w-80 sm:w-[360px]",
@@ -286,20 +289,19 @@ export default function FloatingChatAssistant() {
                 <Send className="h-3.5 w-3.5" />
               </button>
             </form>
-          </div>
+          </motion.div>
         )}
       </>
 
       {/* ── Floating Trigger Button ─────────────────────────────────────── */}
       <>
         {!isChatOpen && (
-          <div
-            className="fixed bottom-6 right-6 z-50 flex items-end gap-4 pointer-events-none"
+          <motion.div
+            drag
+            dragMomentum={false}
+            className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2 cursor-grab active:cursor-grabbing"
             style={{
               opacity: isIdle ? 1 : 0,
-              transform: isIdle ? "translate3d(0, 0, 0)" : "translate3d(0, 8px, 0)",
-              transition: "opacity 0.3s cubic-bezier(0.16, 1, 0.3, 1), transform 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
-              willChange: "opacity, transform",
               pointerEvents: isIdle ? "auto" : "none",
             }}
           >
@@ -307,18 +309,17 @@ export default function FloatingChatAssistant() {
             {activeView === "home" && (
               <div
                 className={[
-                  "relative mb-2 px-3.5 py-2.5 rounded-2xl text-[11px] font-bold shadow-xl cursor-pointer pointer-events-auto transition-transform hover:scale-105",
+                  "relative px-3.5 py-2.5 rounded-2xl text-[11px] font-bold shadow-xl transition-transform hover:scale-105 pointer-events-none mr-2",
                   isDark
-                    ? "bg-cyber-gray border border-cyber-yellow/30 text-cyber-yellow"
-                    : "bg-white border border-slate-200 text-amber-700 shadow-slate-900/10",
+                    ? "bg-[#111] border border-white/20 text-white"
+                    : "bg-white border border-black/10 text-black shadow-black/10",
                 ].join(" ")}
-                onClick={() => setIsChatOpen(true)}
               >
                 👋 Come talk to me!
                 <div
                   className={[
-                    "absolute -right-1.5 bottom-3.5 w-3.5 h-3.5 rotate-45 border-r border-b",
-                    isDark ? "bg-cyber-gray border-cyber-yellow/30" : "bg-white border-slate-200",
+                    "absolute right-4 -bottom-1.5 w-3.5 h-3.5 rotate-45 border-r border-b",
+                    isDark ? "bg-[#111] border-white/20" : "bg-white border-black/10",
                   ].join(" ")}
                 />
               </div>
@@ -328,16 +329,16 @@ export default function FloatingChatAssistant() {
             <button
               key="chat-trigger"
               onClick={() => setIsChatOpen(true)}
-              className="pointer-events-auto shrink-0 h-14 w-14 rounded-full bg-amber-600 dark:bg-cyber-yellow text-white dark:text-cyber-black shadow-lg shadow-amber-600/30 dark:shadow-cyber-yellow/25 flex items-center justify-center relative"
+              className="shrink-0 h-14 w-14 rounded-full bg-black dark:bg-white text-white dark:text-black shadow-[0_0_20px_rgba(0,0,0,0.6)] dark:shadow-[0_0_20px_rgba(255,255,255,0.7)] hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] dark:hover:shadow-[0_0_30px_rgba(255,255,255,0.9)] flex items-center justify-center relative hover:scale-105 transition-all"
               title="Open AI Rankings Assistant"
             >
-              <Bot className="h-6 w-6" />
+              <Bot className="h-6 w-6 pointer-events-none" />
               {/* Pulsing ring only on home */}
               {activeView === "home" && (
-                <span className="absolute inset-0 rounded-full animate-ping bg-amber-500/30 dark:bg-cyber-yellow/20 pointer-events-none" />
+                <span className="absolute inset-0 rounded-full animate-ping bg-black/20 dark:bg-white/20 pointer-events-none" />
               )}
             </button>
-          </div>
+          </motion.div>
         )}
       </>
     </>

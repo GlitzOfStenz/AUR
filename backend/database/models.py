@@ -223,3 +223,14 @@ class SavedUniversity(Base):
 
     def __repr__(self) -> str:
         return f"<SavedUniversity user_id={self.user_id} university_id={self.university_id}>"
+    
+class NewsletterSubscriber(Base):
+    __tablename__ = "newsletter_subscribers"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
+    email = Column(String(100), unique=True, nullable=False, index=True)
+    subscribed_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    active = Column(Boolean, default=True, nullable=False)
+
+    def __repr__(self) -> str:
+        return f"<NewsletterSubscriber id={self.id} email={self.email!r} active={self.active}>"

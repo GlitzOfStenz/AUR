@@ -2,19 +2,11 @@
 
 import React, { useMemo } from "react";
 import {
-  BarChart,
-  Bar,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  RadarChart,
-  Radar,
-  PolarGrid,
-  PolarAngleAxis,
-  PolarRadiusAxis,
-  Cell,
   AreaChart,
   Area,
 } from "recharts";
@@ -200,70 +192,6 @@ export default function AnalyticsDashboard() {
         ))}
       </div>
 
-      {/* ── Row: Country Comparison + Radar ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-
-        {/* Country Bar Chart */}
-        <div className="lg:col-span-3 p-8 rounded-3xl border border-[var(--aur-border)] bg-[var(--aur-surface)] shadow-[var(--aur-shadow-sm)]">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
-            <div>
-              <span className="text-[10px] text-[var(--aur-text-muted)] font-bold uppercase tracking-widest block mb-1">
-                Country Performance
-              </span>
-              <span className="text-sm font-serif font-bold text-[var(--aur-text)]">Average institutional scores by country</span>
-            </div>
-            <div className="flex gap-4">
-              <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-secondary)]">
-                <span className="w-3 h-3 rounded-md bg-[var(--aur-text-muted)]" /> Score
-              </span>
-              <span className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text-secondary)]">
-                <span className="w-3 h-3 rounded-md bg-[var(--aur-text)]" /> Research
-              </span>
-            </div>
-          </div>
-          <div className="h-[300px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={a.countryData} margin={{ left: 0, right: 10, top: 5, bottom: 5 }} barCategoryGap="30%">
-                <CartesianGrid strokeDasharray="3 3" stroke="var(--aur-border-strong)" vertical={false} />
-                <XAxis dataKey="country" tick={{ fontSize: 11, fill: "var(--aur-text)", fontWeight: 600, fontFamily: "var(--font-sans)" }} axisLine={{ stroke: "var(--aur-border-strong)" }} tickLine={false} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 10, fill: "var(--aur-text-muted)", fontFamily: "var(--font-mono)" }} axisLine={false} tickLine={false} />
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'var(--aur-surface-hover)' }} />
-                <Bar dataKey="avgScore" name="Score" radius={[8, 8, 0, 0]} fill="var(--aur-text-muted)" opacity={0.6}>
-                </Bar>
-                <Bar dataKey="avgResearch" name="Research" radius={[8, 8, 0, 0]} fill="var(--aur-text)">
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Radar Chart */}
-        <div className="lg:col-span-2 p-8 rounded-3xl border border-[var(--aur-border)] bg-[var(--aur-surface)] shadow-[var(--aur-shadow-sm)]">
-          <span className="text-[10px] text-[var(--aur-text-muted)] font-bold uppercase tracking-widest block mb-1">
-            Average Metric Profile
-          </span>
-          <span className="text-sm font-serif font-bold text-[var(--aur-text)] block mb-6">Five-axis institutional quality index</span>
-          <div className="h-[280px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <RadarChart data={a.radarData} cx="50%" cy="50%" outerRadius="65%">
-                <PolarGrid stroke="var(--aur-border-strong)" />
-                <PolarAngleAxis dataKey="metric" tick={{ fontSize: 10, fill: "var(--aur-text-secondary)", fontWeight: "bold", fontFamily: "var(--font-sans)" }} />
-                <PolarRadiusAxis angle={90} domain={[0, 100]} tick={false} axisLine={false} />
-                <Radar
-                  name="Average"
-                  dataKey="value"
-                  stroke="var(--aur-text)"
-                  fill="var(--aur-text)"
-                  fillOpacity={0.1}
-                  strokeWidth={3}
-                  dot={{ r: 5, fill: "var(--aur-surface)", strokeWidth: 2, stroke: "var(--aur-text)" }}
-                />
-                <Tooltip content={<CustomTooltip />} />
-              </RadarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-      </div>
 
       {/* ── Performance Trend ── */}
       <div className="p-8 rounded-3xl border border-[var(--aur-border)] bg-[var(--aur-surface)] shadow-[var(--aur-shadow-sm)]">

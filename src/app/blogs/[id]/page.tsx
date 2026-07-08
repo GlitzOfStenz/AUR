@@ -7,7 +7,9 @@ import Link from "next/link";
 import AppLayout from "../../components/layout/AppLayout";
 import { SidebarProvider } from "../../components/navigation/SidebarContext";
 import { ToastProvider } from "../../components/feedback/ToastContext";
+import { UniversityDataProvider } from "../../components/data/UniversityDataProvider";
 import { Article } from "../../data";
+import { getStoredBlog, storedBlogToArticle } from "../../lib/blog-storage";
 
 function BlogDetailsContent() {
   const params = useParams();
@@ -21,6 +23,12 @@ function BlogDetailsContent() {
     if (!id) return;
     async function fetchBlog() {
       try {
+        const storedBlog = getStoredBlog(id);
+        if (storedBlog) {
+          setBlog(storedBlogToArticle(storedBlog));
+          return;
+        }
+
         const res = await fetch(`/api/blogs/${id}`);
         if (!res.ok) {
           if (res.status === 404) {
@@ -195,7 +203,9 @@ export default function BlogDetailsPage() {
     }>
       <SidebarProvider>
         <ToastProvider>
-          <BlogDetailsContent />
+          <UniversityDataProvider>
+            <BlogDetailsContent />
+          </UniversityDataProvider>
         </ToastProvider>
       </SidebarProvider>
     </React.Suspense>

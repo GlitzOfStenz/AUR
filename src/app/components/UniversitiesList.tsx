@@ -78,6 +78,10 @@ export default function UniversitiesList({
   const { theme } = useSidebar();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRegion, setSelectedRegion] = useState<string>("");
+  
+  // Eligibility check state
+  const [showEligibility, setShowEligibility] = useState(false);
+  const [eligibilityResult, setEligibilityResult] = useState<null | { status: string, message: string }>(null);
   const [showMedicine, setShowMedicine] = useState(false);
   const [sortBy, setSortBy] = useState<"rank" | "name" | "tuition">("rank");
   const [compared, setCompared] = useState<string[]>([]);
@@ -236,7 +240,99 @@ export default function UniversitiesList({
           <Award className="h-3.5 w-3.5" />
           Med Only
         </button>
+        <button
+          onClick={() => {
+            setShowEligibility(!showEligibility);
+            setEligibilityResult(null);
+          }}
+          className={`flex items-center justify-center gap-2 text-xs font-bold uppercase tracking-wider px-5 h-[42px] rounded-lg border transition-all ${
+            showEligibility
+              ? "bg-[var(--aur-text)] border-[var(--aur-text)] text-[var(--background)] shadow-sm"
+              : "bg-[var(--aur-surface)] border-[var(--aur-border)] text-[var(--aur-text-secondary)] hover:bg-[var(--aur-surface-hover)] hover:text-[var(--aur-text)]"
+          }`}
+        >
+          <GraduationCap className="h-4 w-4" />
+          Eligibility Check
+        </button>
       </div>
+
+      {/* ── ELIGIBILITY CHECK SECTION ── */}
+      {showEligibility && (
+        <div className="mb-8">
+          <div className="bg-[var(--aur-surface)] border border-[#ff4433]/30 shadow-[0_8px_30px_rgba(255,68,51,0.1)] rounded-2xl p-6 relative overflow-hidden">
+            {/* Decorative background blur */}
+            <div className="absolute -top-24 -right-24 w-48 h-48 bg-[#ff4433]/5 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <button 
+              onClick={() => setShowEligibility(false)}
+              className="absolute top-4 right-4 text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] bg-[var(--aur-surface-2)] hover:bg-[var(--aur-surface-hover)] rounded-full p-1.5 transition-colors z-10"
+            >
+              <X className="w-4 h-4" />
+            </button>
+            <div className="flex items-center gap-3 mb-6 relative z-10">
+              <div className="bg-[#ff4433]/10 p-2.5 rounded-lg text-[#ff4433]">
+                <GraduationCap className="w-5 h-5" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-[var(--aur-text)] leading-tight">Check Your Eligibility</h2>
+                <p className="text-[11px] text-[var(--aur-text-muted)] mt-0.5">Find out if you meet the baseline requirements for our top-tier programs.</p>
+              </div>
+            </div>
+            
+            {eligibilityResult ? (
+              <div className="bg-[#10b981]/10 border border-[#10b981]/20 rounded-xl p-5 flex items-start gap-4 relative z-10">
+                <div className="bg-[#10b981] p-1.5 rounded-full shrink-0 mt-0.5">
+                  <Award className="w-4 h-4 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-[var(--aur-text)] text-sm mb-1">{eligibilityResult.status}</h3>
+                  <p className="text-[var(--aur-text-secondary)] text-[13px] leading-relaxed mb-3">{eligibilityResult.message}</p>
+                  <button 
+                    onClick={() => setEligibilityResult(null)}
+                    className="text-[11px] font-bold uppercase tracking-wider text-[#10b981] hover:text-white bg-[#10b981]/10 hover:bg-[#10b981] px-4 py-2 rounded-md transition-all border border-[#10b981]/20"
+                  >
+                    Check another profile
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-5 relative z-10">
+                <div>
+                  <label className="block text-[10px] uppercase font-bold tracking-wider text-[var(--aur-text-muted)] mb-2 ml-1">Current Degree</label>
+                  <select className="w-full bg-[var(--aur-surface-2)] border border-[var(--aur-border)] rounded-lg px-4 py-3 text-xs text-[var(--aur-text)] focus:outline-none focus:border-[#ff4433] transition-colors cursor-pointer appearance-none">
+                    <option>High School</option>
+                    <option>Bachelor's Degree</option>
+                    <option>Master's Degree</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase font-bold tracking-wider text-[var(--aur-text-muted)] mb-2 ml-1">GPA / Score</label>
+                  <input type="text" placeholder="e.g. 85% or 3.5" className="w-full bg-[var(--aur-surface-2)] border border-[var(--aur-border)] rounded-lg px-4 py-3 text-xs text-[var(--aur-text)] placeholder-[var(--aur-text-muted)] focus:outline-none focus:border-[#ff4433] transition-colors" />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase font-bold tracking-wider text-[var(--aur-text-muted)] mb-2 ml-1">English Proficiency</label>
+                  <select className="w-full bg-[var(--aur-surface-2)] border border-[var(--aur-border)] rounded-lg px-4 py-3 text-xs text-[var(--aur-text)] focus:outline-none focus:border-[#ff4433] transition-colors cursor-pointer appearance-none">
+                    <option>IELTS (6.5+)</option>
+                    <option>TOEFL (90+)</option>
+                    <option>None / Pending</option>
+                  </select>
+                </div>
+                <div className="flex items-end">
+                  <button 
+                    onClick={() => setEligibilityResult({
+                      status: "Highly Eligible!",
+                      message: "Based on your profile, you meet the initial criteria for over 60% of our top-tier institutions, including several prestigious medical programs. We recommend filtering by 'Medicine Only' to explore specific options."
+                    })}
+                    className="w-full bg-[var(--aur-text)] text-[var(--background)] hover:opacity-80 font-bold text-[11px] uppercase tracking-wider py-3.5 px-4 rounded-lg transition-all flex items-center justify-center gap-2 shadow-sm group"
+                  >
+                    Assess Now <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Active filter indicator */}
       <>

@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-
+import Link from "next/link";
+import { motion } from "framer-motion";
+import NewsFlashWidget from "./NewsFlashWidget";
 import {
   Search,
   BookOpen,
@@ -20,8 +22,10 @@ import {
   LineChart,
   Activity,
   Mail,
+  Plus,
 } from "lucide-react";
 import { FEATURED_ARTICLES, University, Article } from "../data";
+import { BLOG_CATEGORY_TABS, getPublishedStoredBlogs, storedBlogToArticle } from "../lib/blog-storage";
 import { useUniversityData } from "./data/UniversityDataProvider";
 import { AsiaMapNetwork, MapUniversityCards } from "./home/AsiaMapHero";
 import "./home/ref-home.css";
@@ -455,9 +459,35 @@ export default function Homepage({
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
   const [articleTab, setArticleTab] = useState<"featured" | "reports" | "insights">("featured");
+  const [createdArticles, setCreatedArticles] = useState<Article[]>([]);
 
   const suggestionRef = useRef<HTMLDivElement>(null);
   const methodologyRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const loadCreatedArticles = () => {
+      setCreatedArticles(getPublishedStoredBlogs().map(storedBlogToArticle));
+    };
+
+    loadCreatedArticles();
+    window.addEventListener("storage", loadCreatedArticles);
+
+    return () => window.removeEventListener("storage", loadCreatedArticles);
+  }, []);
+
+  const articlesForSearch = useMemo(
+    () => [...createdArticles, ...FEATURED_ARTICLES],
+    [createdArticles]
+  );
+
+  const displayedArticles = useMemo(() => {
+    const localArticlesForTab = createdArticles.filter((article) => {
+      const category = article.category as keyof typeof BLOG_CATEGORY_TABS | undefined;
+      return category ? BLOG_CATEGORY_TABS[category] === articleTab : false;
+    });
+
+    return articleTab === "featured" ? [...localArticlesForTab, ...FEATURED_ARTICLES] : localArticlesForTab;
+  }, [articleTab, createdArticles]);
 
   useEffect(() => {
     if (searchQuery.trim().length === 0) {
@@ -470,13 +500,13 @@ export default function Homepage({
         uni.location.toLowerCase().includes(searchQuery.toLowerCase()) ||
         uni.subjects.some((sub) => sub.toLowerCase().includes(searchQuery.toLowerCase()))
     ).slice(0, 5);
-    const filteredArticles = FEATURED_ARTICLES.filter(
+    const filteredArticles = articlesForSearch.filter(
       (art) =>
         art.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         art.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
     ).slice(0, 3);
     setSuggestions({ universities: filteredUnis, articles: filteredArticles });
-  }, [searchQuery, universities]);
+  }, [articlesForSearch, searchQuery, universities]);
 
   const flatSuggestions = useMemo((): SuggestionPick[] => {
     const items: SuggestionPick[] = [];
@@ -561,12 +591,13 @@ export default function Homepage({
 
 
       {/* ── Hero ── */}
-      <section className="ref-hero">
+      <section className="ref-hero overflow-hidden">
         <div className="ref-hero-grid">
-          <div
-            
-            
-            
+          <motion.div 
+            initial={{ opacity: 0, scale: 1.05 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex flex-col items-center text-center max-w-4xl mx-auto"
           >
             <span
               className="ref-label"
@@ -578,17 +609,12 @@ export default function Homepage({
               Asia&apos;s Most Trusted{" "}
               <span className="ref-hero-title-accent">University Intelligence</span> Platform
             </h1>
-            <p className="text-[var(--ref-muted)] text-sm leading-relaxed max-w-lg mb-6">
+            <p className="text-[var(--ref-muted)] text-sm leading-relaxed max-w-2xl mx-auto mb-8">
               Filter institutional indicators, compare global rankings, and explore regional study models
               including medical careers in Central Asia — powered by live audited data.
             </p>
 
-            <div
-              className="flex flex-wrap gap-3 mb-6"
-              
-              
-              
-            >
+            <div className="flex flex-wrap justify-center gap-3 mb-10">
               <button type="button" className="ref-btn-primary" onClick={() => onViewChange("rankings")}>
                 Explore Rankings
                 <ArrowRight className="h-4 w-4" />
@@ -600,7 +626,7 @@ export default function Homepage({
             </div>
 
             {/* Search */}
-            <div className="relative max-w-lg" ref={suggestionRef}>
+            <div className="relative w-full max-w-2xl mx-auto mb-4" ref={suggestionRef}>
               <form onSubmit={handleSearchSubmit} className="flex rounded-lg overflow-hidden border border-[var(--ref-border)]">
                 <div className="relative flex-grow">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--ref-muted)]" />
@@ -692,7 +718,7 @@ export default function Homepage({
               )}
             </div>
 
-            <div className="mt-3 flex flex-wrap gap-2 items-center">
+            <div className="mt-4 flex flex-wrap gap-2 items-center justify-center mb-10">
               <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--ref-muted)]">Trending:</span>
               {["Uzbekistan", "Medicine", "National Univ Singapore", "English medium"].map((tag) => (
                 <button
@@ -710,12 +736,7 @@ export default function Homepage({
               ))}
             </div>
 
-            <div
-              className="ref-stat-bar"
-              
-              
-              
-            >
+            <div className="ref-stat-bar flex flex-wrap justify-center gap-6 w-full">
               {[
                 { icon: Building2, val: "650+", label: "Institutions" },
                 { icon: Globe2, val: "20+", label: "Countries" },
@@ -731,52 +752,7 @@ export default function Homepage({
                 </div>
               ))}
             </div>
-          </div>
-
-          <div
-            className="ref-hero-visual"
-            
-            
-            
-          >
-            <div className="ref-map-stage">
-              <AsiaMapNetwork />
-              <MapUniversityCards
-                universities={mapUniversities}
-                onUniversitySelect={onUniversitySelect}
-              />
-            </div>
-
-            <aside className="ref-live-sidebar">
-              <h3 className="ref-live-sidebar__title">
-                <span className="text-amber-500">L</span>ive Updates
-              </h3>
-              <ul className="ref-live-sidebar__list">
-                {LIVE_UPDATES.map((item) => (
-                  <li key={item.text} className="ref-live-sidebar__item">
-                    <span
-                      className="ref-live-sidebar__icon"
-                      style={{ background: `${item.color}18`, color: item.color }}
-                    >
-                      <Bell className="h-3.5 w-3.5" />
-                    </span>
-                    <div className="min-w-0 flex-1">
-                      <p className="ref-live-sidebar__text">{item.text}</p>
-                      <p className="ref-live-sidebar__time">{item.time}</p>
-                    </div>
-                  </li>
-                ))}
-              </ul>
-              <button
-                type="button"
-                className="ref-live-sidebar__cta"
-                onClick={() => onViewChange("rankings")}
-              >
-                View All Updates
-                <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            </aside>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -891,6 +867,11 @@ export default function Homepage({
         </div>
       </RevealSection>
 
+      {/* ── News Flash ── */}
+      <RevealSection className="ref-section pt-0">
+        <NewsFlashWidget />
+      </RevealSection>
+
       {/* ── Methodology ── */}
       <RevealSection className="ref-section pt-0">
         <div className="ref-card p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center" ref={methodologyRef} id="methodology">
@@ -921,8 +902,16 @@ export default function Homepage({
 
       {/* ── Discovery Hub ── */}
       <RevealSection className="ref-section pt-0">
-        <span className="ref-label">Discovery Hub</span>
-        <h2 className="text-2xl font-bold mt-1 mb-4">Insights &amp; Analysis</h2>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mb-4">
+          <div>
+            <span className="ref-label">Discovery Hub</span>
+            <h2 className="text-2xl font-bold mt-1">Insights &amp; Analysis</h2>
+          </div>
+          <Link href="/blogs/create" className="ref-btn-outline text-[11px] uppercase tracking-wider justify-center">
+            <Plus className="h-3.5 w-3.5" />
+            Create Blog
+          </Link>
+        </div>
         <div className="ref-article-tabs flex gap-6 border-b border-[var(--ref-border)] mb-6">
           {(
             [
@@ -942,7 +931,7 @@ export default function Homepage({
           ))}
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5"    >
-          {FEATURED_ARTICLES.map((article) => (
+          {displayedArticles.map((article) => (
             <button
               key={article.id}
               type="button"
