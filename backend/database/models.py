@@ -21,6 +21,10 @@ from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
+import uuid
+from datetime import date, datetime
+from sqlalchemy.orm import Mapped, mapped_column
+
 
 Base = declarative_base()
 
@@ -234,3 +238,16 @@ class NewsletterSubscriber(Base):
 
     def __repr__(self) -> str:
         return f"<NewsletterSubscriber id={self.id} email={self.email!r} active={self.active}>"
+    
+class MethodologyVersion(Base):
+    __tablename__ = "methodology_versions"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    version: Mapped[str] = mapped_column(String(20), nullable=False)  # e.g. "1.0"
+    title: Mapped[str] = mapped_column(String(255), nullable=False)   # e.g. "Initial QS-based methodology"
+    description: Mapped[str] = mapped_column(Text, nullable=True)
+    release_date: Mapped[date] = mapped_column(Date, nullable=False)
+    is_current: Mapped[bool] = mapped_column(Boolean, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)

@@ -9,6 +9,9 @@ FastAPI validates/filters the outgoing data.
 
 from typing import List, Optional
 from pydantic import BaseModel
+from datetime import date, datetime
+from uuid import UUID
+from pydantic import BaseModel, ConfigDict
 
 
 class University(BaseModel):
@@ -128,3 +131,14 @@ class NewsletterSubscriberResponse(BaseModel):
 
     class Config:
         from_attributes = True  
+        
+class MethodologyVersionResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: UUID
+    version: str
+    title: str
+    description: str | None = None
+    release_date: date
+    is_current: bool
+    created_at: datetime
