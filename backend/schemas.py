@@ -106,3 +106,25 @@ class SubregionCount(BaseModel):
 class CountryAverageScore(BaseModel):
     country: str
     average_score: float    
+
+from pydantic import BaseModel, EmailStr
+from datetime import datetime
+import uuid
+
+
+class NewsletterSubscribeRequest(BaseModel):
+    email: EmailStr
+
+
+class NewsletterUnsubscribeRequest(BaseModel):
+    email: EmailStr
+
+
+class NewsletterSubscriberResponse(BaseModel):
+    id: uuid.UUID
+    email: EmailStr
+    subscribed_at: datetime
+    active: bool
+
+    class Config:
+        from_attributes = True  

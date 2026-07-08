@@ -9,6 +9,8 @@ from routers.users import router as users_router
 from routers import analytics
 from routers import compare
 from routers.admin import router as admin_router
+from routers import newsletter
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -34,6 +36,7 @@ app.include_router(search.router)
 app.include_router(auth_router)
 app.include_router(admin_router)
 app.include_router(users_router)
+app.include_router(newsletter.router)
 
 @app.get("/")
 def root():
