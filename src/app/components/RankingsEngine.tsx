@@ -217,8 +217,8 @@ export default function RankingsEngine({
   const deferredSearchQuery = useDeferredValue(searchQuery);
   const filteredData = useMemo(() => {
     return processedData.filter((uni) => {
-      // 1. Search Query (combine props.searchQuery and filters.searchQuery)
-      const query = (filters.searchQuery || deferredSearchQuery || "").toLowerCase();
+      // 1. Search Query
+      const query = (deferredSearchQuery || "").toLowerCase();
       const matchesSearch =
         query === "" ||
         uni.name.toLowerCase().includes(query) ||

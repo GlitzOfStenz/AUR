@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { FEATURED_ARTICLES, University, Article } from "../data";
 import { useUniversityData } from "./data/UniversityDataProvider";
+import { useSidebar } from "./navigation/SidebarContext";
 import { AsiaMapNetwork, MapUniversityCards } from "./home/AsiaMapHero";
 import "./home/ref-home.css";
 
@@ -448,7 +449,7 @@ export default function Homepage({
   onViewChange,
 }: HomepageProps) {
   const { universities } = useUniversityData();
-  const [searchQuery, setSearchQuery] = useState("");
+  const { searchQuery, setSearchQuery } = useSidebar();
   const [suggestions, setSuggestions] = useState<{ universities: University[]; articles: Article[] }>({
     universities: [],
     articles: [],
@@ -598,7 +599,7 @@ export default function Homepage({
 
             {/* Search */}
             <div className="relative w-full max-w-2xl mx-auto mb-4" ref={suggestionRef}>
-              <form onSubmit={handleSearchSubmit} className="flex rounded-lg overflow-hidden border border-[var(--ref-border)]">
+              <form onSubmit={handleSearchSubmit} className="flex rounded-none overflow-hidden border border-[var(--ref-border)]">
                 <div className="relative flex-grow">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--ref-muted)]" />
                   <input
@@ -641,7 +642,7 @@ export default function Homepage({
                                     <button
                                       type="button"
                                       onClick={() => activateSuggestion({ kind: "uni", uni })}
-                                      className={`w-full text-left flex justify-between p-2 text-xs rounded ${active ? "bg-amber-50" : "hover:bg-slate-50"}`}
+                                      className={`w-full text-left flex justify-between p-2 text-xs rounded-none ${active ? "bg-amber-50" : "hover:bg-slate-50"}`}
                                     >
                                       <span className="font-semibold truncate pr-2">{highlightMatch(uni.name, searchQuery)}</span>
                                       <span className="text-[var(--ref-muted)] shrink-0">{uni.location}</span>
@@ -665,7 +666,7 @@ export default function Homepage({
                                 key={art.id}
                                 type="button"
                                 onClick={() => activateSuggestion({ kind: "article", article: art })}
-                                className="w-full text-left p-2 text-xs hover:bg-slate-50 rounded block"
+                                className="w-full text-left p-2 text-xs hover:bg-slate-50 rounded-none block"
                               >
                                 {highlightMatch(art.title, searchQuery)}
                               </button>
@@ -933,7 +934,7 @@ export default function Homepage({
             <RadarChart universities={compareUnis} />
             <div className="flex flex-wrap gap-2 mt-4 justify-center">
               {compareUnis.map((u, i) => (
-                <span key={u.id} className="text-[10px] px-2 py-1 rounded border border-[var(--ref-border)]">
+                <span key={u.id} className="text-[10px] px-2 py-1 rounded-none border border-[var(--ref-border)]">
                   <span className="inline-block w-2 h-2 rounded-full mr-1" style={{ background: ["#f97316", "#3b82f6", "#10b981", "#8b5cf6"][i] }} />
                   {u.name.split(" ")[0]}
                 </span>
@@ -1061,7 +1062,7 @@ export default function Homepage({
             <input
               type="email"
               placeholder="Newsletter email"
-              className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs text-slate-900 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-amber-400"
+              className="bg-white border border-slate-200 rounded-none px-3 py-2 text-xs text-slate-900 w-full sm:w-48 focus:outline-none focus:ring-2 focus:ring-amber-400"
             />
             <button type="button" className="ref-btn-primary text-[10px] px-3 py-2 justify-center">Subscribe</button>
           </div>
