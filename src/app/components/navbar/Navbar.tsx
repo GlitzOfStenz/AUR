@@ -132,7 +132,7 @@ export default function Navbar() {
           <div className="flex-1 hidden lg:block" />
 
           {/* ── Search bar ── */}
-          <form onSubmit={handleSearchSubmit} className="flex-1 max-w-lg hidden md:block">
+          <form onSubmit={handleSearchSubmit} className="flex-1 max-w-2xl hidden md:block">
             <div className="relative">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[var(--aur-text-muted)] pointer-events-none" />
               <input
