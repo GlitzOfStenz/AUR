@@ -880,33 +880,6 @@ export default function Homepage({
         <NewsFlashWidget />
       </RevealSection>
 
-      {/* ── Methodology ── */}
-      <RevealSection className="ref-section pt-0">
-        <div className="ref-card p-8 grid grid-cols-1 md:grid-cols-2 gap-8 items-center" ref={methodologyRef} id="methodology">
-          <div className="flex justify-center">
-            <div className="ref-donut" />
-          </div>
-          <div>
-            <span className="ref-label">Ranking Methodology</span>
-            <h2 className="text-2xl font-bold mt-1 mb-4">How We Score Institutions</h2>
-            <p className="text-sm text-[var(--ref-muted)] mb-6 leading-relaxed">
-              Our composite index blends research output, teaching quality, graduate outcomes, and global outlook
-              — recalculated in real time from audited institutional data.
-            </p>
-            <ul className="space-y-3">
-              {METHODOLOGY.map((m) => (
-                <li key={m.label} className="flex items-center justify-between text-sm">
-                  <span className="flex items-center gap-2">
-                    <span className="w-3 h-3 rounded-full shrink-0" style={{ background: m.color }} />
-                    {m.label}
-                  </span>
-                  <span className="font-mono font-bold">{m.pct}%</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </RevealSection>
 
       {/* ── Discovery Hub ── */}
       <RevealSection className="ref-section pt-0">
