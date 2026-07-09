@@ -28,6 +28,7 @@ import {
 import { FEATURED_ARTICLES, University, Article } from "../data";
 import { BLOG_CATEGORY_TABS, getPublishedStoredBlogs, storedBlogToArticle } from "../lib/blog-storage";
 import { useUniversityData } from "./data/UniversityDataProvider";
+import { useSidebar } from "./navigation/SidebarContext";
 import "./home/ref-home.css";
 import { API_BASE_URL } from "../lib/universities";
 
