@@ -142,3 +142,54 @@ class MethodologyVersionResponse(BaseModel):
     release_date: date
     is_current: bool
     created_at: datetime
+
+class EventCreate(BaseModel):
+    title: str
+    description: Optional[str] = None
+    type: str                       # "event" or "award"
+    eligibility_criteria: Optional[str] = None
+    deadline: Optional[date] = None
+
+
+class EventResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    title: str
+    description: Optional[str] = None
+    type: str
+    eligibility_criteria: Optional[str] = None
+    deadline: Optional[date] = None
+    status: str
+    created_at: datetime
+
+
+class ApplicationCreate(BaseModel):
+    event_id: uuid.UUID
+    university_id: uuid.UUID
+    documents: List[str] = []
+
+
+class ApplicationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    event_id: uuid.UUID
+    university_id: uuid.UUID
+    documents: List[str] = []
+    status: str
+    submitted_at: datetime
+
+
+class JudgeScoreCreate(BaseModel):
+    judge_id: str
+    academic_score: float
+    research_score: float
+    outcomes_score: float
+    impact_score: float
+    collaboration_score: float
+    governance_score: float
+
+
+class FinalScoreResponse(BaseModel):
+    application_id: uuid.UUID
+    final_score: float
+    judges_count: int

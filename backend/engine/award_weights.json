@@ -1,0 +1,11 @@
+{
+  "version": "AUR-Awards-2026",
+  "weights": {
+    "academic_score":      { "weight": 0.25, "label": "Academic Excellence" },
+    "research_score":      { "weight": 0.20, "label": "Research & Innovation" },
+    "outcomes_score":      { "weight": 0.20, "label": "Student Outcomes" },
+    "impact_score":        { "weight": 0.15, "label": "Social Impact" },
+    "collaboration_score": { "weight": 0.10, "label": "International Collaboration" },
+    "governance_score":    { "weight": 0.10, "label": "Sustainability/Governance" }
+  }
+}

@@ -11,6 +11,7 @@ from routers import compare
 from routers.admin import router as admin_router
 from routers import newsletter
 from routers import methodology
+from routers import events
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -38,6 +39,7 @@ app.include_router(admin_router)
 app.include_router(users_router)
 app.include_router(newsletter.router)
 app.include_router(methodology.router)
+app.include_router(events.router)
 
 @app.get("/")
 def root():

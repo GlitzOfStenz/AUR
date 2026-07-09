@@ -251,3 +251,69 @@ class MethodologyVersion(Base):
     release_date: Mapped[date] = mapped_column(Date, nullable=False)
     is_current: Mapped[bool] = mapped_column(Boolean, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+
+class Event(Base):
+    __tablename__ = "events"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
+    title = Column(String(300), nullable=False)
+    description = Column(Text)
+    type = Column(String(20), nullable=False)          # "event" or "award"
+    eligibility_criteria = Column(Text)
+    deadline = Column(Date)
+    status = Column(String(20), default="open")        # open / closed / archived
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    applications = relationship("Application", back_populates="event",
+                                cascade="all, delete-orphan", lazy="selectin")
+
+    def __repr__(self) -> str:
+        return f"<Event id={self.id} title={self.title!r} type={self.type!r}>"
+
+
+class Application(Base):
+    __tablename__ = "applications"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
+    event_id = Column(UUID(as_uuid=True), ForeignKey("events.id", ondelete="CASCADE"), nullable=False, index=True)
+    university_id = Column(UUID(as_uuid=True), ForeignKey("universities.id", ondelete="CASCADE"), nullable=False, index=True)
+    documents = Column(JSONB, nullable=True, default=list)   # list of uploaded file paths
+    status = Column(String(20), default="submitted")         # submitted / under_review / shortlisted / winner / rejected
+
+    submitted_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    event = relationship("Event", back_populates="applications")
+    university = relationship("University")
+    judge_scores = relationship("JudgeScore", back_populates="application",
+                                cascade="all, delete-orphan", lazy="selectin")
+
+    def __repr__(self) -> str:
+        return f"<Application id={self.id} event_id={self.event_id} status={self.status!r}>"
+
+
+class JudgeScore(Base):
+    __tablename__ = "judge_scores"
+    __table_args__ = (
+        UniqueConstraint("application_id", "judge_id", name="uq_application_judge"),
+    )
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
+    application_id = Column(UUID(as_uuid=True), ForeignKey("applications.id", ondelete="CASCADE"), nullable=False, index=True)
+    judge_id = Column(String(150), nullable=False)   # judge name/email — admin enters this, no judge login yet
+
+    academic_score = Column(Numeric(5, 2))
+    research_score = Column(Numeric(5, 2))
+    outcomes_score = Column(Numeric(5, 2))
+    impact_score = Column(Numeric(5, 2))
+    collaboration_score = Column(Numeric(5, 2))
+    governance_score = Column(Numeric(5, 2))
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    application = relationship("Application", back_populates="judge_scores")
+
+    def __repr__(self) -> str:
+        return f"<JudgeScore application_id={self.application_id} judge_id={self.judge_id!r}>"
