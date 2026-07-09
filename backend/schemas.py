@@ -193,3 +193,25 @@ class FinalScoreResponse(BaseModel):
     application_id: uuid.UUID
     final_score: float
     judges_count: int
+
+
+class MembershipTierResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    name: str
+    price: float
+    duration_months: int
+    benefits: List[str]
+
+
+class MembershipSubscribeRequest(BaseModel):
+    tier_id: uuid.UUID
+
+
+class UserMembershipResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    tier: MembershipTierResponse
+    start_date: datetime
+    end_date: datetime
+    status: str

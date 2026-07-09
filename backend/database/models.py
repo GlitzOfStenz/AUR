@@ -317,3 +317,33 @@ class JudgeScore(Base):
 
     def __repr__(self) -> str:
         return f"<JudgeScore application_id={self.application_id} judge_id={self.judge_id!r}>"
+class MembershipTier(Base):
+    __tablename__ = "membership_tiers"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
+    name = Column(String(50), nullable=False)          # "Basic" / "Premium"
+    price = Column(Numeric(10, 2), nullable=False)
+    duration_months = Column(Integer, nullable=False)
+    benefits = Column(JSONB, nullable=False, default=list)  # list of benefit strings
+
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    def __repr__(self) -> str:
+        return f"<MembershipTier id={self.id} name={self.name!r}>"
+
+
+class UserMembership(Base):
+    __tablename__ = "user_memberships"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
+    user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    tier_id = Column(UUID(as_uuid=True), ForeignKey("membership_tiers.id", ondelete="CASCADE"), nullable=False, index=True)
+    start_date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    end_date = Column(DateTime(timezone=True), nullable=False)
+    status = Column(String(20), default="active")   # active / expired
+
+    user = relationship("User")
+    tier = relationship("MembershipTier")
+
+    def __repr__(self) -> str:
+        return f"<UserMembership user_id={self.user_id} tier_id={self.tier_id} status={self.status!r}>"
