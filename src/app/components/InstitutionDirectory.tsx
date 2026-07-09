@@ -3,6 +3,7 @@
 import React, { useState, useMemo } from "react";
 import { Search, MapPin, GraduationCap, CheckCircle2, ChevronRight, X } from "lucide-react";
 import { MOCK_UNIVERSITIES, University } from "../data";
+import { useSidebar } from "./navigation/SidebarContext";
 
 const COUNTRY_FLAGS: Record<string, string> = {
   China: "🇨🇳", Japan: "🇯🇵", "South Korea": "🇰🇷", Singapore: "🇸🇬",
@@ -71,7 +72,7 @@ function UniversityCard({ uni, rank, onClick }: { uni: University; rank: number;
 }
 
 export default function InstitutionDirectory({ onUniversitySelect }: Props) {
-  const [search, setSearch] = useState("");
+  const { searchQuery: search, setSearchQuery: setSearch } = useSidebar();
   const [country, setCountry] = useState("All");
   const [medOnly, setMedOnly] = useState(false);
   

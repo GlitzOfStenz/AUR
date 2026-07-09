@@ -75,8 +75,7 @@ export default function UniversitiesList({
   onToggleSave,
 }: UniversitiesListProps) {
   const { universities } = useUniversityData();
-  const { theme } = useSidebar();
-  const [searchQuery, setSearchQuery] = useState("");
+  const { theme, searchQuery, setSearchQuery } = useSidebar();
   const [selectedRegion, setSelectedRegion] = useState<string>("");
   
   // Eligibility check state

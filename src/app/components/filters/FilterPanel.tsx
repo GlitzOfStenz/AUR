@@ -456,12 +456,6 @@ export default function FilterPanel() {
           transition: transform 0.1s ease;
         }
 
-        html.dark input[type="range"]::-webkit-slider-thumb {
-          border: 2px solid #050506;
-          background: #eab308;
-          box-shadow: 0 0 10px rgba(234, 179, 8, 0.4);
-        }
-
         input[type="range"]::-webkit-slider-thumb:hover {
           transform: scale(1.2);
         }
