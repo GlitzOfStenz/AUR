@@ -45,34 +45,6 @@
   --aur-hover: #f4f4f5;
   --aur-ring: rgba(0, 0, 0, 0.1);
 }
-
-html.dark {
-  /* DARK MODE - Deep, immersive Matte Black */
-  --background: #050505;
-  --foreground: #ededed;
-  --aur-accent: #ffffff;
-  --aur-accent-muted: #a1a1aa;
-  
-  --aur-surface: #0a0a0a;
-  --aur-surface-2: #121212;
-  --aur-surface-hover: #18181b;
-  
-  --aur-border: rgba(255, 255, 255, 0.08);
-  --aur-border-strong: rgba(255, 255, 255, 0.14);
-  
-  /* Deep, volumetric shadows for dark mode */
-  --aur-shadow-sm: 0 4px 12px rgba(0, 0, 0, 0.5);
-  --aur-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  --aur-shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.03);
-  
-  --aur-text: #ffffff;
-  --aur-text-secondary: #a1a1aa;
-  --aur-text-muted: #71717a;
-  
-  --aur-hover: #121212;
-  --aur-ring: rgba(255, 255, 255, 0.2);
-}
-
 body {
   background-color: var(--background);
   color: var(--foreground);
@@ -170,9 +142,6 @@ button {
   border-radius: 10px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.02);
-}
-html.dark .aur-input {
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.2);
 }
 .aur-input:focus {
   outline: none;
@@ -283,9 +252,6 @@ html.dark .aur-input {
   background: radial-gradient(circle at 85% 15%, rgba(180, 83, 9, 0.08), transparent 45%);
   pointer-events: none;
 }
-html.dark .aur-home-hero::before {
-  background: radial-gradient(circle at 85% 15%, rgba(234, 179, 8, 0.1), transparent 45%);
-}
 
 .aur-home-stat {
   border: 1px solid var(--aur-border);
@@ -293,17 +259,10 @@ html.dark .aur-home-hero::before {
   padding: 0.75rem 1rem;
   text-align: center;
 }
-html.dark .aur-home-stat {
-  background: rgba(24, 24, 31, 0.6);
-}
 
 .aur-home-search {
   box-shadow: 0 4px 24px rgba(15, 23, 42, 0.08);
   border: 1px solid rgba(15, 23, 42, 0.12);
-}
-html.dark .aur-home-search {
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
-  border-color: rgba(234, 179, 8, 0.2);
 }
 
 .aur-score-bar {
@@ -320,18 +279,12 @@ html.dark .aur-home-search {
   border-radius: 2px;
   transition: width 0.4s ease;
 }
-html.dark .aur-score-bar-fill {
-  background: linear-gradient(90deg, #ca8a04, #eab308);
-}
 
 .aur-editorial-card {
   transition: background-color 0.2s ease;
 }
 .aur-editorial-card:hover {
   background: rgba(255, 251, 235, 0.35);
-}
-html.dark .aur-editorial-card:hover {
-  background: rgba(234, 179, 8, 0.04);
 }
 
 .aur-editorial-img-wrap {
@@ -481,79 +434,6 @@ html.dark .aur-editorial-card:hover {
   background: rgba(255, 255, 255, 0.94);
 }
 
-html.dark .aur-rankings-shell {
-  --rank-blue: #facc15;
-  --rank-blue-soft: rgba(234, 179, 8, 0.18);
-  --rank-yellow: #eab308;
-  --rank-yellow-soft: rgba(234, 179, 8, 0.08);
-  color: #f8fafc;
-}
-html.dark .aur-rankings-hero {
-  border-color: rgba(234, 179, 8, 0.14);
-  background:
-    radial-gradient(ellipse 60% 55% at 90% 0%, rgba(234, 179, 8, 0.12), transparent 58%),
-    linear-gradient(135deg, rgba(13, 13, 17, 0.96) 0%, rgba(24, 24, 31, 0.92) 52%, rgba(5, 5, 6, 0.98) 100%);
-  box-shadow: 0 8px 34px rgba(0, 0, 0, 0.36);
-}
-html.dark .aur-rankings-filter {
-  border-color: rgba(234, 179, 8, 0.14);
-  background:
-    radial-gradient(ellipse 65% 70% at 100% 0%, rgba(234, 179, 8, 0.1), transparent 58%),
-    linear-gradient(180deg, rgba(24, 24, 31, 0.92) 0%, rgba(13, 13, 17, 0.96) 100%);
-  box-shadow: 0 8px 34px rgba(0, 0, 0, 0.34);
-}
-html.dark .aur-rankings-insight-card {
-  border-color: rgba(234, 179, 8, 0.14);
-  background:
-    radial-gradient(ellipse 75% 80% at 100% 0%, rgba(234, 179, 8, 0.1), transparent 58%),
-    linear-gradient(135deg, rgba(24, 24, 31, 0.94) 0%, rgba(13, 13, 17, 0.98) 100%);
-  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.34);
-}
-html.dark .aur-rankings-insight-card::before {
-  background: linear-gradient(180deg, #eab308, rgba(234, 179, 8, 0.25));
-}
-html.dark .aur-rankings-insight-icon {
-  border-color: rgba(234, 179, 8, 0.2);
-  background: rgba(234, 179, 8, 0.08);
-  color: #facc15;
-}
-html.dark .aur-rankings-filter .aur-input {
-  border-color: rgba(234, 179, 8, 0.22);
-  background: #18181f;
-}
-html.dark .aur-rankings-filter .aur-input:focus {
-  border-color: #eab308;
-  box-shadow: 0 0 0 3px rgba(234, 179, 8, 0.15);
-}
-html.dark .aur-rankings-reset {
-  color: #facc15;
-}
-html.dark .aur-rankings-reset:hover {
-  color: #fef3c7;
-}
-html.dark .aur-rankings-table {
-  border-color: rgba(234, 179, 8, 0.14);
-  box-shadow: 0 8px 34px rgba(0, 0, 0, 0.36);
-}
-html.dark .aur-rankings-table .aur-table thead,
-html.dark .aur-rankings-table .aur-rankings-th {
-  background: linear-gradient(180deg, rgba(234, 179, 8, 0.12) 0%, rgba(13, 13, 17, 0.98) 100%);
-  color: #facc15;
-}
-html.dark .aur-rankings-table .aur-table tbody tr:hover {
-  background: rgba(234, 179, 8, 0.06) !important;
-  box-shadow: inset 3px 0 0 #eab308;
-}
-html.dark .aur-rankings-table .aur-score-pill {
-  background: rgba(234, 179, 8, 0.08);
-  border-color: rgba(234, 179, 8, 0.2);
-  color: #f8fafc;
-}
-html.dark .aur-rankings-pagination {
-  border-color: rgba(234, 179, 8, 0.14);
-  background: rgba(13, 13, 17, 0.92);
-}
-
 .aur-table-wrap {
   border: 1px solid var(--aur-border);
   background: var(--aur-surface);
@@ -612,9 +492,6 @@ html.dark .aur-rankings-pagination {
   border-radius: 8px;
   box-shadow: inset 0 1px 1px rgba(0,0,0,0.02);
 }
-html.dark .aur-score-pill {
-  box-shadow: inset 0 1px 2px rgba(0,0,0,0.2);
-}
 
 .aur-focus-ring:focus-visible {
   outline: none;
@@ -640,17 +517,6 @@ html.dark .aur-score-pill {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--aur-text-muted);
 }
-
-/* Ensure no residual tailwind dark classes override our clean system */
-html.dark .bg-white { background-color: var(--aur-surface) !important; }
-html.dark .text-slate-900 { color: var(--aur-text) !important; }
-html.dark .border-slate-200 { border-color: var(--aur-border) !important; }
-html.dark .bg-slate-50 { background-color: var(--aur-surface-2) !important; }
-html.dark .text-slate-750, html.dark .text-slate-700, html.dark .text-slate-600 { color: var(--aur-text) !important; }
-html.dark .text-slate-500, html.dark .text-slate-400 { color: var(--aur-text-muted) !important; }
-html.dark .border-slate-100 { border-color: var(--aur-border) !important; }
-html.dark .hover\:bg-slate-50:hover { background-color: var(--aur-surface-hover) !important; }
-html.dark .hover\:border-slate-300:hover { border-color: var(--aur-border-strong) !important; }
 
 /* Micro-animations â€” GPU-only (opacity + transform never trigger layout) */
 @keyframes fadeInUp {

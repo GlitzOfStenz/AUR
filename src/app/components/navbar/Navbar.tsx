@@ -3,7 +3,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, Bell, Sun, Moon, Menu, X, ChevronDown, User, Shield, LogOut } from "lucide-react";
+import { Search, Bell, Menu, X, ChevronDown, User, Shield, LogOut } from "lucide-react";
 import { useSidebar } from "../navigation/SidebarContext";
 import { useToast } from "../feedback/ToastContext";
 import { TOP_NAV_LINKS } from "../navigation/config";
@@ -11,8 +11,6 @@ import { TOP_NAV_LINKS } from "../navigation/config";
 export default function Navbar() {
   const { showToast } = useToast();
   const {
-    theme,
-    toggleTheme,
     isMobileOpen,
     setIsMobileOpen,
     activeView,
@@ -150,17 +148,6 @@ export default function Navbar() {
 
           {/* ── Action icons ── */}
           <div className="flex items-center gap-1">
-
-            {/* Theme toggle */}
-            <button
-              type="button"
-              onClick={toggleTheme}
-              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-              title={theme === "dark" ? "Light Mode" : "Dark Mode"}
-              className="p-2 rounded-none text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] hover:bg-[var(--aur-hover)] transition-all duration-200"
-            >
-              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-            </button>
 
             {/* Notification bell */}
             <div className="relative" ref={notifRef}>
