@@ -43,8 +43,7 @@ function getMockResponse(query: string): string {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function FloatingChatAssistant() {
-  const { theme, activeView } = useSidebar();
-  const isDark = theme === "dark";
+  const {activeView } = useSidebar();
   const [isChatOpen, setIsChatOpen] = useState(false);
 
 
@@ -112,20 +111,16 @@ export default function FloatingChatAssistant() {
 
   // ─── Theme Tokens ─────────────────────────────────────────────────────────
 
-  const panelBg  = isDark ? "bg-[#0d0d11]"  : "bg-white";
-  const headerBg = isDark ? "bg-[#18181f]"  : "bg-slate-50";
-  const border   = isDark ? "border-cyber-border" : "border-slate-200";
-  const inputBg  = isDark ? "bg-[#070710]"  : "bg-slate-50";
-  const aiBubble = isDark
-    ? "bg-[#18181f] border border-slate-800 text-slate-300"
-    : "bg-slate-100 border border-slate-200 text-slate-700";
-  const accent   = isDark ? "text-cyber-yellow" : "text-amber-700";
-  const muted    = isDark ? "text-slate-400"    : "text-slate-500";
+  const panelBg  = "bg-white";
+  const headerBg = "bg-slate-50";
+  const border   = "border-slate-200";
+  const inputBg  = "bg-slate-50";
+  const aiBubble = "bg-slate-100 border border-slate-200 text-slate-700";
+  const accent   = "text-amber-700";
+  const muted    = "text-slate-500";
 
   // Constant subtle glow to make the panel stand out beautifully
-  const dragGlow = isDark
-    ? "shadow-[0_0_30px_rgba(234,179,8,0.25)] border-cyber-yellow/40"
-    : "shadow-[0_0_30px_rgba(245,158,11,0.25)] border-amber-500/40";
+  const dragGlow = "shadow-[0_0_30px_rgba(245,158,11,0.25)] border-amber-500/40";
 
   // ─── Render ───────────────────────────────────────────────────────────────
 
@@ -166,15 +161,13 @@ export default function FloatingChatAssistant() {
                 <div
                   className={[
                     "flex h-7 w-7 items-center justify-center rounded-full",
-                    isDark
-                      ? "bg-cyber-yellow/10 border border-cyber-yellow/20"
-                      : "bg-amber-50 border border-amber-200",
+                    "bg-amber-50 border border-amber-200",
                   ].join(" ")}
                 >
                   <Sparkles className={`h-3.5 w-3.5 ${accent}`} />
                 </div>
                 <div>
-                  <p className={`text-[11px] font-bold uppercase tracking-widest ${isDark ? "text-white" : "text-slate-900"}`}>
+                  <p className={`text-[11px] font-bold uppercase tracking-widest ${"text-slate-900"}`}>
                     AI Rankings Assistant
                   </p>
                   <p className={`text-[9px] font-mono ${muted}`}>
@@ -189,9 +182,7 @@ export default function FloatingChatAssistant() {
                 onClick={handleClose}
                 className={[
                   "p-1.5 rounded-full transition-colors",
-                  isDark
-                    ? "hover:bg-slate-800 text-slate-400 hover:text-white"
-                    : "hover:bg-slate-200 text-slate-400 hover:text-slate-800",
+                  "hover:bg-slate-200 text-slate-400 hover:text-slate-800",
                 ].join(" ")}
                 title="Close"
               >
@@ -215,7 +206,7 @@ export default function FloatingChatAssistant() {
                     <div
                       className={[
                         "flex h-6 w-6 shrink-0 items-center justify-center rounded-full mr-2 mt-0.5",
-                        isDark ? "bg-cyber-yellow/10" : "bg-amber-50 border border-amber-200",
+                        "bg-amber-50 border border-amber-200",
                       ].join(" ")}
                     >
                       <Bot className={`h-3 w-3 ${accent}`} />
@@ -240,7 +231,7 @@ export default function FloatingChatAssistant() {
                   <div
                     className={[
                       "flex h-6 w-6 shrink-0 items-center justify-center rounded-full mr-2 mt-0.5",
-                      isDark ? "bg-cyber-yellow/10" : "bg-amber-50 border border-amber-200",
+                      "bg-amber-50 border border-amber-200",
                     ].join(" ")}
                   >
                     <Bot className={`h-3 w-3 ${accent}`} />
@@ -275,9 +266,7 @@ export default function FloatingChatAssistant() {
                   "flex-1 rounded-lg px-3 py-2 text-xs border cursor-text",
                   inputBg,
                   border,
-                  isDark
-                    ? "text-slate-200 placeholder-slate-600 focus:border-cyber-yellow"
-                    : "text-slate-800 placeholder-slate-400 focus:border-amber-600",
+                  "text-slate-800 placeholder-slate-400 focus:border-amber-600",
                   "focus:outline-none transition-colors disabled:opacity-50",
                 ].join(" ")}
               />
@@ -310,16 +299,14 @@ export default function FloatingChatAssistant() {
               <div
                 className={[
                   "relative px-3.5 py-2.5 rounded-2xl text-[11px] font-bold shadow-xl transition-transform hover:scale-105 pointer-events-none mr-2",
-                  isDark
-                    ? "bg-[#111] border border-white/20 text-white"
-                    : "bg-white border border-black/10 text-black shadow-black/10",
+                  "bg-white border border-black/10 text-black shadow-black/10",
                 ].join(" ")}
               >
                 👋 Come talk to me!
                 <div
                   className={[
                     "absolute right-4 -bottom-1.5 w-3.5 h-3.5 rotate-45 border-r border-b",
-                    isDark ? "bg-[#111] border-white/20" : "bg-white border-black/10",
+                    "bg-white border-black/10",
                   ].join(" ")}
                 />
               </div>

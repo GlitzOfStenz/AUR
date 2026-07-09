@@ -475,7 +475,7 @@ export default function Homepage({
   onViewChange,
 }: HomepageProps) {
   const { universities } = useUniversityData();
-  const [searchQuery, setSearchQuery] = useState("");
+  const { searchQuery, setSearchQuery } = useSidebar();
   const [suggestions, setSuggestions] = useState<{ universities: University[]; articles: Article[] }>({
     universities: [],
     articles: [],
@@ -703,7 +703,7 @@ export default function Homepage({
 
             {/* Search */}
             <div className="relative w-full max-w-2xl mx-auto mb-4" ref={suggestionRef}>
-              <form onSubmit={handleSearchSubmit} className="flex rounded-lg overflow-hidden border border-[var(--ref-border)]">
+              <form onSubmit={handleSearchSubmit} className="flex rounded-none overflow-hidden border border-[var(--ref-border)]">
                 <div className="relative flex-grow">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--ref-muted)]" />
                   <input
@@ -746,7 +746,7 @@ export default function Homepage({
                                     <button
                                       type="button"
                                       onClick={() => activateSuggestion({ kind: "uni", uni })}
-                                      className={`w-full text-left flex justify-between p-2 text-xs rounded ${active ? "bg-amber-50" : "hover:bg-slate-50"}`}
+                                      className={`w-full text-left flex justify-between p-2 text-xs rounded-none ${active ? "bg-amber-50" : "hover:bg-slate-50"}`}
                                     >
                                       <span className="font-semibold truncate pr-2">{highlightMatch(uni.name, searchQuery)}</span>
                                       <span className="text-[var(--ref-muted)] shrink-0">{uni.location}</span>
@@ -770,7 +770,7 @@ export default function Homepage({
                                 key={art.id}
                                 type="button"
                                 onClick={() => activateSuggestion({ kind: "article", article: art })}
-                                className="w-full text-left p-2 text-xs hover:bg-slate-50 rounded block"
+                                className="w-full text-left p-2 text-xs hover:bg-slate-50 rounded-none block"
                               >
                                 {highlightMatch(art.title, searchQuery)}
                               </button>

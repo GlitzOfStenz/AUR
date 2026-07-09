@@ -104,8 +104,7 @@ function GithubIcon() {
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
 export default function Login() {
-  const { handleViewChange, theme } = useSidebar();
-  const isDark = theme === "dark";
+  const { handleViewChange} = useSidebar();
 
   const [isLogin, setIsLogin]             = useState(true);
   const [dir, setDir]                     = useState(1);
@@ -262,7 +261,6 @@ export default function Login() {
   return (
     <div className="lp-root relative">
       {/* Dark mode: animated dot matrix canvas background */}
-      {isDark && (
         <div className="absolute inset-0 z-0 overflow-hidden">
           <CanvasRevealEffect
             animationSpeed={3}
@@ -282,8 +280,6 @@ export default function Login() {
           {/* Bottom fade */}
           <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-black to-transparent" />
         </div>
-      )}
-
       <div className="lp-bg-grid relative z-10"/>
 
       {/* ── Left Showcase ── */}
