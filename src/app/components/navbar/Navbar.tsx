@@ -140,7 +140,7 @@ export default function Navbar() {
                 value={searchVal}
                 onChange={handleSearchChange}
                 placeholder="Search index..."
-                className="w-32 sm:w-48 md:w-56 lg:w-72 xl:w-80 focus:w-64 focus:md:w-80 focus:lg:w-[450px] focus:xl:w-[600px] border border-[var(--aur-border)] bg-[var(--aur-surface-2)] px-4 py-2 pl-9 rounded-none text-[13px] text-[var(--aur-text)] placeholder:text-[var(--aur-text-muted)] focus:outline-none focus:border-[var(--aur-border-strong)] focus:bg-[var(--aur-surface)] transition-all duration-500 ease-out"
+                className="w-32 sm:w-40 md:w-48 lg:w-64 xl:w-72 focus:w-48 focus:md:w-64 focus:lg:w-[320px] focus:xl:w-[400px] border border-[var(--aur-border)] bg-[var(--aur-surface-2)] px-4 py-2 pl-9 rounded-none text-[13px] text-[var(--aur-text)] placeholder:text-[var(--aur-text-muted)] focus:outline-none focus:border-[var(--aur-border-strong)] focus:bg-[var(--aur-surface)] transition-all duration-500 ease-out"
               />
             </div>
           </form>

@@ -20,6 +20,7 @@ import UserDashboard from "./components/UserDashboard";
 import UniversitiesList from "./components/UniversitiesList";
 import Methodology from "./components/Methodology";
 import EventsAndAwards from "./components/EventsAndAwards";
+import FacultyStudentAwards from "./components/FacultyStudentAwards";
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { useUniversityData } from "./components/data/UniversityDataProvider";
 import { Article, MOCK_UNIVERSITIES } from "./data";
@@ -166,6 +167,9 @@ export default function AppContent() {
 
           {/* Events & Awards */}
           {view === "events" && <EventsAndAwards />}
+
+          {/* Faculty & Student Awards */}
+          {view === "faculty-awards" && <FacultyStudentAwards />}
 
           {/* Admin Console */}
           {view === "admin" && <AdminConsole />}
