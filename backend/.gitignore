@@ -1,5 +1,6 @@
 # Environment variables
 .env
+!.env.example
 
 # Python virtual environment
 venv/
@@ -7,9 +8,6 @@ venv/
 # Cache files
 __pycache__/
 *.pyc
-<<<<<<< HEAD
-.pytest_cache/
-=======
 .pytest_cache/
 
 # VS Code settings
@@ -17,10 +15,6 @@ __pycache__/
 
 # Logs
 *.log
-
-# env files
-.env
->>>>>>> main
 
 # ranking_engine test
 test_ranking.py

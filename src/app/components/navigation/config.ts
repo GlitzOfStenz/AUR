@@ -8,6 +8,7 @@ import {
   Settings,
   BookOpen,
   Calendar,
+  Award,
   BadgeCheck,
 } from "lucide-react";
 
@@ -68,6 +69,12 @@ export const SIDEBAR_ITEMS: NavItem[] = [
     label: "Events & Awards",
     view: "events",
     icon: Calendar,
+  },
+  {
+    id: "faculty-awards",
+    label: "Faculty & Student Awards",
+    view: "faculty-awards",
+    icon: Award,
   },
   {
     id: "settings",

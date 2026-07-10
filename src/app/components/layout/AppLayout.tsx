@@ -32,7 +32,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
   return (
     <div
       className={`flex min-h-screen flex-col transition-colors duration-300 ${
-        theme === "dark" ? "bg-cyber-black text-slate-100 dark" : "bg-white text-slate-900"
+        theme === "bg-white text-slate-900"
       }`}
     >
       {/* Top Navigation Bar */}

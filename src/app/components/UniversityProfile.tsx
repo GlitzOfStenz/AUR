@@ -101,9 +101,6 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
                 </div>
               </div>
               <div className="flex flex-wrap justify-center gap-3 mt-6 md:mt-0">
-                <button className="bg-white text-black hover:bg-gray-100 font-bold px-6 py-3 rounded-xl text-xs uppercase tracking-wider transition-colors shadow-lg">
-                  Apply with QS
-                </button>
                 <button 
                   onClick={() => onToggleSave(universityId)}
                   className={`${isShortlisted ? "bg-red-500 text-white" : "bg-black/50 hover:bg-black/70 text-white border border-white/20"} font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg backdrop-blur-sm`}>
