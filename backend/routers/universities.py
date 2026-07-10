@@ -1,6 +1,10 @@
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from schemas import University, UniversityListResponse
+from database.connections import get_db
+from database.models import University as UniversityModel
 
 router = APIRouter(prefix="/api/universities", tags=["Universities"])
 
@@ -33,6 +37,12 @@ def get_all_universities(
         "limit": limit,
         "data": data[start:end]
     }
+
+@router.get("/directory", response_model=list[dict])
+async def get_directory_universities(db: AsyncSession = Depends(get_db)):
+    result = await db.execute(select(UniversityModel).order_by(UniversityModel.name))
+    unis = result.scalars().all()
+    return [{"id": str(u.id), "name": u.name} for u in unis]
 
 @router.get("/{uni_id}", response_model=University)
 def get_university(uni_id: str):
