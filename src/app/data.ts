@@ -17,7 +17,8 @@ export interface University {
   description: string;
   history: number[]; // 5-year rank history (from current year back to 5 years ago, e.g., 2026, 2025, 2024, 2023, 2022)
   programs: string[];
-  campusPhoto: string; // unsplash ID or generic descriptor
+  campusPhoto: string; // local path to campus photo
+  logo?: string; // local path to university logo
   website?: string;
   hasMedicine: boolean;
   qsSubjectRankings?: {
@@ -56,7 +57,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Tsinghua University is a major research university in Beijing, and a member of the elite C9 League. Established in 1911, it is consistently ranked as one of the top academic institutions in Asia.",
     history: [1, 1, 1, 2, 2],
     programs: ["MD Medicine (English-medium)", "M.Sc. Advanced Computing", "B.Eng. Mechanical Engineering", "MBA Global Business"],
-    campusPhoto: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/China/Tsinghua University image.jpg",
+    logo: "/university_images/China/Tsinghua University logo.jpg",
     hasMedicine: true,
     isPublic: true,
     hasScholarship: true,
@@ -83,7 +85,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "The National University of Singapore is the national research university of Singapore. Founded in 1905 as a government medical school, it is the oldest higher education institution in Singapore.",
     history: [2, 2, 2, 1, 1],
     programs: ["Bachelor of Medicine & Surgery (MBBS)", "B.Sc. Data Science", "M.Sc. Finance", "Ph.D. Biomedical Sciences"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Singapore/National University of Singapore image.jpg",
+    logo: "/university_images/Singapore/National University of Singapore logo.jpg",
     hasMedicine: true,
     isPublic: true,
     hasScholarship: true,
@@ -110,7 +113,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Peking University is a major Chinese research university in Beijing and a member of the elite C9 League. It was founded in 1898 as the Imperial University of Peking.",
     history: [3, 3, 3, 3, 3],
     programs: ["MD Clinical Medicine", "B.A. Chinese Literature", "Ph.D. Theoretical Physics"],
-    campusPhoto: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/China/Peking University image.jpg",
+    logo: "/university_images/China/Peking University logo.jpg",
     hasMedicine: true,
     isPublic: true,
     hasScholarship: true,
@@ -137,7 +141,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "The University of Tokyo is a premier public research university located in Bunkyo, Tokyo, Japan. Established in 1877, it is the first imperial university.",
     history: [4, 4, 4, 4, 4],
     programs: ["MD Medicine & Surgery", "B.Eng. Robotics & AI", "M.Sc. Earth Sciences"],
-    campusPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Japan/The University of Tokyo image.jpg",
+    logo: "/university_images/Japan/The University of Tokyo logo.jpg",
     hasMedicine: true,
     isPublic: true,
     hasScholarship: true,
@@ -164,7 +169,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "The University of Hong Kong is a public research university in Hong Kong. Founded in 1911, it is the oldest tertiary institution in Hong Kong.",
     history: [5, 6, 5, 5, 6],
     programs: ["Bachelor of Medicine and Bachelor of Surgery (MBBS)", "Bachelor of Laws (LLB)", "MBA"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Hong-kong/The University of Hong Kong image.jpg",
+    logo: "/university_images/Hong-kong/The University of Hong Kong logo.jpg",
     hasMedicine: true,
     founded: 1911,
     studentCount: 18000,
@@ -189,7 +195,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "NTU Singapore is a research-intensive public university consistently ranked among the world's best. It houses elite schools in engineering, science, business, and medicine.",
     history: [6, 5, 6, 6, 5],
     programs: ["B.Eng. Computer Science", "MBBS Medicine (Imperial College Partner)", "MBA Strategy"],
-    campusPhoto: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Singapore/Nanyang Technological University image.jpg",
+    logo: "/university_images/Singapore/Nanyang Technological University logo.jpg",
     hasMedicine: true,
     founded: 1991,
     studentCount: 33500,
@@ -214,7 +221,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Seoul National University is a national research university located in Seoul, South Korea. Founded in 1946, it is widely considered the most prestigious university in the country.",
     history: [7, 7, 7, 7, 7],
     programs: ["MD Doctor of Medicine", "B.Sc. Semiconductor Engineering", "Global MBA"],
-    campusPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/South-Korea/Seoul National University image.jpg",
+    logo: "/university_images/South-Korea/Seoul National University logo.jpg",
     hasMedicine: true,
     founded: 1946,
     studentCount: 28600,
@@ -239,7 +247,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Kyoto University is a public research university in Kyoto, Japan. Founded in 1897, it is the second oldest imperial university and has produced numerous Nobel laureates.",
     history: [8, 8, 8, 8, 8],
     programs: ["MD Medicine", "B.Sc. Chemistry", "Ph.D. Quantum Science"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Japan/Kyoto University image.jpg",
+    logo: "/university_images/Japan/Kyoto University logo.jpg",
     hasMedicine: true,
     founded: 1897,
     studentCount: 22000,
@@ -264,7 +273,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "KAIST (Korea Advanced Institute of Science and Technology) is the first and top research-oriented science and engineering institution in South Korea.",
     history: [9, 10, 9, 10, 9],
     programs: ["B.Sc. Electrical Engineering", "M.Sc. Robotics", "Ph.D. Aerospace Systems"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/South-Korea/KAIST image.jpg",
+    logo: "/university_images/South-Korea/KAIST logo.jpg",
     hasMedicine: false
   },
   {
@@ -283,7 +293,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "CUHK is a top-ranked public research university in Shatin, Hong Kong. Established in 1963, it operates on a unique collegiate system and is highly bilingual.",
     history: [10, 9, 10, 9, 10],
     programs: ["MBChB Doctor of Medicine", "B.Sc. Quantitative Finance", "B.Eng. Bioengineering"],
-    campusPhoto: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Hong-kong/The Chinese University of Hong Kong image.jpg",
+    logo: "/university_images/Hong-kong/The Chinese University of Hong Kong logo.jpg",
     hasMedicine: true
   },
   {
@@ -302,7 +313,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Tashkent Medical Academy is the premier medical institution in Uzbekistan. Established in 1919 and reorganized in 2005, it hosts over 2,000 international students studying medical programs.",
     history: [11, 14, 18, 22, 30],
     programs: ["General Medicine (MD - English-medium)", "Pediatric Medicine", "Preventive Medicine", "M.Sc. Cardiovascular Surgery"],
-    campusPhoto: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Tashkent Medical Academy image.jpg",
+    logo: "/university_images/Uzbekistan/Tashkent Medical Academy logo.jpg",
     hasMedicine: true,
     isPublic: true,
     hasScholarship: true
@@ -323,7 +335,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Located in the scenic Fergana Valley, Fergana State Medical Faculty provides high-quality English-medium MBBS/MD courses. It is certified by WHO, NMC, and is a major hub for South Asian students.",
     history: [12, 16, 21, 28, 38],
     programs: ["General Medicine (MD - 6 Years English-medium)", "Pharmacy (B.Pharm)", "Nursing"],
-    campusPhoto: "https://images.unsplash.com/photo-1579684389782-64d84b5e901a?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Fergana State University Medical Centre image.jpg",
+    logo: "/university_images/Uzbekistan/Fergana State University Medical Centre logo.jpg",
     hasMedicine: true
   },
   {
@@ -342,7 +355,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Established in 1930, Samarkand State Medical University is the oldest medical university in Central Asia. It features advanced digital medical campuses and clinic training units.",
     history: [13, 15, 20, 26, 35],
     programs: ["General Medicine (MD)", "Dentistry", "Pharmacy", "Postgraduate Medical Specialties"],
-    campusPhoto: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Samarkand State Medical University image.jpg",
+    logo: "/university_images/Uzbekistan/Samarkand State Medical University logo.jpg",
     hasMedicine: true,
     isPublic: true,
     hasScholarship: true
@@ -363,7 +377,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "A specialized medical institution focusing on pediatric medicine, pediatric surgery, and public health in Uzbekistan. Affiliated with top children's hospitals in Tashkent.",
     history: [14, 18, 23, 29, 39],
     programs: ["Pediatric Medicine (MD)", "General Medicine", "B.Sc. Professional Nursing"],
-    campusPhoto: "https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Tashkent Pediatric Medical Institute image.jpg",
+    logo: "/university_images/Uzbekistan/Tashkent Pediatric Medical Institute logo.jpg",
     hasMedicine: true
   },
   {
@@ -382,7 +397,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Named after Abu Ali ibn Sino (Avicenna), Bukhara State Medical Institute boasts modern anatomy labs and international collaborations with medical universities across Europe and Asia.",
     history: [15, 19, 25, 32, 42],
     programs: ["MD General Medicine (English-medium)", "BDS Dentistry", "Medical Prophylactics"],
-    campusPhoto: "https://images.unsplash.com/photo-1579684389782-64d84b5e901a?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Bukhara State Medical Institute image.jpg",
+    logo: "/university_images/Uzbekistan/Bukhara State Medical Institute logo.jpg",
     hasMedicine: true
   },
   {
@@ -401,7 +417,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Fudan University is a prestigious public research university in Shanghai, China. Known for its liberal academic atmosphere and top-tier humanities and medicine.",
     history: [16, 11, 11, 11, 11],
     programs: ["MD Clinical Medicine", "B.A. Economics", "MBA"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/China/Fudan University image.jpg",
+    logo: "/university_images/China/Fudan University logo.jpg",
     hasMedicine: true
   },
   {
@@ -420,7 +437,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Zhejiang University is an elite university in Hangzhou, China. Established in 1897, it is one of China's oldest, most prestigious institutions of higher education.",
     history: [17, 12, 12, 12, 12],
     programs: ["B.Eng. Computer Engineering", "MBBS Medicine", "Ph.D. Materials Science"],
-    campusPhoto: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/China/Zhejiang University image.jpg",
+    logo: "/university_images/China/Zhejiang University logo.jpg",
     hasMedicine: true
   },
   {
@@ -439,7 +457,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "USTC is a national research university in Hefei, China, under the direct leadership of the Chinese Academy of Sciences. It is renowned for high-impact physics and chemistry.",
     history: [18, 13, 13, 14, 13],
     programs: ["B.Sc. Physics", "B.Sc. Chemistry", "M.Sc. Quantum Computing"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/China/University of Science and Technology of China image.jpg",
+    logo: "/university_images/China/University of Science and Technology of China logo.jpg",
     hasMedicine: false
   },
   {
@@ -458,7 +477,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Tokyo Tech is the largest institution for higher education in Japan dedicated to science and technology and is at the forefront of nanotechnology and robotics research.",
     history: [19, 17, 16, 17, 16],
     programs: ["B.Eng. Robotics", "M.Eng. Mechanical Engineering", "M.Sc. Materials Science"],
-    campusPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Japan/Tokyo Institute of Technolog image.jpg",
+    logo: "/university_images/Japan/Tokyo Institute of Technolog logo.jpg",
     hasMedicine: false
   },
   {
@@ -477,7 +497,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Osaka University is a leading public research university located in Osaka, Japan. It is one of Japan's Imperial Universities and is highly ranked for biology and dentistry.",
     history: [20, 19, 19, 18, 19],
     programs: ["MD Medicine", "Dentistry (DDS)", "B.Sc. Biotechnology"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Japan/Osaka University image.jpg",
+    logo: "/university_images/Japan/Osaka University logo.jpg",
     hasMedicine: true
   },
   {
@@ -496,7 +517,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Yonsei University is a private research university in Seoul, South Korea. It is one of Korea's three prestigious 'SKY' universities and boasts one of the top medical schools.",
     history: [21, 22, 24, 25, 23],
     programs: ["MD Medical Sciences", "Undergraduate Global Studies", "MBA Business Administration"],
-    campusPhoto: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/South-Korea/Yonsei University image.jpg",
+    logo: "/university_images/South-Korea/Yonsei University logo.jpg",
     hasMedicine: true,
     isPublic: false
   },
@@ -516,7 +538,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Korea University is a top-tier private research university in Seoul, South Korea, founded in 1905. Famous for its highly selective law, business, and medical programs.",
     history: [22, 21, 23, 23, 22],
     programs: ["MD Medicine", "B.Sc. Cyber Security", "BBA Business Administration"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/South-Korea/Korea University image.jpg",
+    logo: "/university_images/South-Korea/Korea University logo.jpg",
     hasMedicine: true,
     isPublic: false
   },
@@ -536,7 +559,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "An expansion of the Chinese University of Hong Kong in Shenzhen, providing highly globalized curriculums in data sciences, finance, and engineering in mainland China.",
     history: [23, 27, 32, 40, 52],
     programs: ["B.Sc. Financial Engineering", "B.Eng. Computer Science", "M.Sc. Data Science"],
-    campusPhoto: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/China/CUHK Shenzhen image.jpg",
+    logo: "/university_images/China/CUHK Shenzhen logo.jpg",
     hasMedicine: false
   },
   {
@@ -555,7 +579,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "The University of Tsukuba is a leading research university in Tsukuba Science City, Ibaraki. It is highly regarded for biology, sports science, and medicine.",
     history: [24, 25, 26, 24, 25],
     programs: ["MD Medical Sciences", "B.Sc. Interdisciplinary Science", "M.Sc. Sports Medicine"],
-    campusPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Japan/University of Tsukuba image.jpg",
+    logo: "/university_images/Japan/University of Tsukuba logo.jpg",
     hasMedicine: true
   },
   {
@@ -574,7 +599,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "IIT Bombay is a leading public research university located in Mumbai, India. It is a premier institute of national importance, famous for its selective engineering entrance exams.",
     history: [25, 23, 22, 21, 21],
     programs: ["B.Tech. Computer Science", "B.Tech. Aerospace Engineering", "M.Tech. Microelectronics"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/India/IIT BOMBAY image.jpg",
+    logo: "/university_images/India/IIT BOMBAY logo.jpg",
     hasMedicine: false
   },
   {
@@ -593,7 +619,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "IIT Delhi is a prestigious engineering and research institution in New Delhi, India. It offers highly competitive programs and carries a massive reputation globally.",
     history: [26, 24, 25, 26, 24],
     programs: ["B.Tech. Electrical Engineering", "M.Tech. Artificial Intelligence", "Ph.D. Renewable Energy"],
-    campusPhoto: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/India/IIT Delhi image.jpg",
+    logo: "/university_images/India/IIT Delhi logo.jpg",
     hasMedicine: false
   },
   {
@@ -612,7 +639,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "IISc Bangalore is a premier research institute for advanced scientific research and education in India. It holds the world's highest citation-per-faculty score in recent indicators.",
     history: [27, 26, 27, 27, 28],
     programs: ["Bachelor of Science (Research)", "M.Tech. Nanotechnology", "Ph.D. Physics / Biochemistry"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/India/indian institute of science image.jpg",
+    logo: "/university_images/India/indian institute of science logo.jpg",
     hasMedicine: false
   },
   {
@@ -631,7 +659,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "NTU is the prestigious national university of Taiwan located in Taipei. It has played an instrumental role in the economic development and semiconductor boom of Taiwan.",
     history: [28, 28, 29, 28, 27],
     programs: ["MD Clinical Medicine", "B.Sc. Electrical Engineering", "Global MBA"],
-    campusPhoto: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Taiwan/National Taiwan University image.jpg",
+    logo: "/university_images/Taiwan/National Taiwan University logo.jpg",
     hasMedicine: true
   },
   {
@@ -650,7 +679,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Universiti Malaya is the oldest and highest-ranking university in Malaysia. Its campus sits in southwest Kuala Lumpur, featuring a massive specialized medical medical complex.",
     history: [29, 30, 31, 30, 29],
     programs: ["MBBS Doctor of Medicine", "B.Eng. Civil Engineering", "M.Sc. Business Analytics"],
-    campusPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Malaysia/Universiti Malaya image.jpg",
+    logo: "/university_images/Malaysia/Universiti Malaya logo.jpg",
     hasMedicine: true,
     isPublic: true,
     hasScholarship: true
@@ -671,7 +701,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Chulalongkorn University is the oldest and most prestigious university in Thailand. It has a high reputation for medical clinical research and public health.",
     history: [30, 31, 33, 34, 32],
     programs: ["Doctor of Medicine (English-medium)", "B.Sc. Nano-Engineering", "BBA International Business"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Thailand/Chulalongkorn University image.jpg",
+    logo: "/university_images/Thailand/Chulalongkorn University logo.jpg",
     hasMedicine: true
   },
   {
@@ -690,7 +721,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "The National University of Uzbekistan is the oldest and largest university in Uzbekistan. Established in 1918, it offers deep training in physics, mathematics, and philosophy.",
     history: [31, 38, 48, 56, 70],
     programs: ["B.Sc. Theoretical Mathematics", "B.Sc. Applied Physics", "M.A. Linguistics"],
-    campusPhoto: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/National University of Uzbekistan image.jpg",
+    logo: "/university_images/Uzbekistan/National University of Uzbekistan logo.jpg",
     hasMedicine: false
   },
   {
@@ -709,7 +741,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Tashkent State Technical University is one of the oldest technical universities in Central Asia, preparing elite engineering minds for industrial machinery and energy grids.",
     history: [32, 40, 50, 62, 78],
     programs: ["B.Eng. Mechanical Engineering", "B.Eng. Petroleum & Gas", "M.Eng. Power System Grids"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Tashkent State Technical University image.jpg",
+    logo: "/university_images/Uzbekistan/Tashkent State Technical University logo.jpg",
     hasMedicine: false
   },
   {
@@ -728,7 +761,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Webster University in Tashkent is an official American branch campus, delivering full US-accredited business administration, media, and education degrees in Central Asia.",
     history: [33, 42, 55, 75, 95],
     programs: ["Bachelor of Business Administration (BBA)", "BA Media Studies", "MA TESOL (Applied Linguistics)"],
-    campusPhoto: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Webster University in Tashkent image.jpg",
+    logo: "/university_images/Uzbekistan/Webster University in Tashkent logo.jpg",
     hasMedicine: false,
     isPublic: false
   },
@@ -748,7 +782,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "An engineering focused institute located in Fergana, providing essential training in civil engineering, textile production, and chemical processing.",
     history: [34, 45, 58, 71, 88],
     programs: ["B.Eng. Civil Construction", "B.Eng. Textile Engineering", "B.Sc. Chemical Technology"],
-    campusPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Fergana Polytechnic Institute image.jpg",
+    logo: "/university_images/Uzbekistan/Fergana Polytechnic Institute logo.jpg",
     hasMedicine: false
   },
   {
@@ -767,7 +802,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "A private university in Tashkent offering dynamic curricula in collaboration with medical centers in Turkey and South Korea. One of the first modern private medical schools.",
     history: [35, 48, 62, 85, 100],
     programs: ["MD Doctor of Medicine (English)", "B.Sc. Computer Science", "BBA Finance"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Central Asian University (former AKFA) image.jpg",
+    logo: "/university_images/Uzbekistan/Central Asian University (former AKFA) logo.jpg",
     hasMedicine: true,
     isPublic: false,
     hasScholarship: true
@@ -788,7 +824,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Hokkaido University is a leading Japanese national university, famous for agricultural sciences, environmental engineering, and its beautiful historic campus in Sapporo.",
     history: [36, 35, 34, 33, 33],
     programs: ["MD Clinical Medicine", "B.Sc. Agriculture Science", "M.Sc. Environmental Biology"],
-    campusPhoto: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Japan/Hokkaido University image.jpg",
+    logo: "/university_images/Japan/Hokkaido University logo.jpg",
     hasMedicine: true
   },
   {
@@ -807,7 +844,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Kyushu University in Fukuoka is one of Japan's seven Imperial Universities. It hosts top-tier programs in engineering, biotechnology, and health sciences.",
     history: [37, 36, 35, 35, 34],
     programs: ["MD Medical Surgery", "B.Eng. Materials Science", "M.Sc. Marine Biology"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Japan/Kyushu University image.jpg",
+    logo: "/university_images/Japan/Kyushu University logo.jpg",
     hasMedicine: true
   },
   {
@@ -826,7 +864,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Mahidol University began as a hospital-affiliated school in 1888. It is Thailand's highest ranked medical and health science institution.",
     history: [38, 37, 36, 37, 36],
     programs: ["MD Medicine (Siriraj Hospital)", "B.Sc. Medical Technology", "Ph.D. Virology"],
-    campusPhoto: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Thailand/Mahidol University image.jpg",
+    logo: "/university_images/Thailand/Mahidol University logo.jpg",
     hasMedicine: true
   },
   {
@@ -845,7 +884,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Universitas Indonesia is a state university in Depok, West Java and Jakarta. It is the oldest modern higher education institution in Indonesia.",
     history: [39, 39, 40, 42, 45],
     programs: ["MD General Medicine (International)", "Bachelor of Economics", "B.Eng. Electrical Engineering"],
-    campusPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Indonesia/Universitas Indonesia image.jpg",
+    logo: "/university_images/Indonesia/Universitas Indonesia logo.jpg",
     hasMedicine: true
   },
   {
@@ -864,7 +904,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "UGM is a premier public research university located in Yogyakarta, Indonesia. Founded in 1949, it is the largest and most historically significant university in Indonesia.",
     history: [40, 41, 41, 44, 46],
     programs: ["MD Clinical Medicine", "B.Eng. Mechanical Engineering", "B.Sc. Pharmacy"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Indonesia/Universitas Gadjah Mada image.jpg",
+    logo: "/university_images/Indonesia/Universitas Gadjah Mada logo.jpg",
     hasMedicine: true
   },
   {
@@ -883,7 +924,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "A branch campus of the elite Lomonosov Moscow State University, providing high-quality Russian instruction in applied mathematics, psychology, and management in Tashkent.",
     history: [41, 49, 61, 74, 90],
     programs: ["B.Sc. Applied Mathematics & Informatics", "B.Sc. Psychology", "M.Sc. Management"],
-    campusPhoto: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Lomonosov Moscow State University Branch in Tashkent image.jpg",
+    logo: "/university_images/Uzbekistan/Lomonosov Moscow State University Branch in Tashkent logo.jpg",
     hasMedicine: false
   },
   {
@@ -902,7 +944,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "The first branch of a foreign university opened in Uzbekistan (established in 2001). It has trained thousands of economists and financial analytics for Central Asia.",
     history: [42, 52, 65, 80, 105],
     programs: ["B.Sc. Economics & Business Analytics", "B.Sc. Finance", "MBA Digital Business"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Plekhanov Russian University of Economics (Tashkent Branch) image.jpg",
+    logo: "/university_images/Uzbekistan/Plekhanov Russian University of Economics (Tashkent Branch) logo.jpg",
     hasMedicine: false
   },
   {
@@ -921,7 +964,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Nankai University is a public research university in Tianjin, China. Founded in 1919 by educators Yan Xiu and Zhang Boling, it is famous for economics and chemistry.",
     history: [43, 42, 42, 41, 40],
     programs: ["B.Sc. Chemistry", "MD General Medicine", "B.A. Economics"],
-    campusPhoto: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/China/Nankai University image.jpg",
+    logo: "/university_images/China/Nankai University logo.jpg",
     hasMedicine: true
   },
   {
@@ -940,7 +984,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Wuhan University in Wuhan, Hubei, is one of China's most picturesque campuses. Founded in 1893, it has exceptionally strong clinical medicine and geography programs.",
     history: [44, 43, 44, 43, 41],
     programs: ["MBBS Doctor of Medicine", "B.Sc. Geospatial Engineering", "Ph.D. Virology"],
-    campusPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/China/Wuhan University image.jpg",
+    logo: "/university_images/China/Wuhan University logo.jpg",
     hasMedicine: true
   },
   {
@@ -959,7 +1004,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Saitama University is a Japanese national university located in a suburban area of Saitama City, offering highly practical science and engineering studies.",
     history: [45, 46, 45, 46, 44],
     programs: ["B.Eng. Electrical Engineering", "B.Sc. Mathematical Physics", "M.A. Global Sociology"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Japan/Saitama University image.jpg",
+    logo: "/university_images/Japan/Saitama University logo.jpg",
     hasMedicine: false
   },
   {
@@ -978,7 +1024,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Established in 2001, this graduate school offers top-tier research collaborations in environmental technology, financial technology, and biotechnology.",
     history: [46, 44, 43, 45, 47],
     programs: ["M.Sc. Environmental Technology", "M.Sc. Financial Technology", "M.Sc. Advanced Materials"],
-    campusPhoto: "https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/China/Tsinghua Shenzhen International Graduate School image.jpg",
+    logo: "/university_images/China/Tsinghua Shenzhen International Graduate School logo.jpg",
     hasMedicine: false
   },
   {
@@ -997,7 +1044,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "An Indian private branch university in Tashkent, delivering highly practical coursework in information technology, computer engineering, and tourism management.",
     history: [47, 55, 70, 92, 110],
     programs: ["B.Tech. Computer Science & Engineering", "B.Sc. Information Technology", "BBA Business Administration"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Amity University in Tashkent image.jpg",
+    logo: "/university_images/Uzbekistan/Amity University in Tashkent logo.jpg",
     hasMedicine: false
   },
   {
@@ -1016,7 +1064,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Established in 2009 in partnership with Politecnico di Torino (Italy), this university prepares elite automotive, mechanical, and civil engineers in Uzbekistan.",
     history: [48, 54, 68, 88, 102],
     programs: ["B.Sc. Mechanical Engineering (Automotive)", "B.Sc. Civil Engineering", "B.Sc. Computer Engineering"],
-    campusPhoto: "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Turin Polytechnic University in Tashkent image.jpg",
+    logo: "/university_images/Uzbekistan/Turin Polytechnic University in Tashkent logo.jpg",
     hasMedicine: false
   },
   {
@@ -1035,7 +1084,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "Created in cooperation with Inha University in South Korea. Features cutting-edge logistics, software engineering, and business administration programs taught fully in English.",
     history: [49, 53, 67, 84, 98],
     programs: ["B.Sc. Computer Science & Engineering", "B.Sc. Information & Communication Engineering", "B.Sc. Business & Logistics"],
-    campusPhoto: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/Inha University in Tashkent image.jpg",
+    logo: "/university_images/Uzbekistan/Inha University in Tashkent logo.jpg",
     hasMedicine: false
   },
   {
@@ -1054,7 +1104,8 @@ export const MOCK_UNIVERSITIES: University[] = [
     description: "UWED is the elite academy for foreign service in Uzbekistan. It trains diplomats, international lawyers, and macroeconomists with extensive language training.",
     history: [50, 56, 72, 90, 108],
     programs: ["B.A. International Relations", "B.A. International Law", "M.A. Global Diplomacy"],
-    campusPhoto: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
+    campusPhoto: "/university_images/Uzbekistan/University of World Economy and Diplomacy image.jpg",
+    logo: "/university_images/Uzbekistan/University of World Economy and Diplomacy logo.jpg",
     hasMedicine: false
   }
 ];

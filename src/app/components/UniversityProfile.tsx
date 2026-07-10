@@ -83,7 +83,7 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
           <div className="absolute bottom-16 left-0 right-0 px-8 sm:px-12 flex flex-col md:flex-row items-center md:items-end gap-8 text-white">
             <div className="h-32 w-32 bg-[var(--aur-surface)] rounded-2xl shadow-2xl border-4 border-white/10 overflow-hidden shrink-0 flex items-center justify-center">
                <Image
-                 src={uni.campusPhoto}
+                 src={uni.logo || uni.campusPhoto}
                  alt={`${uni.name} Logo`}
                  width={128}
                  height={128}

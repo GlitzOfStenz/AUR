@@ -418,11 +418,25 @@ export default function UniversitiesList({
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
+                  {/* University Logo - Bottom Left */}
+                  {uni.logo && (
+                    <div className="absolute bottom-3 left-3 h-12 w-12 bg-white rounded-lg shadow-md overflow-hidden border border-slate-200 flex items-center justify-center z-10">
+                      <img
+                        src={uni.logo}
+                        alt={`${uni.name} Logo`}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                    </div>
+                  )}
+
                   {/* University name overlay */}
                   <div className="absolute bottom-0 left-0 right-0 p-4 flex items-end gap-3 pointer-events-none">
-                    <div className="h-10 w-10 rounded-lg bg-[var(--aur-surface)] border border-[var(--aur-border)] flex items-center justify-center shrink-0 shadow-lg">
-                      <GraduationCap className="h-5 w-5 text-[var(--aur-text)]" />
-                    </div>
+                    {!uni.logo && (
+                      <div className="h-10 w-10 rounded-lg bg-[var(--aur-surface)] border border-[var(--aur-border)] flex items-center justify-center shrink-0 shadow-lg">
+                        <GraduationCap className="h-5 w-5 text-[var(--aur-text)]" />
+                      </div>
+                    )}
                     <h4 className="font-bold text-sm text-white leading-tight drop-shadow-md line-clamp-2">
                       {uni.name}
                     </h4>

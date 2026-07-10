@@ -42,6 +42,18 @@ function UniversityCard({ uni, rank, onClick }: { uni: University; rank: number;
             Med
           </div>
         )}
+
+        {/* University Logo - Bottom Left */}
+        {uni.logo && (
+          <div className="absolute bottom-3 left-3 h-12 w-12 bg-white rounded-lg shadow-md overflow-hidden border border-slate-200 flex items-center justify-center">
+            <img
+              src={uni.logo}
+              alt={`${uni.name} Logo`}
+              className="w-full h-full object-cover"
+              loading="lazy"
+            />
+          </div>
+        )}
       </div>
 
       {/* Info Section */}
