@@ -21,8 +21,7 @@ def register_user(client, email=None, password="Password123"):
         email = unique_email()
 
     payload = {
-        "first_name": "Chandrika",
-        "last_name": "Test",
+        "full_name": "Chandrika Test",
         "email": email,
         "password": password
     }
@@ -66,8 +65,7 @@ def test_register_invalid_email():
         response = client.post(
             "/auth/register",
             json={
-                "first_name": "Test",
-                "last_name": "User",
+                "full_name": "Test User",
                 "email": "invalid-email",
                 "password": "Password123"
             }
@@ -81,8 +79,7 @@ def test_register_missing_password():
         response = client.post(
             "/auth/register",
             json={
-                "first_name": "Test",
-                "last_name": "User",
+                "full_name": "Test User",
                 "email": unique_email()
             }
         )
