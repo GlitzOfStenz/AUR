@@ -10,18 +10,20 @@ Tables
   courses             — programs / degrees offered by a university
   admission_details   — admission process, deadlines, eligibility per university
   saved_universities  — user ↔ university bookmarks (many-to-many via FK)
+  newsletter_subscribers   — email subscriptions for newsletters and updates
+  news_items               — university-related news, announcements, and ranking updates
+  methodology_versions     — version history and release details of ranking methodology
  
 """
 
 import uuid
 
 from sqlalchemy import (Boolean, Column, Integer, Numeric, String, Float, Text, 
-                        Date, DateTime, ForeignKey, UniqueConstraint, text, JSON)
+                        Date, DateTime, ForeignKey, UniqueConstraint, text)
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
-import uuid
 from datetime import date, datetime
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -111,6 +113,13 @@ class University(Base):
                                      cascade="all, delete-orphan", lazy="selectin")
     saved_universities = relationship("SavedUniversity", back_populates="university",
                                       cascade="all, delete-orphan", lazy="selectin")
+    
+    news_items = relationship(
+    "NewsItem",
+    back_populates="university",
+    cascade="all, delete-orphan",
+    lazy="selectin"
+)
 
     def __repr__(self) -> str:
         return f"<University id={self.id} slug={self.slug!r} country={self.country!r}>"
@@ -239,14 +248,56 @@ class NewsletterSubscriber(Base):
     def __repr__(self) -> str:
         return f"<NewsletterSubscriber id={self.id} email={self.email!r} active={self.active}>"
     
+
+class NewsItem(Base):
+    __tablename__ = "news_items"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()")
+    )
+
+    university_id = Column(
+        UUID(as_uuid=True),
+        ForeignKey("universities.id", ondelete="CASCADE"),
+        nullable=False,
+        index=True
+    )
+
+    headline = Column(String(500), nullable=False)
+    category = Column(String(100), nullable=False)
+    published_date = Column(DateTime(timezone=True), nullable=False)
+    rank_change = Column(String(20))
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False
+    )
+
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now()
+    )
+
+    university = relationship(
+        "University",
+        back_populates="news_items"
+    )
+
+    def __repr__(self):
+        return f"<NewsItem headline={self.headline!r}>"    
 class MethodologyVersion(Base):
     __tablename__ = "methodology_versions"
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    version: Mapped[str] = mapped_column(String(20), nullable=False)  # e.g. "1.0"
-    title: Mapped[str] = mapped_column(String(255), nullable=False)   # e.g. "Initial QS-based methodology"
+    version: Mapped[str] = mapped_column(String(20), nullable=False) 
+    title: Mapped[str] = mapped_column(String(255), nullable=False)   
     description: Mapped[str] = mapped_column(Text, nullable=True)
     release_date: Mapped[date] = mapped_column(Date, nullable=False)
     is_current: Mapped[bool] = mapped_column(Boolean, default=False)
