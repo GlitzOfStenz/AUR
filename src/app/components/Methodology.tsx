@@ -20,7 +20,12 @@ import {
   ShieldCheck,
   SlidersHorizontal,
   BadgeCheck,
+  ListChecks,
+  MapPinned,
+  GitBranch,
+  History,
 } from "lucide-react";
+import { API_BASE_URL } from "../lib/universities";
 
 // ── Types ──────────────────────────────────────────────────────────────────
 
@@ -38,6 +43,16 @@ interface MetricDefinition {
 interface FaqItem {
   question: string;
   answer: string;
+}
+
+interface MethodologyVersion {
+  id: string;
+  version: string;
+  title: string;
+  description: string | null;
+  release_date: string;
+  is_current: boolean;
+  created_at: string;
 }
 
 // ── Static Data ────────────────────────────────────────────────────────────
@@ -267,6 +282,21 @@ const WORKFLOW_STEPS: WorkflowStep[] = [
   },
 ];
 
+const ELIGIBILITY_CRITERIA = [
+  "Minimum of 400 Scopus-indexed publications over the prior five years",
+  "Verified enrolment data from a national or regional registry",
+  "Valid institutional accreditation status in the country of operation",
+  "At least 5 years of continuous operation as a degree-granting institution",
+  "Minimum of 200 employer survey responses referencing the institution's graduates",
+];
+
+const TIE_BREAKING_ORDER = [
+  { label: "Citations per Faculty", detail: "Higher normalised citation score wins first." },
+  { label: "Academic Reputation", detail: "If citations are tied, the higher peer-survey score is ranked above." },
+  { label: "Employer Reputation", detail: "Next tiebreaker if both prior metrics are equal." },
+  { label: "Faculty–Student Ratio", detail: "Used only if all three preceding metrics are exactly tied." },
+];
+
 // ── Sub-components ─────────────────────────────────────────────────────────
 
 function WeightDonut({ metrics }: { metrics: MetricDefinition[] }) {
@@ -288,7 +318,6 @@ function WeightDonut({ metrics }: { metrics: MetricDefinition[] }) {
         const startAngle = cumulativeDeg;
         cumulativeDeg += fraction * 360;
 
-        // Convert angle to radians for label positioning
         const midAngle = ((startAngle + cumulativeDeg) / 2) * (Math.PI / 180);
         const labelR = r + stroke / 2 + 2;
         const lx = cx + labelR * Math.cos(midAngle);
@@ -310,7 +339,6 @@ function WeightDonut({ metrics }: { metrics: MetricDefinition[] }) {
           </g>
         );
       })}
-      {/* Centre label */}
       <text x={cx} y={cy - 6} textAnchor="middle" fill="var(--aur-text)" fontSize="11" fontWeight="700" fontFamily="var(--font-mono)">
         5
       </text>
@@ -331,7 +359,6 @@ function MetricBar({ metric, isExpanded, onToggle }: { metric: MetricDefinition;
         className="w-full flex items-center gap-4 px-6 py-5 text-left group"
         aria-expanded={isExpanded}
       >
-        {/* Weight badge */}
         <span
           className="shrink-0 h-12 w-12 rounded-xl flex items-center justify-center text-white text-sm font-black font-mono shadow-sm"
           style={{ backgroundColor: metric.color }}
@@ -339,13 +366,11 @@ function MetricBar({ metric, isExpanded, onToggle }: { metric: MetricDefinition;
           {metric.weight}%
         </span>
 
-        {/* Label + icon */}
         <div className="flex items-center gap-3 flex-1 min-w-0">
           <Icon className="h-4 w-4 shrink-0 text-[var(--aur-text-muted)]" />
           <span className="font-bold text-sm text-[var(--aur-text)] truncate">{metric.label}</span>
         </div>
 
-        {/* Weight bar */}
         <div className="hidden sm:flex flex-1 max-w-[180px] items-center gap-3">
           <div className="flex-1 h-2 bg-[var(--aur-surface-2)] rounded-full overflow-hidden border border-[var(--aur-border)]">
             <div
@@ -363,7 +388,6 @@ function MetricBar({ metric, isExpanded, onToggle }: { metric: MetricDefinition;
         />
       </button>
 
-      {/* Expanded detail panel */}
       {isExpanded && (
         <div className="px-6 pb-6 border-t border-[var(--aur-border)] bg-[var(--aur-surface-2)]">
           <p className="text-sm text-[var(--aur-text-secondary)] leading-relaxed mt-5 mb-4">
@@ -425,11 +449,30 @@ export default function Methodology() {
   const [hoveredWorkflowStep, setHoveredWorkflowStep] = useState<string | null>(null);
   const [isMobile, setIsMobile] = useState<boolean>(false);
 
+  const [versions, setVersions] = useState<MethodologyVersion[]>([]);
+  const [versionsLoading, setVersionsLoading] = useState(true);
+  const [versionsError, setVersionsError] = useState<string | null>(null);
+
   React.useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth < 768);
     onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
+  }, []);
+
+  React.useEffect(() => {
+    const controller = new AbortController();
+    fetch(`${API_BASE_URL}/api/methodology/version-history`, { signal: controller.signal })
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load version history");
+        return res.json();
+      })
+      .then((data: MethodologyVersion[]) => setVersions(data))
+      .catch((err) => {
+        if (err.name !== "AbortError") setVersionsError(err.message);
+      })
+      .finally(() => setVersionsLoading(false));
+    return () => controller.abort();
   }, []);
 
   const toggleMetric = (id: string) => {
@@ -499,7 +542,6 @@ export default function Methodology() {
       <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
         <div className="lg:col-span-2 flex flex-col items-center gap-6">
           <WeightDonut metrics={METRICS} />
-          {/* Legend */}
           <ul className="space-y-2 w-full max-w-[220px]">
             {METRICS.map((m) => (
               <li key={m.id} className="flex items-center justify-between text-xs">
@@ -546,6 +588,52 @@ export default function Methodology() {
         </div>
       </div>
 
+      {/* ── Eligibility Criteria ── */}
+      <div>
+        <div className="mb-6">
+          <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--aur-text-muted)]">Inclusion Requirements</span>
+          <h2 className="text-2xl font-serif font-bold text-[var(--aur-text)] mt-2">
+            Eligibility Criteria
+          </h2>
+          <p className="text-sm text-[var(--aur-text-secondary)] mt-2">
+            An institution must meet all of the following criteria to be considered for the ranking table.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] p-6">
+          <ul className="space-y-3">
+            {ELIGIBILITY_CRITERIA.map((c) => (
+              <li key={c} className="flex items-start gap-3 text-sm text-[var(--aur-text-secondary)]">
+                <ListChecks className="h-4 w-4 mt-0.5 shrink-0 text-[var(--aur-primary)]" />
+                {c}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+
+      {/* ── Regional Applicability ── */}
+      <div>
+        <div className="mb-6">
+          <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--aur-text-muted)]">Coverage</span>
+          <h2 className="text-2xl font-serif font-bold text-[var(--aur-text)] mt-2">
+            Regional Applicability
+          </h2>
+        </div>
+        <div className="rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] p-6 flex items-start gap-4">
+          <div className="h-10 w-10 rounded-xl bg-[var(--aur-surface-2)] border border-[var(--aur-border)] flex items-center justify-center shrink-0">
+            <MapPinned className="h-5 w-5 text-[var(--aur-primary)]" />
+          </div>
+          <p className="text-sm text-[var(--aur-text-secondary)] leading-relaxed">
+            The AUR methodology is applied uniformly across all countries in Asia — there are no
+            country-specific weight adjustments. Whether an institution is based in China, the UAE,
+            India, or any other Asian country, the same five-metric formula, normalisation method,
+            and eligibility criteria apply. Regional context (such as country-level trend data) is
+            surfaced separately in the Analytics Dashboard for reference, but it does not alter how
+            an individual institution's score is calculated.
+          </p>
+        </div>
+      </div>
+
       {/* ── Metric Deep Dives ── */}
       <div>
         <div className="mb-6">
@@ -580,10 +668,8 @@ export default function Methodology() {
         </div>
 
         <div className="w-full flex flex-col lg:flex-row items-center gap-8">
-          {/* Visual */}
           <div className="flex-1 flex items-center justify-center">
             {isMobile ? (
-              // Mobile: vertical timeline
               <div className="w-full">
                 <ol className="space-y-4">
                   {WORKFLOW_STEPS.map((s) => {
@@ -609,7 +695,6 @@ export default function Methodology() {
                 </ol>
               </div>
             ) : (
-              // Desktop/Tablet: circular SVG workflow
               <div className="relative" style={{ width: "min(760px, 80vw)", height: "min(760px, 80vw)" }}>
                 <svg viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet" className="w-full h-full">
                   <defs>
@@ -617,16 +702,11 @@ export default function Methodology() {
                       <stop offset="0%" stopColor="#ffffff" stopOpacity="0.9" />
                       <stop offset="100%" stopColor="#eef2ff" stopOpacity="0.9" />
                     </linearGradient>
-                    {/* arrow marker removed to avoid triangle artifact behind nodes */}
                   </defs>
 
-                  {/* background circular path (glow) */}
                   <path d={getWorkflowPath()} fill="none" stroke="rgba(59,130,246,0.08)" strokeWidth={8} strokeLinecap="round" strokeLinejoin="round" />
-
-                  {/* main continuous path */}
                   <path d={getWorkflowPath()} fill="none" stroke="var(--aur-primary)" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
 
-                  {/* highlighted segment on hover */}
                   {hoveredWorkflowStep && (() => {
                     const idx = WORKFLOW_STEPS.findIndex((s) => s.id === hoveredWorkflowStep);
                     if (idx === -1) return null;
@@ -635,9 +715,7 @@ export default function Methodology() {
                     );
                   })()}
 
-                  {/* Center hub */}
                   <g>
-                    {/* rings and hub */}
                     <circle cx="50" cy="50" r="12" fill="url(#hub-grad)" stroke="var(--aur-border)" strokeWidth="0.3" className="transition-shadow" style={{ filter: hoveredWorkflowStep ? "drop-shadow(0 6px 20px rgba(59,130,246,0.12))" : "drop-shadow(0 4px 12px rgba(2,6,23,0.06))" }} />
                     <text x="50" y="46" textAnchor="middle" fontSize="4" fontWeight={800} fill="var(--aur-text)">AUR</text>
                     <text x="50" y="50" textAnchor="middle" fontSize="2" fill="var(--aur-text-muted)">Ranking</text>
@@ -645,21 +723,15 @@ export default function Methodology() {
                     <text x="50" y="58" textAnchor="middle" fontSize="1.6" fill="var(--aur-text-muted)">Continuous • Transparent • Trusted</text>
                   </g>
 
-                  {/* Nodes */}
                   {WORKFLOW_STEPS.map((s, i) => {
                     const pos = getWorkflowPosition(i, WORKFLOW_STEPS.length);
-                    const left = `${pos.x}%`;
-                    const top = `${pos.y}%`;
-                    const Icon = s.icon as any;
                     return (
                       <g key={s.id} transform={`translate(${pos.x}, ${pos.y})`}>
-                        {/* invisible anchoring circle for pointer events handled via foreignObject */}
                       </g>
                     );
                   })}
                 </svg>
 
-                {/* Overlay HTML nodes (positioned with absolute percent) */}
                 {WORKFLOW_STEPS.map((s, i) => {
                   const pos = getWorkflowPosition(i, WORKFLOW_STEPS.length);
                   const Icon = s.icon as any;
@@ -689,7 +761,6 @@ export default function Methodology() {
             )}
           </div>
 
-          {/* Detail card */}
           <div className="w-full lg:w-1/3">
             <div className="p-6 bg-white rounded-2xl border border-[var(--aur-border)] shadow-sm">
               <div className="flex items-start gap-4">
@@ -709,7 +780,32 @@ export default function Methodology() {
         </div>
       </div>
 
-      
+      {/* ── Tie-Breaking Rules ── */}
+      <div>
+        <div className="mb-6">
+          <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--aur-text-muted)]">Resolution Order</span>
+          <h2 className="text-2xl font-serif font-bold text-[var(--aur-text)] mt-2">
+            Tie-Breaking Rules
+          </h2>
+          <p className="text-sm text-[var(--aur-text-secondary)] mt-2">
+            If two institutions receive the exact same overall score, the following secondary metrics
+            are checked in order until the tie is resolved.
+          </p>
+        </div>
+        <div className="rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] divide-y divide-[var(--aur-border)]">
+          {TIE_BREAKING_ORDER.map((t, i) => (
+            <div key={t.label} className="flex items-start gap-4 p-5">
+              <span className="shrink-0 h-8 w-8 rounded-full bg-[var(--aur-surface-2)] border border-[var(--aur-border)] flex items-center justify-center text-xs font-mono font-bold text-[var(--aur-text-muted)]">
+                {i + 1}
+              </span>
+              <div>
+                <p className="text-sm font-bold text-[var(--aur-text)]">{t.label}</p>
+                <p className="text-xs text-[var(--aur-text-secondary)] mt-1 leading-relaxed">{t.detail}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
       {/* ── Data Sources ── */}
       <div>
@@ -778,6 +874,60 @@ export default function Methodology() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* ── Methodology Version History ── */}
+      <div>
+        <div className="mb-6">
+          <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--aur-text-muted)]">Change Log</span>
+          <h2 className="text-2xl font-serif font-bold text-[var(--aur-text)] mt-2">
+            Methodology Version History
+          </h2>
+        </div>
+
+        {versionsLoading && (
+          <p className="text-sm text-[var(--aur-text-muted)]">Loading version history…</p>
+        )}
+
+        {!versionsLoading && versionsError && (
+          <p className="text-sm text-red-500">Could not load version history: {versionsError}</p>
+        )}
+
+        {!versionsLoading && !versionsError && versions.length === 0 && (
+          <p className="text-sm text-[var(--aur-text-muted)]">No version history available yet.</p>
+        )}
+
+        {!versionsLoading && !versionsError && versions.length > 0 && (
+          <div className="rounded-2xl border border-[var(--aur-border)] bg-[var(--aur-surface)] divide-y divide-[var(--aur-border)]">
+            {versions.map((v) => (
+              <div key={v.id} className="flex items-start gap-4 p-5">
+                <div className="h-9 w-9 rounded-xl bg-[var(--aur-surface-2)] border border-[var(--aur-border)] flex items-center justify-center shrink-0">
+                  <History className="h-4 w-4 text-[var(--aur-primary)]" />
+                </div>
+                <div className="flex-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="text-sm font-bold text-[var(--aur-text)]">
+                      Version {v.version} — {v.title}
+                    </span>
+                    {v.is_current && (
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-green-100 text-green-700 border border-green-200">
+                        Current
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs font-mono text-[var(--aur-text-muted)] mt-1">
+                    {new Date(v.release_date).toLocaleDateString("en-US", { year: "numeric", month: "long" })}
+                  </p>
+                  {v.description && (
+                    <p className="text-xs text-[var(--aur-text-secondary)] mt-2 leading-relaxed">
+                      {v.description}
+                    </p>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── FAQ ── */}
