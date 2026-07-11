@@ -120,7 +120,7 @@ const COUNTRY_THEME: Record<
     monument: "Marina Bay Sands",
     accent: "#ef4444",
     bg: "linear-gradient(135deg, #fff5f5 0%, #ffffff 62%)",
-    image: "https://images.unsplash.com/photo-1525621488860-1f28d3244604?auto=format&fit=crop&w=600&q=80",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Marina_Bay_Sands_in_the_evening_-_20101120.jpg/1280px-Marina_Bay_Sands_in_the_evening_-_20101120.jpg",
     imagePos: "70% center",
   },
   "Hong Kong": {
@@ -128,7 +128,7 @@ const COUNTRY_THEME: Record<
     monument: "Victoria Harbour",
     accent: "#dc2626",
     bg: "linear-gradient(135deg, #fff7f7 0%, #ffffff 62%)",
-    image: "https://images.unsplash.com/photo-1536596788103-df0d9994a3e3?auto=format&fit=crop&w=600&q=80",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Hong_Kong_Victoria_Harbour_Pano_View_from_ICC_201105.jpg/960px-Hong_Kong_Victoria_Harbour_Pano_View_from_ICC_201105.jpg",
     imagePos: "center 40%",
   },
   "South Korea": {
@@ -136,7 +136,7 @@ const COUNTRY_THEME: Record<
     monument: "Gyeongbokgung Palace",
     accent: "#2563eb",
     bg: "linear-gradient(135deg, #eff6ff 0%, #ffffff 62%)",
-    image: "https://images.unsplash.com/photo-1517154428173-52d99888fc9e?auto=format&fit=crop&w=600&q=80",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/6/63/%EA%B4%91%ED%99%94%EB%AC%B8_%EC%9B%94%EB%8C%80.jpg/960px-%EA%B4%91%ED%99%94%EB%AC%B8_%EC%9B%94%EB%8C%80.jpg",
     imagePos: "center",
   },
   China: {
@@ -168,7 +168,7 @@ const COUNTRY_THEME: Record<
     monument: "Taipei 101",
     accent: "#1d4ed8",
     bg: "linear-gradient(135deg, #eff6ff 0%, #ffffff 62%)",
-    image: "https://images.unsplash.com/photo-1470006985013-6c54c888a04f?auto=format&fit=crop&w=600&q=80",
+    image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8c/Taipei_101_from_Xiangshan_20250905.jpg/500px-Taipei_101_from_Xiangshan_20250905.jpg",
     imagePos: "center bottom",
   },
   Malaysia: {
