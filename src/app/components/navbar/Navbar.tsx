@@ -8,6 +8,16 @@ import { BrandLogo } from "../BrandLogo";
 import { useSidebar } from "../navigation/SidebarContext";
 import { useToast } from "../feedback/ToastContext";
 import { TOP_NAV_LINKS } from "../navigation/config";
+import { API_BASE_URL } from "../../lib/universities";
+
+type NotificationItem = {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  is_read: boolean;
+  created_at: string;
+};
 
 export default function Navbar() {
   const { showToast } = useToast();
@@ -25,8 +35,12 @@ export default function Navbar() {
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifMenu, setShowNotifMenu] = useState(false);
 
+  const [notifications, setNotifications] = useState<NotificationItem[]>([]);
+  const [notifLoading, setNotifLoading] = useState(true);
+
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+
   // Click outside menus to close
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -40,6 +54,50 @@ export default function Navbar() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  // Fetch real notifications from backend
+  useEffect(() => {
+  async function fetchNotifications() {
+    try {
+      const token = sessionStorage.getItem("aur_access_token");
+const res = await fetch(`${API_BASE_URL}/api/notifications`, {
+  headers: token ? { Authorization: `Bearer ${token}` } : {},
+});
+      if (!res.ok) throw new Error("Failed to fetch notifications");
+      const data = await res.json();
+      setNotifications(data);
+    } catch (err) {
+      console.error("Error fetching notifications:", err);
+    } finally {
+      setNotifLoading(false);
+    }
+  }
+  fetchNotifications();
+}, [showNotifMenu]);
+
+  function timeAgo(dateString: string) {
+    const diffMs = Date.now() - new Date(dateString).getTime();
+    const mins = Math.floor(diffMs / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins} min${mins > 1 ? "s" : ""} ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours} hour${hours > 1 ? "s" : ""} ago`;
+    const days = Math.floor(hours / 24);
+    return `${days} day${days > 1 ? "s" : ""} ago`;
+  }
+
+  async function markAsRead(id: string) {
+    try {
+      await fetch(`${API_BASE_URL}/api/notifications/${id}/read`, { method: "PATCH" });
+      setNotifications((prev) =>
+        prev.map((n) => (n.id === id ? { ...n, is_read: true } : n))
+      );
+    } catch (err) {
+      console.error("Error marking notification as read:", err);
+    }
+  }
+
+  const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   return (
     <header
@@ -67,7 +125,7 @@ export default function Navbar() {
           <nav className="hidden lg:flex space-x-1 items-center">
             {TOP_NAV_LINKS.map((link) => {
               const isActive = activeView === link.view;
-              
+
               if (link.view === "news") {
                 return (
                   <Link
@@ -79,7 +137,7 @@ export default function Navbar() {
                   </Link>
                 );
               }
-              
+
               return (
                 <button
                   key={link.label}
@@ -99,8 +157,6 @@ export default function Navbar() {
           {/* ── Spacer ── */}
           <div className="flex-1 hidden lg:block" />
 
-
-
           {/* ── Push icons to far right ── */}
           <div className="flex-1" />
 
@@ -116,31 +172,49 @@ export default function Navbar() {
                 className="p-2 rounded-md text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200 relative"
               >
                 <Bell className="h-4 w-4" />
-                <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5">
-                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500" />
-                </span>
+                {unreadCount > 0 && (
+                  <span className="absolute top-1.5 right-1.5 flex h-1.5 w-1.5">
+                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500" />
+                  </span>
+                )}
               </button>
 
               {showNotifMenu && (
                 <div className="absolute right-0 top-full mt-2 w-80 rounded-none border border-[var(--aur-border)] bg-[var(--aur-surface)] shadow-xl py-2 z-50 text-xs text-[var(--aur-text-secondary)]">
                   <div className="px-4 py-2.5 border-b border-[var(--aur-border)] flex justify-between items-center">
                     <span className="font-bold text-[var(--aur-text)] uppercase tracking-wider text-[10px]">Notifications</span>
-                    <span className="text-[10px] text-red-500 font-semibold">3 New</span>
+                    {unreadCount > 0 && (
+                      <span className="text-[10px] text-red-500 font-semibold">{unreadCount} New</span>
+                    )}
                   </div>
                   <div className="max-h-64 overflow-y-auto divide-y divide-[var(--aur-border)]">
-                    {[
-                      { id: 1, title: "QS Rankings 2026 Released", time: "10 mins ago", desc: "Explore updated analytical scores and recalculation models.", isNew: true },
-                      { id: 2, title: "Uzbekistan Medical Admission Open", time: "2 hours ago", desc: "Samarkand & Tashkent medical academies are accepting applications.", isNew: true },
-                      { id: 3, title: "Data Audit Log Completed", time: "1 day ago", desc: "All regional study models have been successfully audited.", isNew: false },
-                    ].map((n) => (
-                      <div key={n.id} className={`px-4 py-3 hover:bg-[var(--aur-hover)] transition-colors cursor-pointer ${n.isNew ? "bg-[var(--aur-surface-2)]" : ""}`}>
-                        <div className="flex justify-between mb-0.5">
-                          <span className="font-semibold text-[var(--aur-text)] text-[11px]">{n.title}</span>
-                          <span className="text-[9px] text-[var(--aur-text-muted)] shrink-0 ml-2">{n.time}</span>
-                        </div>
-                        <p className="text-[10px] text-[var(--aur-text-muted)] leading-relaxed">{n.desc}</p>
+                    {notifLoading ? (
+                      <div className="px-4 py-6 text-center text-[10px] text-[var(--aur-text-muted)]">
+                        Loading...
                       </div>
-                    ))}
+                    ) : notifications.length === 0 ? (
+                      <div className="px-4 py-6 text-center text-[10px] text-[var(--aur-text-muted)]">
+                        No notifications yet.
+                      </div>
+                    ) : (
+                      notifications.map((n) => (
+                        <div
+                          key={n.id}
+                          onClick={() => markAsRead(n.id)}
+                          className={`px-4 py-3 hover:bg-[var(--aur-hover)] transition-colors cursor-pointer ${
+                            !n.is_read ? "bg-[var(--aur-surface-2)]" : ""
+                          }`}
+                        >
+                          <div className="flex justify-between mb-0.5">
+                            <span className="font-semibold text-[var(--aur-text)] text-[11px]">{n.title}</span>
+                            <span className="text-[9px] text-[var(--aur-text-muted)] shrink-0 ml-2">
+                              {timeAgo(n.created_at)}
+                            </span>
+                          </div>
+                          <p className="text-[10px] text-[var(--aur-text-muted)] leading-relaxed">{n.description}</p>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </div>
               )}

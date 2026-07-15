@@ -140,8 +140,7 @@ class NewsItemResponse(BaseModel):
     published_date: datetime
     rank_change: Optional[str] = None
 
-    class Config:
-        from_attributes = True        
+    model_config = ConfigDict(from_attributes = True)    
 
 class NewsFlashResponse(BaseModel):
     data: List[NewsItemResponse]
@@ -162,6 +161,13 @@ class MethodologyVersionResponse(BaseModel):
     release_date: date
     is_current: bool
     created_at: datetime
+    
+class MethodologyVersionCreate(BaseModel):
+    version: str
+    title: str
+    description: Optional[str] = None
+    release_date: date
+    is_current: bool = False
 
 class EventCreate(BaseModel):
     title: str
@@ -259,3 +265,15 @@ class NominationResponse(BaseModel):
     documents: List[str] = []
     status: str
     submitted_at: datetime
+
+
+class NotificationResponse(BaseModel):
+    id: UUID
+    title: str
+    description: str
+    category: str
+    is_read: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

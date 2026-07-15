@@ -1,12 +1,30 @@
 "use client";
 
 import React, { useState } from "react";
-import { Crown, GraduationCap, BarChart3, Search, MessageCircle, Info, Check, X, ChevronDown, User, Mail, CreditCard, CalendarDays, Lock, BookOpen, ShieldCheck } from "lucide-react";
+import { Crown, GraduationCap, BarChart3, Search, MessageCircle, Info, Check, X, ChevronDown, User, Mail, CreditCard, CalendarDays, Lock, BookOpen, ShieldCheck, AlertCircle } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE_URL } from "../lib/universities";
 
+interface MembershipTierData {
+  id: string;
+  name: string;
+  price: number;
+  duration_months: number;
+  benefits: string[];
+}
+
 // --- Application Modal Component ---
-function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, onClose: () => void, selectedTier: string }) {
+function ApplicationModal({
+  isOpen,
+  onClose,
+  selectedTier,
+  selectedTierData,
+}: {
+  isOpen: boolean;
+  onClose: () => void;
+  selectedTier: string;
+  selectedTierData: MembershipTierData | null;
+}) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     studentName: "",
@@ -20,6 +38,9 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+
+  const isLoggedIn = typeof window !== "undefined" && !!sessionStorage.getItem("aur_access_token");
 
   // Validation logic
   const validateStep1 = () => {
@@ -42,7 +63,7 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
   const validateStep3 = () => {
     // Only validate if they are selecting Pro (payment needed)
     if (selectedTier !== "Pro Student") return true;
-    
+
     const newErrors: Record<string, string> = {};
     if (formData.cardNumber.replace(/\s/g, '').length < 15) newErrors.cardNumber = "Valid card number required";
     if (formData.expiry.length < 5) newErrors.expiry = "MM/YY required";
@@ -57,7 +78,7 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
       if (selectedTier === "Pro Student") {
         setStep(3);
       } else {
-        setStep(4); // Skip payment if Free
+        setStep(4); // Skip payment if Basic
       }
     }
     else if (step === 3 && validateStep3()) setStep(4);
@@ -71,13 +92,42 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
     }
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!selectedTierData) {
+      setSubmitError("No tier selected. Please close and try again.");
+      return;
+    }
+
+    const token = sessionStorage.getItem("aur_access_token");
+    if (!token) {
+      setSubmitError("You need to be logged in to subscribe. Please log in and try again.");
+      return;
+    }
+
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
+    setSubmitError(null);
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/membership/subscribe`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ tier_id: selectedTierData.id }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.detail || "Failed to complete subscription. Please try again.");
+      }
+
       setIsSubmitting(false);
       setIsSuccess(true);
-    }, 1500);
+    } catch (err: any) {
+      setIsSubmitting(false);
+      setSubmitError(err.message || "Something went wrong. Please try again.");
+    }
   };
 
   const handleClose = () => {
@@ -87,6 +137,7 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
       setFormData({ studentName: "", educationLevel: "", targetDegree: "", email: "", cardNumber: "", expiry: "", cvv: "" });
       setErrors({});
       setIsSuccess(false);
+      setSubmitError(null);
     }, 300);
   };
 
@@ -113,6 +164,9 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
                 <h3 className="font-serif text-xl font-bold text-[var(--aur-text)]">Student Sign Up</h3>
                 <p className="text-xs text-[var(--aur-text-muted)] uppercase tracking-wider font-bold mt-1">
                   Plan: <span className="text-[var(--aur-text)]">{selectedTier}</span>
+                  {selectedTierData && (
+                    <span className="text-[var(--aur-text-muted)] normal-case font-normal"> — ${selectedTierData.price.toLocaleString()}/year</span>
+                  )}
                 </p>
               </div>
               <button onClick={handleClose} className="p-2 text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] transition-colors rounded-full hover:bg-[var(--aur-surface-2)]">
@@ -122,7 +176,20 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
 
             {/* Body */}
             <div className="p-6">
-              {isSuccess ? (
+              {!isLoggedIn ? (
+                <div className="text-center py-8">
+                  <div className="w-16 h-16 bg-amber-100 dark:bg-amber-900/30 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Lock className="w-8 h-8" />
+                  </div>
+                  <h4 className="text-xl font-serif font-bold text-[var(--aur-text)] mb-2">Please Log In</h4>
+                  <p className="text-[var(--aur-text-secondary)] mb-6 text-sm">
+                    You need an account to subscribe to a membership plan. Please log in or create an account first.
+                  </p>
+                  <button onClick={handleClose} className="w-full py-3 px-4 bg-[var(--aur-text)] text-[var(--background)] rounded-xl font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-opacity">
+                    Close
+                  </button>
+                </div>
+              ) : isSuccess ? (
                 <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center py-8">
                   <div className="w-16 h-16 bg-[#10b981]/10 text-[#10b981] rounded-full flex items-center justify-center mx-auto mb-4">
                     <Check className="w-8 h-8" />
@@ -232,9 +299,14 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
                     </motion.div>
                   )}
 
-                  {/* Step 3: Payment (Pro Only) */}
+                  {/* Step 3: Payment (Pro Only) — cosmetic only, not processed by backend */}
                   {step === 3 && (
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+                      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-lg p-3 mb-2">
+                        <p className="text-xs text-amber-800 dark:text-amber-300">
+                          Demo mode: payment details are not processed or stored. Your subscription will be activated without an actual charge.
+                        </p>
+                      </div>
                       <div>
                         <label className="block text-xs font-bold uppercase tracking-widest text-[var(--aur-text-secondary)] mb-2">Card Number</label>
                         <div className="relative">
@@ -291,7 +363,7 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
                             {errors.expiry && <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-500 text-xs mt-1.5 font-medium">{errors.expiry}</motion.p>}
                           </AnimatePresence>
                         </div>
-                        
+
                         <div>
                           <label className="block text-xs font-bold uppercase tracking-widest text-[var(--aur-text-secondary)] mb-2">CVV</label>
                           <div className="relative">
@@ -327,6 +399,12 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
                             <span className="text-[var(--aur-text-muted)]">Goal</span>
                             <span className="font-medium text-[var(--aur-text)] text-right">{formData.targetDegree}</span>
                           </div>
+                          <div className="flex justify-between">
+                            <span className="text-[var(--aur-text-muted)]">Plan</span>
+                            <span className="font-medium text-[var(--aur-text)] text-right">
+                              {selectedTier}{selectedTierData && ` — $${selectedTierData.price.toLocaleString()}/year`}
+                            </span>
+                          </div>
                           {selectedTier === "Pro Student" && (
                             <div className="flex justify-between">
                               <span className="text-[var(--aur-text-muted)]">Payment</span>
@@ -335,8 +413,16 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
                           )}
                         </div>
                       </div>
+
+                      {submitError && (
+                        <div className="flex items-start gap-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 rounded-lg p-3">
+                          <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                          <p className="text-xs text-red-700 dark:text-red-400">{submitError}</p>
+                        </div>
+                      )}
+
                       <p className="text-xs text-[var(--aur-text-muted)] text-center">
-                        By submitting, you agree to our Terms of Service. {selectedTier === "Pro Student" && "Your card will be charged $49."}
+                        By submitting, you agree to our Terms of Service.
                       </p>
                     </motion.div>
                   )}
@@ -345,7 +431,7 @@ function ApplicationModal({ isOpen, onClose, selectedTier }: { isOpen: boolean, 
             </div>
 
             {/* Footer */}
-            {!isSuccess && (
+            {isLoggedIn && !isSuccess && (
               <div className="p-6 border-t border-[var(--aur-border)] bg-[var(--aur-surface-2)] flex justify-between">
                 <button
                   onClick={() => step > 1 ? handleBack() : handleClose()}
@@ -481,14 +567,8 @@ function FAQSection() {
 // --- Main Membership Component ---
 export default function Membership() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-const [selectedTier, setSelectedTier] = useState("Basic Student");
-  interface MembershipTierData {
-    id: string;
-    name: string;
-    price: number;
-    duration_months: number;
-    benefits: string[];
-  }
+  const [selectedTier, setSelectedTier] = useState("Basic Student");
+  const [selectedTierData, setSelectedTierData] = useState<MembershipTierData | null>(null);
 
   const [tiers, setTiers] = useState<MembershipTierData[]>([]);
   const [tiersLoading, setTiersLoading] = useState(true);
@@ -509,14 +589,18 @@ const [selectedTier, setSelectedTier] = useState("Basic Student");
     return () => controller.abort();
   }, []);
 
-  const openApplication = (tier: string) => {
+  const basicTier = tiers.find((t) => t.name === "Basic");
+  const premiumTier = tiers.find((t) => t.name === "Premium");
+
+  const openApplication = (tier: string, tierData: MembershipTierData | undefined) => {
     setSelectedTier(tier);
+    setSelectedTierData(tierData ?? null);
     setIsModalOpen(true);
   };
 
   return (
     <div className="w-full overflow-hidden">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -533,7 +617,7 @@ const [selectedTier, setSelectedTier] = useState("Basic Student");
         </div>
 
         {/* Disclaimer Alert */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2 }}
@@ -545,7 +629,7 @@ const [selectedTier, setSelectedTier] = useState("Basic Student");
           <div>
             <h3 className="font-bold text-[var(--aur-text)] mb-1 uppercase tracking-wider text-xs">For Students & Applicants</h3>
             <p className="text-sm text-[var(--aur-text-secondary)] leading-relaxed">
-              These plans are designed for students. If you represent a university looking to update your institutional profile or access telemetry analytics, please visit our <strong>University Partner Portal</strong>.
+              These plans are designed for students. University partner accounts are coming soon.
             </p>
           </div>
         </motion.div>
@@ -553,7 +637,7 @@ const [selectedTier, setSelectedTier] = useState("Basic Student");
         {/* Tiers */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto px-4 md:px-0">
           {/* Tier 1: Basic Student */}
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -564,11 +648,11 @@ const [selectedTier, setSelectedTier] = useState("Basic Student");
               <p className="text-[var(--aur-text-muted)] text-sm mt-2">Essential access to explore global rankings.</p>
             </div>
             <div className="text-3xl font-bold font-mono text-[var(--aur-text)] mb-8">
-{tiersLoading ? "..." : `$${tiers.find(t => t.name === "Basic")?.price.toLocaleString() ?? "999"}`}<span className="text-sm text-[var(--aur-text-muted)] font-sans"> / year</span>
+              {tiersLoading ? "..." : `$${basicTier?.price.toLocaleString() ?? "999"}`}<span className="text-sm text-[var(--aur-text-muted)] font-sans"> / year</span>
             </div>
 
             <ul className="space-y-5 mb-8 flex-1">
-{(tiers.find(t => t.name === "Basic")?.benefits ?? ["Profile Verification Badge", "Institutional Data Update Submissions"]).map((benefit) => (
+              {(basicTier?.benefits ?? ["Profile Verification Badge", "Institutional Data Update Submissions"]).map((benefit) => (
                 <li key={benefit} className="flex items-start gap-4">
                  <ShieldCheck className="w-5 h-5 text-[var(--aur-text-muted)] shrink-0 mt-0.5" />
                   <span className="text-sm font-medium text-[var(--aur-text-secondary)]">{benefit}</span>
@@ -576,16 +660,17 @@ const [selectedTier, setSelectedTier] = useState("Basic Student");
               ))}
             </ul>
 
-            <button 
-              onClick={() => openApplication("Basic Student")}
-              className="w-full py-4 px-6 rounded-xl border border-[var(--aur-border-strong)] bg-transparent hover:bg-[var(--aur-surface-hover)] text-[var(--aur-text)] font-bold text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95"
+            <button
+              onClick={() => openApplication("Basic Student", basicTier)}
+              disabled={tiersLoading || !basicTier}
+              className="w-full py-4 px-6 rounded-xl border border-[var(--aur-border-strong)] bg-transparent hover:bg-[var(--aur-surface-hover)] text-[var(--aur-text)] font-bold text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Sign Up Free
+              {tiersLoading ? "Loading..." : `Subscribe — $${basicTier?.price.toLocaleString() ?? "999"}/year`}
             </button>
           </motion.div>
 
-{/* Tier 2: Premium / Pro Student */}
-          <motion.div 
+          {/* Tier 2: Premium / Pro Student */}
+          <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
@@ -604,9 +689,9 @@ const [selectedTier, setSelectedTier] = useState("Basic Student");
               <p className="text-[var(--background)]/70 text-sm mt-2">AI predictions and premium tools to secure your future.</p>
             </div>
             <div className="text-3xl font-bold font-mono text-[var(--background)] mb-8">
-{tiersLoading ? "..." : `$${tiers.find(t => t.name === "Premium")?.price.toLocaleString() ?? "2,999"}`}<span className="text-sm text-[var(--background)]/70 font-sans"> / year</span>
+              {tiersLoading ? "..." : `$${premiumTier?.price.toLocaleString() ?? "2,999"}`}<span className="text-sm text-[var(--background)]/70 font-sans"> / year</span>
             </div>
-            
+
             <ul className="space-y-5 mb-8 flex-1">
               <li className="flex items-start gap-4">
                 <Search className="w-5 h-5 text-[var(--background)]/70 shrink-0 mt-0.5" />
@@ -626,11 +711,12 @@ const [selectedTier, setSelectedTier] = useState("Basic Student");
               </li>
             </ul>
 
-            <button 
-              onClick={() => openApplication("Pro Student")}
-              className="w-full py-4 px-6 rounded-xl bg-[var(--background)] hover:opacity-90 text-[var(--aur-text)] font-bold text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] dark:shadow-[0_0_20px_rgba(0,0,0,0.5)]"
+            <button
+              onClick={() => openApplication("Pro Student", premiumTier)}
+              disabled={tiersLoading || !premiumTier}
+              className="w-full py-4 px-6 rounded-xl bg-[var(--background)] hover:opacity-90 text-[var(--aur-text)] font-bold text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] dark:shadow-[0_0_20px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Upgrade to Pro
+              {tiersLoading ? "Loading..." : "Upgrade to Pro"}
             </button>
           </motion.div>
         </div>
@@ -641,7 +727,12 @@ const [selectedTier, setSelectedTier] = useState("Basic Student");
       </motion.div>
 
       {/* Render the application modal */}
-      <ApplicationModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} selectedTier={selectedTier} />
+      <ApplicationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        selectedTier={selectedTier}
+        selectedTierData={selectedTierData}
+      />
     </div>
   );
 }

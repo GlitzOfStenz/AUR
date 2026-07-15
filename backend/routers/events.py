@@ -9,6 +9,7 @@ from sqlalchemy import select
 
 from database.connections import get_db
 from database.models import Event, Application, JudgeScore, User, University
+from services.notifications import create_notification
 from auth.middleware import require_admin
 from schemas import (
     EventCreate, EventResponse,
@@ -50,8 +51,17 @@ async def create_event(
 ):
     event = Event(**payload.model_dump())
     db.add(event)
+
+    await create_notification(
+        db=db,
+        title="New Event Published",
+        description=f"{event.title} has been published.",
+        category="events",
+    )
+
     await db.commit()
     await db.refresh(event)
+
     return event
 
 

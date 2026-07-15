@@ -414,3 +414,30 @@ class UserMembership(Base):
 
     def __repr__(self) -> str:
         return f"<UserMembership user_id={self.user_id} tier_id={self.tier_id} status={self.status!r}>"
+
+    
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()")
+    )
+
+    title = Column(String(200), nullable=False)
+    description = Column(String(500), nullable=False)
+    category = Column(String(50), nullable=False, default="general")
+    is_read = Column(Boolean, default=False, nullable=False)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        index=True
+    )
+
+    def __repr__(self) -> str:
+        return f"<Notification id={self.id} title={self.title!r} is_read={self.is_read}>"

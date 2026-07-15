@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { Calendar, Award, Users, ArrowRight, ArrowLeft, Loader2, CheckCircle, Upload } from "lucide-react";
+import React, { useState, useEffect } from "react";
+import { Calendar, Award, Users, ArrowRight, ArrowLeft, Loader2, CheckCircle, Upload, X } from "lucide-react";
 import { API_BASE_URL } from "../lib/universities";
 
 type EventItem = {
@@ -16,6 +16,17 @@ type EventItem = {
 
 type DirectoryUniversity = { id: string; name: string };
 
+function getUserRole(): string | null {
+  const token = sessionStorage.getItem("aur_access_token");
+  if (!token) return null;
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.role ?? null;
+  } catch {
+    return null;
+  }
+}
+
 export default function EventsAndAwards() {
   const [universities, setUniversities] = useState<DirectoryUniversity[]>([]);
 
@@ -25,6 +36,7 @@ export default function EventsAndAwards() {
       .then(setUniversities)
       .catch(() => setUniversities([]));
   }, []);
+
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
@@ -35,6 +47,23 @@ export default function EventsAndAwards() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
+
+  // ── Admin create-event state ──
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showCreateForm, setShowCreateForm] = useState(false);
+  const [createForm, setCreateForm] = useState({
+    title: "",
+    description: "",
+    type: "event",
+    eligibility_criteria: "",
+    deadline: "",
+  });
+  const [createStatus, setCreateStatus] = useState<"idle" | "submitting" | "success" | "error">("idle");
+  const [createError, setCreateError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setIsAdmin(getUserRole() === "admin");
+  }, []);
 
   React.useEffect(() => {
     fetch(`${API_BASE_URL}/api/events-awards/`)
@@ -87,6 +116,40 @@ export default function EventsAndAwards() {
     }
   };
 
+  const handleCreateSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setCreateStatus("submitting");
+    setCreateError(null);
+
+    const token = sessionStorage.getItem("aur_access_token");
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/events-awards/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(createForm),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.detail || "Failed to create event");
+      }
+      const newEvent = await res.json();
+      setEvents((prev) => [newEvent, ...prev]);
+      setCreateStatus("success");
+      setTimeout(() => {
+        setShowCreateForm(false);
+        setCreateStatus("idle");
+        setCreateForm({ title: "", description: "", type: "event", eligibility_criteria: "", deadline: "" });
+      }, 1200);
+    } catch (err: any) {
+      setCreateStatus("error");
+      setCreateError(err.message);
+    }
+  };
+
   return (
     <div className="aur-rankings-shell mx-auto w-full max-w-[1600px] px-3 sm:px-5 lg:px-8 py-6 sm:py-8 font-sans flex-grow">
 
@@ -102,14 +165,116 @@ export default function EventsAndAwards() {
                 Discover upcoming events and prestigious awards.
               </p>
             </div>
-<button
-              type="button"
-              className="bg-[#1A365D] text-white hover:bg-[#11233F] rounded-xl shadow-md hover:shadow-lg mt-2 md:mt-0 inline-flex w-full sm:w-auto items-center justify-center px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider transition-all aur-focus-ring"
-            >
-              <Calendar className="h-4 w-4 mr-2" />
-              Submit an Event
-            </button>
+            {isAdmin && (
+              <button
+                type="button"
+                onClick={() => setShowCreateForm((prev) => !prev)}
+                className="bg-[#1A365D] text-white hover:bg-[#11233F] rounded-xl shadow-md hover:shadow-lg mt-2 md:mt-0 inline-flex w-full sm:w-auto items-center justify-center px-5 py-2.5 text-[10px] font-bold uppercase tracking-wider transition-all aur-focus-ring"
+              >
+                <Calendar className="h-4 w-4 mr-2" />
+                {showCreateForm ? "Cancel" : "Create Event"}
+              </button>
+            )}
           </div>
+
+          {isAdmin && showCreateForm && (
+            <div className="aur-card p-6 md:p-8 mb-8 animate-in fade-in slide-in-from-top-2 duration-300">
+              <h3 className="text-xl font-bold text-[var(--aur-text)] mb-6 flex items-center gap-2">
+                <Calendar className="w-5 h-5 text-amber-600 dark:text-cyber-yellow" /> Create New Event or Award
+              </h3>
+
+              {createStatus === "success" ? (
+                <div className="p-6 rounded-xl bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 flex flex-col items-center text-center">
+                  <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400 mb-2" />
+                  <p className="text-green-800 dark:text-green-300 font-semibold text-sm">Event published successfully.</p>
+                </div>
+              ) : (
+                <form onSubmit={handleCreateSubmit} className="space-y-5 max-w-2xl">
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">Title</label>
+                    <input
+                      required
+                      type="text"
+                      value={createForm.title}
+                      onChange={(e) => setCreateForm((f) => ({ ...f, title: e.target.value }))}
+                      className="aur-input w-full px-4 py-2.5 text-sm"
+                      placeholder="e.g. AUR Research Innovation Summit 2026"
+                    />
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">Description</label>
+                    <textarea
+                      required
+                      value={createForm.description}
+                      onChange={(e) => setCreateForm((f) => ({ ...f, description: e.target.value }))}
+                      className="aur-input w-full px-4 py-2.5 text-sm min-h-[90px]"
+                      placeholder="Brief description of the event or award"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">Type</label>
+                      <select
+                        value={createForm.type}
+                        onChange={(e) => setCreateForm((f) => ({ ...f, type: e.target.value }))}
+                        className="aur-input w-full px-4 py-2.5 text-sm"
+                      >
+                        <option value="event">Event</option>
+                        <option value="award">Award</option>
+                      </select>
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">Deadline</label>
+                      <input
+                        type="date"
+                        value={createForm.deadline}
+                        onChange={(e) => setCreateForm((f) => ({ ...f, deadline: e.target.value }))}
+                        className="aur-input w-full px-4 py-2.5 text-sm"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-1.5">
+                    <label className="text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">Eligibility Criteria</label>
+                    <textarea
+                      value={createForm.eligibility_criteria}
+                      onChange={(e) => setCreateForm((f) => ({ ...f, eligibility_criteria: e.target.value }))}
+                      className="aur-input w-full px-4 py-2.5 text-sm min-h-[70px]"
+                      placeholder="e.g. Open to all accredited universities"
+                    />
+                  </div>
+
+                  {createStatus === "error" && createError && (
+                    <div className="text-sm text-red-600">{createError}</div>
+                  )}
+
+                  <div className="pt-2 flex items-center gap-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowCreateForm(false)}
+                      className="aur-btn-ghost px-6 py-2.5 text-xs font-bold uppercase tracking-wider"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={createStatus === "submitting"}
+                      className="aur-btn-primary px-8 py-2.5 text-xs font-bold uppercase tracking-wider inline-flex items-center"
+                    >
+                      {createStatus === "submitting" ? (
+                        <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Publishing</>
+                      ) : (
+                        "Publish Event"
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+          )}
 
           {loading && (
             <div className="text-sm text-[var(--aur-text-muted)]">Loading events...</div>

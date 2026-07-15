@@ -1,12 +1,23 @@
 from datetime import datetime, timedelta
+
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from database.connections import get_db
-from database.models import MembershipTier, UserMembership, User
-from auth.middleware import get_current_user  # adjust to your actual auth dependency name
-from schemas import MembershipTierResponse, MembershipSubscribeRequest, UserMembershipResponse
+from database.models import (
+    MembershipTier,
+    UserMembership,
+    User,
+)
+from services.notifications import create_notification
+from auth.middleware import get_current_user
+from schemas import (
+    MembershipTierResponse,
+    MembershipSubscribeRequest,
+    UserMembershipResponse,
+)
 
 router = APIRouter(prefix="/api/membership", tags=["Membership"])
 
@@ -23,10 +34,19 @@ async def subscribe(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
-    result = await db.execute(select(MembershipTier).where(MembershipTier.id == payload.tier_id))
+    # Find selected tier
+    result = await db.execute(
+        select(MembershipTier).where(
+            MembershipTier.id == payload.tier_id
+        )
+    )
     tier = result.scalar_one_or_none()
+
     if not tier:
-        raise HTTPException(status_code=404, detail="Membership tier not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Membership tier not found",
+        )
 
     start = datetime.utcnow()
     end = start + timedelta(days=30 * tier.duration_months)
@@ -38,9 +58,27 @@ async def subscribe(
         end_date=end,
         status="active",
     )
+
     db.add(membership)
+
+    await create_notification(
+        db=db,
+        title="New Membership Created",
+        description=f"{tier.name} membership has been activated.",
+        category="membership",
+    )
+
     await db.commit()
-    await db.refresh(membership)
+
+    # Reload membership WITH tier relationship
+    result = await db.execute(
+        select(UserMembership)
+        .options(selectinload(UserMembership.tier))
+        .where(UserMembership.id == membership.id)
+    )
+
+    membership = result.scalar_one()
+
     return membership
 
 
@@ -51,10 +89,20 @@ async def check_status(
 ):
     result = await db.execute(
         select(UserMembership)
-        .where(UserMembership.user_id == current_user.id, UserMembership.status == "active")
+        .options(selectinload(UserMembership.tier))
+        .where(
+            UserMembership.user_id == current_user.id,
+            UserMembership.status == "active",
+        )
         .order_by(UserMembership.start_date.desc())
     )
+
     membership = result.scalars().first()
+
     if not membership:
-        raise HTTPException(status_code=404, detail="No active membership found")
+        raise HTTPException(
+            status_code=404,
+            detail="No active membership found",
+        )
+
     return membership
