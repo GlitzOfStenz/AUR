@@ -1143,7 +1143,7 @@ export const FEATURED_ARTICLES: Article[] = [
     date: "April 15, 2026",
     readTime: "6 min read",
     contentSummary: "From Inha and Webster in Tashkent to global collaborative institutes in Shenzhen, the rapid rise of English-only tracks is shifting student demographics, drawing focus away from European centers.",
-    image: "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=600&q=80"
+    image: "/university_images/higher education.avif"
   },
   {
     id: "metric-weights-guide",
