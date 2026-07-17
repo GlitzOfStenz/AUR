@@ -2,12 +2,26 @@
 
 import React, { useState } from "react";
 import { Award, Users, BookOpen, Star, ArrowRight, ArrowLeft, CheckCircle, Loader2, Trophy, GraduationCap } from "lucide-react";
+import { useUniversityData } from "./data/UniversityDataProvider";
+import { API_BASE_URL } from "../lib/universities";
 
 export default function FacultyStudentAwards() {
   const [activeTab, setActiveTab] = useState<"faculty" | "student">("faculty");
   const [selectedAwardId, setSelectedAwardId] = useState<string | null>(null);
   const [showApplicationForm, setShowApplicationForm] = useState(false);
   const [applicationStatus, setApplicationStatus] = useState<"idle" | "submitting" | "success">("idle");
+  const { universities } = useUniversityData();
+  const isLoggedIn = typeof window !== "undefined" && sessionStorage.getItem("aur_access_token");
+
+  const [formData, setFormData] = useState({
+    nomineeName: "",
+    nomineeEmail: "",
+    department: "",
+    universityId: "",
+    justification: "",
+  });
+  const [files, setFiles] = useState<File[]>([]);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const facultyAwards = [
     {
@@ -129,13 +143,46 @@ export default function FacultyStudentAwards() {
     setApplicationStatus("idle");
   };
 
-  const handleApplySubmit = (e: React.FormEvent) => {
+  const handleApplySubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
     setApplicationStatus("submitting");
-    // Simulate network latency for submission
-    setTimeout(() => {
+
+    const token = sessionStorage.getItem("aur_access_token");
+    if (!token) {
+      setSubmitError("You must be logged in to submit a nomination.");
+      setApplicationStatus("idle");
+      return;
+    }
+
+    const body = new FormData();
+    body.append("nominee_name", formData.nomineeName);
+    body.append("nominee_email", formData.nomineeEmail);
+    body.append("category", activeTab === "faculty" ? "Faculty" : "Student");
+    body.append("department", formData.department);
+    body.append("university_id", formData.universityId);
+    body.append("justification", formData.justification);
+    files.forEach((f) => body.append("files", f));
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/faculty-student-awards/nominate`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body,
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        throw new Error(err.detail || "Submission failed. Please try again.");
+      }
+
       setApplicationStatus("success");
-    }, 1500);
+    } catch (err) {
+      setSubmitError(err instanceof Error ? err.message : "Something went wrong.");
+      setApplicationStatus("idle");
+    }
   };
 
   return (
@@ -272,12 +319,18 @@ export default function FacultyStudentAwards() {
               
               {!showApplicationForm && applicationStatus !== "success" && (
                 <div className="mt-2">
-                  <button 
-                    onClick={() => setShowApplicationForm(true)}
-                    className="aur-btn-primary px-8 py-3 text-sm font-bold uppercase tracking-wider inline-flex items-center justify-center text-center"
-                  >
-                    Apply for this Award
-                  </button>
+                  {isLoggedIn ? (
+                    <button 
+                      onClick={() => setShowApplicationForm(true)}
+                      className="aur-btn-primary px-8 py-3 text-sm font-bold uppercase tracking-wider inline-flex items-center justify-center text-center"
+                    >
+                      Apply for this Award
+                    </button>
+                  ) : (
+                    <p className="text-sm text-[var(--aur-text-muted)]">
+                      Please <span className="font-bold text-[var(--aur-text)]">log in</span> to submit a nomination.
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -302,53 +355,103 @@ export default function FacultyStudentAwards() {
                       </div>
                     ) : (
                       <form onSubmit={handleApplySubmit} className="space-y-5">
+                        {submitError && (
+                          <div className="p-3 rounded-lg bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800/30 text-sm text-red-700 dark:text-red-400">
+                            {submitError}
+                          </div>
+                        )}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                           <div className="space-y-1.5">
                             <label className="text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">Full Name</label>
-                            <input required type="text" className="aur-input w-full px-4 py-2.5 text-sm" placeholder="Your full name" />
+                            <input
+                              required
+                              type="text"
+                              value={formData.nomineeName}
+                              onChange={(e) => setFormData({ ...formData, nomineeName: e.target.value })}
+                              className="aur-input w-full px-4 py-2.5 text-sm"
+                              placeholder="Your full name"
+                            />
                           </div>
                           <div className="space-y-1.5">
                             <label className="text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">Email Address</label>
-                            <input required type="email" className="aur-input w-full px-4 py-2.5 text-sm" placeholder="university email" />
+                            <input
+                              required
+                              type="email"
+                              value={formData.nomineeEmail}
+                              onChange={(e) => setFormData({ ...formData, nomineeEmail: e.target.value })}
+                              className="aur-input w-full px-4 py-2.5 text-sm"
+                              placeholder="university email"
+                            />
                           </div>
                         </div>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                           <div className="space-y-1.5">
                             <label className="text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">
                               {activeTab === "faculty" ? "Department / Faculty" : "Major / Program"}
                             </label>
-                            <input required type="text" className="aur-input w-full px-4 py-2.5 text-sm" placeholder="e.g. Computer Science" />
+                            <input
+                              required
+                              type="text"
+                              value={formData.department}
+                              onChange={(e) => setFormData({ ...formData, department: e.target.value })}
+                              className="aur-input w-full px-4 py-2.5 text-sm"
+                              placeholder="e.g. Computer Science"
+                            />
                           </div>
                           <div className="space-y-1.5">
                             <label className="text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">Institution</label>
-                            <input required type="text" className="aur-input w-full px-4 py-2.5 text-sm" placeholder="University name" />
+                            <select
+                              required
+                              value={formData.universityId}
+                              onChange={(e) => setFormData({ ...formData, universityId: e.target.value })}
+                              className="aur-input w-full px-4 py-2.5 text-sm"
+                            >
+                              <option value="">Select your university</option>
+                              {universities.map((u) => (
+                                <option key={u.id} value={u.id}>{u.name}</option>
+                              ))}
+                            </select>
                           </div>
                         </div>
 
                         <div className="space-y-1.5">
                           <label className="text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">Statement of Purpose / Justification</label>
-                          <textarea required className="aur-input w-full px-4 py-2.5 text-sm min-h-[150px] resize-none" placeholder="Explain why you meet the criteria for this award..."></textarea>
+                          <textarea
+                            required
+                            value={formData.justification}
+                            onChange={(e) => setFormData({ ...formData, justification: e.target.value })}
+                            className="aur-input w-full px-4 py-2.5 text-sm min-h-[150px] resize-none"
+                            placeholder="Explain why you meet the criteria for this award..."
+                          ></textarea>
                         </div>
-                        
+
                         <div className="space-y-1.5">
                           <label className="text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">Supporting Documents</label>
                           <div className="border-2 border-dashed border-[var(--aur-border)] rounded-xl p-6 text-center bg-[var(--aur-surface-2)]">
-                            <Users className="w-8 h-8 text-[var(--aur-text-muted)] mx-auto mb-2" />
-                            <p className="text-sm font-medium text-[var(--aur-text)]">Click to upload or drag and drop</p>
-                            <p className="text-xs text-[var(--aur-text-muted)] mt-1">PDF, DOCX up to 10MB (CV, Portfolio, Recommendations)</p>
+                            <input
+                              type="file"
+                              multiple
+                              accept=".pdf,.doc,.docx"
+                              onChange={(e) => setFiles(e.target.files ? Array.from(e.target.files) : [])}
+                              className="w-full text-sm"
+                            />
+                            <p className="text-xs text-[var(--aur-text-muted)] mt-2">PDF, DOCX up to 10MB (CV, Portfolio, Recommendations)</p>
+                            {files.length > 0 && (
+                              <p className="text-xs text-[var(--aur-text)] mt-2 font-medium">{files.length} file(s) selected</p>
+                            )}
                           </div>
                         </div>
-                        
+
                         <div className="pt-4 flex items-center gap-4">
-                          <button 
+                          <button
                             type="button"
                             onClick={() => setShowApplicationForm(false)}
                             className="aur-btn-ghost px-6 py-2.5 text-xs font-bold uppercase tracking-wider"
                           >
                             Cancel
                           </button>
-                          <button 
+                          <button
                             type="submit"
                             disabled={applicationStatus === "submitting"}
                             className="aur-btn-primary px-8 py-2.5 text-xs font-bold uppercase tracking-wider inline-flex items-center"

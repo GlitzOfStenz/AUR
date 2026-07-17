@@ -105,7 +105,7 @@ export default function InstitutionDirectory({ onUniversitySelect }: Props) {
         (!medOnly || u.hasMedicine)
       );
     }),
-    [search, country, medOnly]
+    [universities, search, country, medOnly]
   );
 
   return (

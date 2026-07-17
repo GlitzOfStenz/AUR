@@ -10,7 +10,20 @@ from auth.middleware import get_current_user
 
 router = APIRouter(prefix="/users", tags=["users"])
 
+class UserMeResponse(BaseModel):
+    id: UUID
+    email: str
+    first_name: str
+    last_name: str
+    role: str
 
+    class Config:
+        from_attributes = True
+
+
+@router.get("/me", response_model=UserMeResponse)
+async def get_me(current_user: User = Depends(get_current_user)):
+    return current_user
 
 class BookmarkCreate(BaseModel):
     university_id: UUID
@@ -29,6 +42,9 @@ class PreferencesUpdate(BaseModel):
     default_country: str | None = None
     default_limit: int | None = None
     preferred_metrics: list[str] | None = None
+    autoRecalc: bool | None = None
+    realtimeSearch: bool | None = None
+    analyticsTelemetry: bool | None = None
 
 
 

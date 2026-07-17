@@ -7,7 +7,12 @@ from sqlalchemy.orm import selectinload
 
 from auth.middleware import get_current_user
 from database.connections import get_db
-from database.models import MembershipTier, UserMembership, User
+from database.models import (
+    MembershipTier,
+    UserMembership,
+    User,
+)
+from services.notifications import create_notification
 from schemas import (
     MembershipTierResponse,
     MembershipSubscribeRequest,
@@ -29,13 +34,18 @@ async def subscribe(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    # Find selected tier
     result = await db.execute(
-        select(MembershipTier).where(MembershipTier.id == payload.tier_id)
+        select(MembershipTier).where(
+            MembershipTier.id == payload.tier_id
+        )
     )
     tier = result.scalar_one_or_none()
-
     if not tier:
-        raise HTTPException(status_code=404, detail="Membership tier not found")
+        raise HTTPException(
+            status_code=404,
+            detail="Membership tier not found",
+        )
 
     start = datetime.utcnow()
     end = start + timedelta(days=30 * tier.duration_months)
@@ -47,19 +57,24 @@ async def subscribe(
         end_date=end,
         status="active",
     )
-
     db.add(membership)
+
+    await create_notification(
+        db=db,
+        title="New Membership Created",
+        description=f"{tier.name} membership has been activated.",
+        category="membership",
+    )
+
     await db.commit()
 
-    # Reload with tier relationship eagerly loaded
+    # Reload membership WITH tier relationship
     result = await db.execute(
         select(UserMembership)
         .options(selectinload(UserMembership.tier))
         .where(UserMembership.id == membership.id)
     )
-
     membership = result.scalar_one()
-
     return membership
 
 
@@ -77,10 +92,10 @@ async def check_status(
         )
         .order_by(UserMembership.start_date.desc())
     )
-
     membership = result.scalars().first()
-
     if not membership:
-        raise HTTPException(status_code=404, detail="No active membership found")
-
+        raise HTTPException(
+            status_code=404,
+            detail="No active membership found",
+        )
     return membership

@@ -54,7 +54,6 @@ class User(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
     preferences = Column(JSONB, nullable=True, default=dict)
-
     # relationships
     saved_universities = relationship("SavedUniversity", back_populates="user", 
                                       cascade="all, delete-orphan", lazy="selectin")
@@ -62,7 +61,24 @@ class User(Base):
     def __repr__(self) -> str:
         return f"<User id={self.id} email={self.email!r} role={self.role!r}>"
     
+class FacultyStudentNomination(Base):
+    __tablename__ = "faculty_student_nominations"
 
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
+    submitted_by_user_id = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=False)
+    nominee_name = Column(String, nullable=False)
+    nominee_email = Column(String, nullable=False)
+    category = Column(String, nullable=False)
+    department = Column(String, nullable=False)
+    university_id = Column(UUID(as_uuid=True), ForeignKey("universities.id"), nullable=False)
+    justification = Column(Text, nullable=False)
+    documents = Column(JSONB, nullable=True, default=list)
+    status = Column(String, default="pending_review")
+    submitted_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+    submitted_by = relationship("User")
+    university = relationship("University")
+ 
 # Universities   
 # ------------------ 
 class University(Base):
@@ -398,3 +414,30 @@ class UserMembership(Base):
 
     def __repr__(self) -> str:
         return f"<UserMembership user_id={self.user_id} tier_id={self.tier_id} status={self.status!r}>"
+
+    
+
+class Notification(Base):
+    __tablename__ = "notifications"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        server_default=text("gen_random_uuid()")
+    )
+
+    title = Column(String(200), nullable=False)
+    description = Column(String(500), nullable=False)
+    category = Column(String(50), nullable=False, default="general")
+    is_read = Column(Boolean, default=False, nullable=False)
+
+    created_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        index=True
+    )
+
+    def __repr__(self) -> str:
+        return f"<Notification id={self.id} title={self.title!r} is_read={self.is_read}>"

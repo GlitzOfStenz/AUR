@@ -27,6 +27,7 @@ import { useUniversityData } from "./components/data/UniversityDataProvider";
 import { Article, MOCK_UNIVERSITIES } from "./data";
 import { Bookmark, ShieldAlert } from "lucide-react";
 import Sidebar from "./components/sidebar/Sidebar";
+import { API_BASE_URL } from "./lib/universities";
 
 export default function AppContent() {
   const router = useRouter();
@@ -48,13 +49,83 @@ export default function AppContent() {
   } = useSidebar();
 
 
-  const [savedUniIds, setSavedUniIds] = useState<string[]>([]);
+const [savedUniIds, setSavedUniIds] = useState<string[]>([]);
+const [uniDirectory, setUniDirectory] = useState<{ id: string; name: string }[]>([]);
+const [bookmarkMap, setBookmarkMap] = useState<Record<string, string>>({}); // realUuid -> slugId (reverse lookup for display)
 
-  // Local settings toggles state
-  const [settingsAutoRecalc, setSettingsAutoRecalc] = useState(true);
-  const [settingsRealtimeSearch, setSettingsRealtimeSearch] = useState(true);
-  const [settingsAnalyticsTelemetry, setSettingsAnalyticsTelemetry] = useState(false);
+// Local settings toggles state
+const [settingsAutoRecalc, setSettingsAutoRecalc] = useState(true);
+const [settingsRealtimeSearch, setSettingsRealtimeSearch] = useState(true);
+const [settingsAnalyticsTelemetry, setSettingsAnalyticsTelemetry] = useState(false);
 
+// Load real preferences on mount (only if logged in)
+useEffect(() => {
+  const token = sessionStorage.getItem("aur_access_token");
+  if (!token) return;
+  fetch(`${API_BASE_URL}/users/preferences`, { headers: getAuthHeaders() })
+    .then((res) => res.json())
+    .then((prefs) => {
+      if (typeof prefs.autoRecalc === "boolean") setSettingsAutoRecalc(prefs.autoRecalc);
+      if (typeof prefs.realtimeSearch === "boolean") setSettingsRealtimeSearch(prefs.realtimeSearch);
+      if (typeof prefs.analyticsTelemetry === "boolean") setSettingsAnalyticsTelemetry(prefs.analyticsTelemetry);
+    })
+    .catch((err) => console.error("Failed to load preferences", err));
+}, []);
+
+const updatePreference = async (key: string, value: boolean) => {
+  const token = sessionStorage.getItem("aur_access_token");
+  if (!token) return;
+  try {
+    await fetch(`${API_BASE_URL}/users/preferences`, {
+      method: "PATCH",
+      headers: {
+        ...getAuthHeaders(),
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ [key]: value }),
+    });
+  } catch (err) {
+    console.error("Failed to update preference", err);
+  }
+};
+
+const getAuthHeaders = () => ({
+  Authorization: `Bearer ${sessionStorage.getItem("aur_access_token")}`,
+});
+
+// Load university directory (slug name -> real UUID) once
+useEffect(() => {
+  fetch(`${API_BASE_URL}/api/universities/directory`)
+    .then((res) => res.json())
+    .then((data) => setUniDirectory(data))
+    .catch((err) => console.error("Failed to load university directory", err));
+}, []);
+
+// Load real bookmarks on mount (only if logged in)
+useEffect(() => {
+  const token = sessionStorage.getItem("aur_access_token");
+  if (!token) return;
+  fetch(`${API_BASE_URL}/users/bookmarks`, { headers: getAuthHeaders() })
+    .then((res) => res.json())
+    .then((data) => {
+  // data.bookmarks: [{ university_id: uuid, ... }]
+  const uuidToSlug: Record<string, string> = {};
+  const slugIds: string[] = [];
+  (data.bookmarks || []).forEach((b: any) => {
+        const match = uniDirectory.find((d) => d.id === b.university_id);
+        if (match) {
+          const slugMatch = universities.find((u) => u.name === match.name);
+          if (slugMatch) {
+            slugIds.push(slugMatch.id);
+            uuidToSlug[b.university_id] = slugMatch.id;
+          }
+        }
+      });
+      setSavedUniIds(slugIds);
+      setBookmarkMap(uuidToSlug);
+    })
+    .catch((err) => console.error("Failed to load bookmarks", err));
+}, [uniDirectory, universities]);
   // Derived state from URL (synced with context)
   const view = activeView;
   const id = selectedUniId;
@@ -62,11 +133,46 @@ export default function AppContent() {
   // A key to force AnimatePresence re-mount on view change
   const viewKey = view + (id ?? "");
 
-  const handleToggleSave = (uniId: string) => {
-    setSavedUniIds((prev) =>
-      prev.includes(uniId) ? prev.filter((id) => id !== uniId) : [...prev, uniId]
-    );
-  };
+  const handleToggleSave = async (uniId: string) => {
+  const token = sessionStorage.getItem("aur_access_token");
+  if (!token) {
+    handleViewChange("login");
+    return;
+  }
+
+  const isCurrentlySaved = savedUniIds.includes(uniId);
+  const slugUni = universities.find((u) => u.id === uniId);
+  const directoryMatch = slugUni
+    ? uniDirectory.find((d) => d.name === slugUni.name)
+    : null;
+
+  if (!directoryMatch) {
+    console.error("No matching directory entry found for", uniId);
+    return;
+  }
+
+  try {
+    if (isCurrentlySaved) {
+      await fetch(`${API_BASE_URL}/users/bookmarks/${directoryMatch.id}`, {
+        method: "DELETE",
+        headers: getAuthHeaders(),
+      });
+      setSavedUniIds((prev) => prev.filter((id) => id !== uniId));
+    } else {
+      await fetch(`${API_BASE_URL}/users/bookmarks`, {
+        method: "POST",
+        headers: {
+          ...getAuthHeaders(),
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ university_id: directoryMatch.id }),
+      });
+      setSavedUniIds((prev) => [...prev, uniId]);
+    }
+  } catch (err) {
+    console.error("Failed to toggle bookmark", err);
+  }
+};
 
   const handleUniversitySelect = (uniId: string) => {
     setSelectedUniId(uniId);
@@ -190,10 +296,10 @@ export default function AppContent() {
                 analyticsTelemetry: settingsAnalyticsTelemetry,
               }}
               onSettingsChange={(key, val) => {
-                if (key === "autoRecalc") setSettingsAutoRecalc(val);
-                if (key === "realtimeSearch") setSettingsRealtimeSearch(val);
-                if (key === "analyticsTelemetry") setSettingsAnalyticsTelemetry(val);
-              }}
+  if (key === "autoRecalc") { setSettingsAutoRecalc(val); updatePreference("autoRecalc", val); }
+  if (key === "realtimeSearch") { setSettingsRealtimeSearch(val); updatePreference("realtimeSearch", val); }
+  if (key === "analyticsTelemetry") { setSettingsAnalyticsTelemetry(val); updatePreference("analyticsTelemetry", val); }
+}}
               onResetCache={() => {
                 if (confirm("Reset  configs and clear filters?")) {
                   localStorage.clear();

@@ -1,31 +1,13 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { X, LayoutGrid, Search } from "lucide-react";
+import { University } from "../data";
+import { useUniversityData } from "./data/UniversityDataProvider";
 
-export interface RealUniversityData {
-  id: string;
-  rank: number;
-  name: string;
-  country: string;
-  city: string;
-  qsRank: string;
-  theRank: string;
-  type: string;
-  yearEstablished: number;
-  website: string;
-  academicReputation: string;
-  employerReputation: string;
-  facultyStudentRatio: string;
-  citationsPerFaculty: string;
-  internationalFaculty: string;
-  internationalStudents: string;
-  tuitionFee?: number;
-}
-
-const ProfessionalInput = ({ 
-  label, value, onChange, placeholder, prefix, suffix 
-}: { 
+const ProfessionalInput = ({
+  label, value, onChange, placeholder, prefix, suffix
+}: {
   label: string; value: string; onChange: (v: string) => void; placeholder: string; prefix?: string; suffix?: string;
 }) => (
   <div className="flex flex-col gap-1.5">
@@ -34,9 +16,9 @@ const ProfessionalInput = ({
     </label>
     <div className="relative flex items-center">
       {prefix && <span className="absolute left-3 text-slate-400 text-sm font-medium">{prefix}</span>}
-      <input 
-        type="text" 
-        value={value} 
+      <input
+        type="text"
+        value={value}
         onChange={e => onChange(e.target.value)}
         placeholder={placeholder}
         className={`w-full bg-white border border-slate-300 rounded-md shadow-sm py-2 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900 focus:border-slate-900 transition-colors ${prefix ? 'pl-8' : 'pl-3'} ${suffix ? 'pr-8' : 'pr-3'}`}
@@ -47,38 +29,33 @@ const ProfessionalInput = ({
 );
 
 export default function ComparisonMatrix() {
-  const [selectedUnis, setSelectedUnis] = useState<RealUniversityData[]>([]);
-  const [searchResults, setSearchResults] = useState<RealUniversityData[]>([]);
-  
+  const { universities } = useUniversityData();
+
+  const [selectedUnis, setSelectedUnis] = useState<University[]>([]);
   const [maxTuition, setMaxTuition] = useState("");
   const [country, setCountry] = useState("");
-  const [type, setType] = useState("");
-  
   const [hasSearched, setHasSearched] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const fetchUniversities = async () => {
-    setIsLoading(true);
-    setHasSearched(true);
-    
-    try {
-      const params = new URLSearchParams();
-      if (maxTuition) params.append('maxTuition', maxTuition);
-      if (country) params.append('country', country);
-      if (type) params.append('type', type);
-      
-      const res = await fetch(`/api/compare?${params.toString()}`);
-      const data: RealUniversityData[] = await res.json();
-      
-      setSearchResults(data);
-    } catch (error) {
-      console.error("Failed to fetch universities", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const searchResults = useMemo(() => {
+    if (!hasSearched) return [];
+    return universities.filter((u) => {
+      const matchesCountry =
+        !country || u.location.toLowerCase() === country.toLowerCase();
 
-  const toggleSelect = (uni: RealUniversityData) => {
+      let matchesTuition = true;
+      if (maxTuition) {
+        const numeric = parseInt(u.tuition.replace(/[^0-9]/g, ""), 10);
+        const max = parseInt(maxTuition, 10);
+        matchesTuition = !isNaN(numeric) && !isNaN(max) && numeric <= max;
+      }
+
+      return matchesCountry && matchesTuition;
+    });
+  }, [universities, country, maxTuition, hasSearched]);
+
+  const applyFilters = () => setHasSearched(true);
+
+  const toggleSelect = (uni: University) => {
     if (selectedUnis.some(u => u.id === uni.id)) {
       setSelectedUnis(prev => prev.filter(u => u.id !== uni.id));
     } else {
@@ -93,9 +70,7 @@ export default function ComparisonMatrix() {
   const clearParameters = () => {
     setMaxTuition("");
     setCountry("");
-    setType("");
     setHasSearched(false);
-    setSearchResults([]);
   };
 
   return (
@@ -109,7 +84,7 @@ export default function ComparisonMatrix() {
             Comparison Matrix
           </h1>
           <p className="mt-3 max-w-2xl mx-auto text-sm sm:text-base text-slate-500">
-            Select up to 5 institutions to evaluate side-by-side against precise, real-world metrics including global ranks, research output, and international ratios.
+            Select up to 5 institutions to evaluate side-by-side against real ranking metrics, tuition, and admission data.
           </p>
         </header>
 
@@ -119,7 +94,7 @@ export default function ComparisonMatrix() {
             <h2 className="text-sm font-semibold text-slate-800">
               Filtering Criteria
             </h2>
-            <button 
+            <button
               onClick={clearParameters}
               className="text-xs font-medium text-slate-500 hover:text-slate-900 transition-colors"
             >
@@ -128,40 +103,29 @@ export default function ComparisonMatrix() {
           </div>
 
           <div className="p-6 bg-white">
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <ProfessionalInput 
-                label="Maximum Tuition Fee" 
-                value={maxTuition} 
-                onChange={setMaxTuition} 
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <ProfessionalInput
+                label="Maximum Tuition Fee (USD/year)"
+                value={maxTuition}
+                onChange={setMaxTuition}
                 placeholder="e.g. 5000"
                 prefix="$"
               />
-              <ProfessionalInput 
-                label="Country" 
-                value={country} 
-                onChange={setCountry} 
-                placeholder="e.g. China" 
-              />
-              <ProfessionalInput 
-                label="Institution Type" 
-                value={type} 
-                onChange={setType} 
-                placeholder="e.g. Public or Private" 
+              <ProfessionalInput
+                label="Country"
+                value={country}
+                onChange={setCountry}
+                placeholder="e.g. China"
               />
             </div>
-            
+
             <div className="mt-8 flex items-center justify-end border-t border-slate-100 pt-6">
-              <button 
-                onClick={fetchUniversities}
-                disabled={isLoading}
-                className="inline-flex items-center justify-center px-5 py-2 bg-slate-900 hover:bg-black text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors disabled:opacity-50"
+              <button
+                onClick={applyFilters}
+                className="inline-flex items-center justify-center px-5 py-2 bg-slate-900 hover:bg-black text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors"
               >
-                {isLoading ? "Searching..." : (
-                  <>
-                    <Search className="w-4 h-4 mr-2" />
-                    Apply Filters
-                  </>
-                )}
+                <Search className="w-4 h-4 mr-2" />
+                Apply Filters
               </button>
             </div>
           </div>
@@ -174,7 +138,7 @@ export default function ComparisonMatrix() {
                   Matches ({searchResults.length})
                 </h3>
               </div>
-              
+
               <div className="max-h-72 overflow-y-auto">
                 {searchResults.length > 0 ? (
                   <table className="w-full text-sm text-left">
@@ -187,17 +151,17 @@ export default function ComparisonMatrix() {
                               {res.name}
                             </td>
                             <td className="px-6 py-4 text-slate-500">
-                              {res.city}, {res.country}
+                              {res.location}
                             </td>
                             <td className="px-6 py-4 text-slate-500 w-32">
-                              Rank: {res.qsRank}
+                              Score: {res.overall.toFixed(1)}
                             </td>
                             <td className="px-6 py-4 text-right w-40">
                               <button
                                 onClick={() => toggleSelect(res)}
                                 className={`inline-flex items-center justify-center px-3 py-1.5 text-xs font-medium rounded-md border transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
-                                  isSelected 
-                                    ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100" 
+                                  isSelected
+                                    ? "border-red-200 bg-red-50 text-red-700 hover:bg-red-100"
                                     : "border-slate-300 bg-white text-slate-700 hover:bg-slate-50"
                                 }`}
                               >
@@ -245,17 +209,15 @@ export default function ComparisonMatrix() {
               <thead>
                 <tr>
                   <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap sticky left-0 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">University Name</th>
-                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">QS Rank</th>
-                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">THE Rank</th>
-                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Type</th>
-                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Year Established</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Overall Score</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Founded</th>
                   <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Tuition Fee</th>
                   <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Academic Reputation</th>
-                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Employer Reputation</th>
-                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Faculty-Student Ratio</th>
-                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Citations / Faculty</th>
-                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Intl Faculty Ratio</th>
-                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Intl Student Ratio</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Employability</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Citations</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Teaching</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Research</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Intl Students</th>
                   <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Website</th>
                   <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Action</th>
                 </tr>
@@ -265,26 +227,26 @@ export default function ComparisonMatrix() {
                   <tr key={u.id} className="hover:bg-slate-50 transition-colors group">
                     <td className="px-6 py-4 border-r border-slate-200 bg-white group-hover:bg-slate-50 sticky left-0 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                       <h3 className="font-bold text-slate-900 text-base min-w-[14rem]">{u.name}</h3>
-                      <p className="text-slate-500 text-xs mt-1">{u.city}, {u.country}</p>
+                      <p className="text-slate-500 text-xs mt-1">{u.location}</p>
                     </td>
-                    <td className="px-6 py-4 border-r border-slate-200">{u.qsRank}</td>
-                    <td className="px-6 py-4 border-r border-slate-200">{u.theRank}</td>
-                    <td className="px-6 py-4 border-r border-slate-200">{u.type}</td>
-                    <td className="px-6 py-4 border-r border-slate-200">{u.yearEstablished}</td>
-                    <td className="px-6 py-4 border-r border-slate-200">{u.tuitionFee ? `$${u.tuitionFee}` : "N/A"}</td>
-                    <td className="px-6 py-4 border-r border-slate-200">{u.academicReputation}</td>
-                    <td className="px-6 py-4 border-r border-slate-200">{u.employerReputation}</td>
-                    <td className="px-6 py-4 border-r border-slate-200 whitespace-nowrap">{u.facultyStudentRatio}</td>
-                    <td className="px-6 py-4 border-r border-slate-200">{u.citationsPerFaculty}</td>
-                    <td className="px-6 py-4 border-r border-slate-200">{u.internationalFaculty}</td>
-                    <td className="px-6 py-4 border-r border-slate-200">{u.internationalStudents}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.overall.toFixed(1)}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.founded ?? "N/A"}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.tuition}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.academicReputation ?? "N/A"}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.employability}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.citations}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.teaching}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.research}</td>
+                    <td className="px-6 py-4 border-r border-slate-200">{u.intlStudents}</td>
                     <td className="px-6 py-4 border-r border-slate-200">
-                      <a href={u.website} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline whitespace-nowrap">
-                        Visit Site
-                      </a>
+                      {u.website ? (
+                        <a href={u.website} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline whitespace-nowrap">
+                          Visit Site
+                        </a>
+                      ) : "N/A"}
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <button 
+                      <button
                         onClick={() => toggleSelect(u)}
                         className="text-slate-400 hover:text-red-500 transition-colors p-1 bg-white rounded-md border border-slate-200 shadow-sm hover:border-red-200 hover:bg-red-50"
                       >

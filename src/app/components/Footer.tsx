@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { BrandLogo } from "./BrandLogo";
 import { useSidebar } from "./navigation/SidebarContext";
+import { API_BASE_URL } from "../lib/universities";
 
 import {
   ArrowRight,
@@ -37,18 +38,46 @@ const socialLinks = [
 export default function Footer() {
   const { handleViewChange } = useSidebar();
   const [email, setEmail] = useState("");
-  const [status, setStatus] = useState("");
+const [status, setStatus] = useState("");
+const [loading, setLoading] = useState(false);
 
-  const handleSubscribe = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!email.trim()) {
-      setStatus("Please enter a valid email address.");
-      return;
+const handleSubscribe = async (event: React.FormEvent<HTMLFormElement>) => {
+  event.preventDefault();
+
+  const trimmedEmail = email.trim();
+  if (!trimmedEmail) {
+    setStatus("Please enter a valid email address.");
+    return;
+  }
+
+  setLoading(true);
+  setStatus("");
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/newsletter/subscribe`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email: trimmedEmail }),
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "Subscription failed.");
     }
 
     setStatus("Thank you for subscribing!");
     setEmail("");
-  };
+  } catch (error) {
+    setStatus(
+      error instanceof Error
+        ? error.message
+        : "Unable to connect. Please try again later."
+    );
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <footer className="mt-12 bg-slate-950 text-slate-100">
@@ -162,11 +191,12 @@ export default function Footer() {
                   aria-label="Email address"
                 />
                 <button
-                  type="submit"
-                  className="inline-flex w-full items-center justify-center rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-slate-950  duration-200 hover:bg-amber-400 hover:shadow-[0_0_30px_rgba(234,179,8,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950"
-                >
-                  Subscribe
-                </button>
+  type="submit"
+  disabled={loading}
+  className="inline-flex w-full items-center justify-center rounded-2xl bg-amber-500 px-5 py-3 text-sm font-semibold uppercase tracking-[0.2em] text-slate-950  duration-200 hover:bg-amber-400 hover:shadow-[0_0_30px_rgba(234,179,8,0.25)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-950 disabled:cursor-not-allowed disabled:opacity-60"
+>
+  {loading ? "..." : "Subscribe"}
+</button>
               </form>
               {status ? (
                 <p className="text-sm text-slate-400" aria-live="polite">

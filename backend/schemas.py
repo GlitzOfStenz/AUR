@@ -144,8 +144,7 @@ class NewsItemResponse(BaseModel):
     published_date: datetime
     rank_change: Optional[str] = None
 
-    class Config:
-        from_attributes = True        
+    model_config = ConfigDict(from_attributes = True)    
 
 class NewsFlashResponse(BaseModel):
     data: List[NewsItemResponse]
@@ -155,7 +154,23 @@ class NewsListResponse(BaseModel):
     limit: int
     total: int
     data: List[NewsItemResponse]    
-        
+
+class ExternalNewsItem(BaseModel):
+    """
+    Shape for a single article pulled live from GNews.
+    Deliberately separate from NewsItemResponse (internal AUR news) —
+    external articles don't have university_id/rank_change etc.
+    """
+    title: str
+    description: Optional[str] = None
+    url: str
+    source: Optional[str] = None
+    published_at: Optional[datetime] = None
+    image: Optional[str] = None
+
+class ExternalNewsResponse(BaseModel):
+    data: List[ExternalNewsItem]
+
 class MethodologyVersionResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
@@ -166,6 +181,13 @@ class MethodologyVersionResponse(BaseModel):
     release_date: date
     is_current: bool
     created_at: datetime
+    
+class MethodologyVersionCreate(BaseModel):
+    version: str
+    title: str
+    description: Optional[str] = None
+    release_date: date
+    is_current: bool = False
 
 class ChatRequest(BaseModel):
     message: str = Field(..., min_length=1, max_length=500)
@@ -245,3 +267,39 @@ class UserMembershipResponse(BaseModel):
     start_date: datetime
     end_date: datetime
     status: str
+
+
+class NominationCreate(BaseModel):
+    nominee_name: str
+    nominee_email: str
+    category: str
+    department: str
+    university_id: uuid.UUID
+    justification: str
+
+
+class NominationResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: uuid.UUID
+    submitted_by_user_id: uuid.UUID
+    nominee_name: str
+    nominee_email: str
+    category: str
+    department: str
+    university_id: uuid.UUID
+    justification: str
+    documents: List[str] = []
+    status: str
+    submitted_at: datetime
+
+
+class NotificationResponse(BaseModel):
+    id: UUID
+    title: str
+    description: str
+    category: str
+    is_read: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
