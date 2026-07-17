@@ -150,7 +150,23 @@ class NewsListResponse(BaseModel):
     limit: int
     total: int
     data: List[NewsItemResponse]    
-        
+
+class ExternalNewsItem(BaseModel):
+    """
+    Shape for a single article pulled live from GNews.
+    Deliberately separate from NewsItemResponse (internal AUR news) —
+    external articles don't have university_id/rank_change etc.
+    """
+    title: str
+    description: Optional[str] = None
+    url: str
+    source: Optional[str] = None
+    published_at: Optional[datetime] = None
+    image: Optional[str] = None
+
+class ExternalNewsResponse(BaseModel):
+    data: List[ExternalNewsItem]
+
 class MethodologyVersionResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
