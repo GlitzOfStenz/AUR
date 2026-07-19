@@ -18,7 +18,7 @@ import AdminConsole from "./components/AdminConsole";
 import Login from "./components/Login";
 import UserDashboard from "./components/UserDashboard";
 import UniversitiesList from "./components/UniversitiesList";
-import Methodology from "./components/Methodology";
+// import Methodology from "./components/Methodology";
 import EventsAndAwards from "./components/EventsAndAwards";
 import FacultyStudentAwards from "./components/FacultyStudentAwards";
 import Membership from "./components/Membership";
@@ -267,7 +267,7 @@ useEffect(() => {
           {view === "analytics" && <AnalyticsDashboard />}
 
           {/* Methodology */}
-          {view === "methodology" && <Methodology />}
+          {/* {view === "methodology" && <Methodology />} */}
 
           {/* Membership */}
           {view === "membership" && <Membership />}

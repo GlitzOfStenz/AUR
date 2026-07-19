@@ -58,12 +58,12 @@ export const SIDEBAR_ITEMS: NavItem[] = [
     view: "membership",
     icon: BadgeCheck,
   },
-  {
-    id: "methodology",
-    label: "Methodology",
-    view: "methodology",
-    icon: BookOpen,
-  },
+  // {
+  //   id: "methodology",
+  //   label: "Methodology",
+  //   view: "methodology",
+  //   icon: BookOpen,
+  // },
   {
     id: "events",
     label: "Events & Awards",
@@ -88,7 +88,7 @@ export const TOP_NAV_LINKS = [
   { label: "Discovery Hub", view: "home" },
   { label: "Institution Directory", view: "universities" },
   { label: "Rankings Engine", view: "rankings" },
-  { label: "Methodology", view: "methodology" },
+  // { label: "Methodology", view: "methodology" },
   { label: "Comparison Matrix", view: "saved" },
   { label: "Membership", view: "membership" },
   { label: "Events & Awards", view: "events" },

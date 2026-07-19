@@ -717,10 +717,10 @@ export default function Homepage({
               Explore Rankings
               <ArrowRight className="h-4 w-4 ml-2 inline" />
             </button>
-            <button type="button" className="bg-transparent border-2 border-[#1A365D] text-[#1A365D] hover:bg-slate-50 font-bold rounded-lg px-8 py-3.5 text-sm transition-colors" onClick={() => onViewChange("methodology")}>
+            {/* <button type="button" className="bg-transparent border-2 border-[#1A365D] text-[#1A365D] hover:bg-slate-50 font-bold rounded-lg px-8 py-3.5 text-sm transition-colors" onClick={() => onViewChange("methodology")}>
               <BookOpen className="h-4 w-4 mr-2 inline" />
               Our Methodology
-            </button>
+            </button> */}
           </div>
 
           {/* Search */}
@@ -1098,7 +1098,7 @@ export default function Homepage({
 
             {[
               { title: "Platform", links: [["Rankings Engine", "rankings"], ["Discovery Hub", "home"], ["Analytics", "analytics"], ["Compare Institutions", "home"]] },
-              { title: "Resources", links: [["Methodology", "methodology"], ["Reports", "home"], ["Insights", "home"], ["News & Updates", "home"]] },
+              { title: "Resources", links: [["Reports", "home"], ["Insights", "home"], ["News & Updates", "home"]] },
               { title: "Company", links: [["About Us", "home"], ["Careers", "home"], ["Contact", "settings"], ["Privacy Policy", "settings"]] },
             ].map((col) => (
               <div key={col.title}>
