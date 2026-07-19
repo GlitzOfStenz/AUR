@@ -20,6 +20,7 @@ from routers import news
 from routers import methodology
 from routers import events
 from routers import notifications
+from routers import blogs
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -61,6 +62,7 @@ app.include_router(notifications.router)
 app.include_router(membership.router)
 app.include_router(faculty_student_awards.router)
 app.include_router(oauth_router)
+app.include_router(blogs.router)
 
 @app.get("/")
 def root():

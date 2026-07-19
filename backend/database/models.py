@@ -444,3 +444,26 @@ class Notification(Base):
 
     def __repr__(self) -> str:
         return f"<Notification id={self.id} title={self.title!r} is_read={self.is_read}>"
+
+class Blog(Base):
+    __tablename__ = "blogs"
+
+    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, server_default=text("gen_random_uuid()"))
+    title = Column(String(300), nullable=False)
+    slug = Column(String(300), unique=True, index=True, nullable=False)
+    category = Column(String(100), nullable=False)
+    status = Column(String(50), default="Draft", nullable=False)
+    description = Column(Text, nullable=False)
+    content = Column(Text, nullable=False)
+    cover_image = Column(String, nullable=True)
+    author = Column(String(100), nullable=True)
+    read_time = Column(String(50), nullable=True)
+    tags = Column(String, nullable=True)
+    featured = Column(Boolean, default=False, nullable=False)
+    publish_date = Column(Date, nullable=True)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    def __repr__(self) -> str:
+        return f"<Blog id={self.id} title={self.title!r} slug={self.slug!r} status={self.status!r}>"

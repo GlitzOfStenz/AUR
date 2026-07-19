@@ -1082,13 +1082,13 @@ export default function Homepage({
                     aria-label={social.label}
                     className="group"
                   >
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 hover:bg-white transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/20">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 hover:bg-white transition-colors duration-200">
                       <Image
                         src={social.imgSrc}
                         alt={social.label}
                         width={18}
                         height={18}
-                        className="object-contain filter brightness-0 invert group-hover:filter-none group-hover:brightness-100 transition-all duration-300"
+                        className="object-contain"
                       />
                     </div>
                   </a>

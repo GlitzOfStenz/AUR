@@ -4,8 +4,9 @@ import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, FileText, Send } from "lucide-react";
+import { useSidebar } from "../navigation/SidebarContext";
 import BlogImageUpload from "./BlogImageUpload";
-import { createStoredBlog } from "../../lib/blog-storage";
+import { API_BASE_URL } from "../../lib/universities";
 import type { BlogFormValues, BlogStatus } from "../../types/blog";
 
 type FormErrors = Partial<Record<keyof BlogFormValues, string>>;
@@ -32,12 +33,14 @@ function todayDateValue() {
 
 export default function BlogForm() {
   const router = useRouter();
+  const { handleViewChange } = useSidebar();
   const [values, setValues] = useState<BlogFormValues>(() => ({
     ...initialValues,
     publishDate: todayDateValue(),
   }));
   const [errors, setErrors] = useState<FormErrors>({});
   const [message, setMessage] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const tagPreview = useMemo(
     () =>
@@ -66,7 +69,7 @@ export default function BlogForm() {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleSubmit = (status: BlogStatus) => {
+  const handleSubmit = async (status: BlogStatus) => {
     setMessage(null);
 
     if (!validate()) {
@@ -74,41 +77,71 @@ export default function BlogForm() {
       return;
     }
 
-    createStoredBlog({ ...values, status }, status);
+    setIsSubmitting(true);
+    try {
+      const payload = {
+        title: values.title,
+        category: values.category,
+        description: values.description,
+        content: values.content,
+        cover_image: values.coverImage,
+        author: values.author,
+        read_time: values.readTime,
+        tags: values.tags,
+        featured: values.featured,
+        publish_date: values.publishDate || null,
+        status,
+      };
 
-    if (status === "Published") {
-      router.push("/");
-      return;
+      const response = await fetch(`${API_BASE_URL}/blogs/`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save blog post");
+      }
+
+      if (status === "Published") {
+        router.push("/");
+        return;
+      }
+
+      setMessage("Draft saved successfully.");
+      setValues({ ...initialValues, publishDate: todayDateValue(), status: "Draft" });
+    } catch (err) {
+      console.error(err);
+      setMessage("An error occurred while saving the blog post.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setMessage("Draft saved locally in this browser.");
-    setValues({ ...initialValues, publishDate: todayDateValue(), status: "Draft" });
   };
 
   return (
     <div className="max-w-5xl mx-auto w-full py-6 animate-fadeIn">
       <div className="mb-6">
-        <Link
-          href="/"
-          className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-950 dark:hover:text-cyber-yellow transition-colors group"
+        <button
+          onClick={() => handleViewChange("home")}
+          className="inline-flex items-center text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] transition-colors group"
         >
           <ArrowLeft className="h-3.5 w-3.5 mr-1.5 group-hover:-translate-x-0.5 transition-transform" />
           Back to Insights
-        </Link>
+        </button>
       </div>
 
-      <section className="border border-slate-200 dark:border-cyber-border bg-white dark:bg-cyber-dark/40 shadow-sm p-5 sm:p-8 space-y-6">
+      <section className="aur-card p-5 sm:p-8 space-y-6">
         <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <span className="text-[10px] uppercase font-bold tracking-widest text-slate-500 dark:text-slate-400">
+            <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--aur-text-muted)]">
               Editorial Console
             </span>
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white mt-1">
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-[var(--aur-text)] mt-1">
               Create Blog
             </h1>
           </div>
           {message && (
-            <p className="text-xs font-semibold text-red-700 dark:text-red-400 sm:text-right">
+            <p className="text-xs font-semibold text-red-600 sm:text-right">
               {message}
             </p>
           )}
@@ -117,33 +150,29 @@ export default function BlogForm() {
         <form className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-6" onSubmit={(event) => event.preventDefault()}>
           <div className="space-y-5">
             <div className="space-y-1.5">
-              <label htmlFor="blog-title" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Blog Title <span className="text-red-600 dark:text-red-400">*</span>
+              <label htmlFor="blog-title" className="block text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">
+                Blog Title <span className="text-red-500">*</span>
               </label>
               <input
                 id="blog-title"
                 type="text"
                 value={values.title}
                 onChange={(event) => setField("title", event.target.value)}
-                className={`w-full border bg-white dark:bg-cyber-gray px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow ${
-                  errors.title ? "border-red-400" : "border-slate-200 dark:border-slate-800"
-                }`}
+                className={`aur-input ${errors.title ? "border-red-400" : ""}`}
               />
-              {errors.title && <span className="block text-[10px] text-red-600 dark:text-red-400 font-medium">{errors.title}</span>}
+              {errors.title && <span className="block text-[10px] text-red-500 font-medium">{errors.title}</span>}
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
-                <label htmlFor="blog-category" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                  Category <span className="text-red-600 dark:text-red-400">*</span>
+                <label htmlFor="blog-category" className="block text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">
+                  Category <span className="text-red-500">*</span>
                 </label>
                 <select
                   id="blog-category"
                   value={values.category}
                   onChange={(event) => setField("category", event.target.value as BlogFormValues["category"])}
-                  className={`w-full border bg-white dark:bg-cyber-gray px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow ${
-                    errors.category ? "border-red-400" : "border-slate-200 dark:border-slate-800"
-                  }`}
+                  className={`aur-input ${errors.category ? "border-red-400" : ""}`}
                 >
                   <option value="">Select category</option>
                   {categories.map((category) => (
@@ -152,18 +181,18 @@ export default function BlogForm() {
                     </option>
                   ))}
                 </select>
-                {errors.category && <span className="block text-[10px] text-red-600 dark:text-red-400 font-medium">{errors.category}</span>}
+                {errors.category && <span className="block text-[10px] text-red-500 font-medium">{errors.category}</span>}
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="blog-status" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <label htmlFor="blog-status" className="block text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">
                   Status
                 </label>
                 <select
                   id="blog-status"
                   value={values.status}
                   onChange={(event) => setField("status", event.target.value as BlogStatus)}
-                  className="w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-gray px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow"
+                  className="aur-input"
                 >
                   <option value="Draft">Draft</option>
                   <option value="Published">Published</option>
@@ -172,35 +201,31 @@ export default function BlogForm() {
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="blog-description" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Short Description <span className="text-red-600 dark:text-red-400">*</span>
+              <label htmlFor="blog-description" className="block text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">
+                Short Description <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="blog-description"
                 rows={3}
                 value={values.description}
                 onChange={(event) => setField("description", event.target.value)}
-                className={`w-full border bg-white dark:bg-cyber-gray px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow resize-y ${
-                  errors.description ? "border-red-400" : "border-slate-200 dark:border-slate-800"
-                }`}
+                className={`aur-input resize-y ${errors.description ? "border-red-400" : ""}`}
               />
-              {errors.description && <span className="block text-[10px] text-red-600 dark:text-red-400 font-medium">{errors.description}</span>}
+              {errors.description && <span className="block text-[10px] text-red-500 font-medium">{errors.description}</span>}
             </div>
 
             <div className="space-y-1.5">
-              <label htmlFor="blog-content" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
-                Full Content <span className="text-red-600 dark:text-red-400">*</span>
+              <label htmlFor="blog-content" className="block text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">
+                Full Content <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="blog-content"
                 rows={14}
                 value={values.content}
                 onChange={(event) => setField("content", event.target.value)}
-                className={`w-full border bg-white dark:bg-cyber-gray px-4 py-3 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow resize-y ${
-                  errors.content ? "border-red-400" : "border-slate-200 dark:border-slate-800"
-                }`}
+                className={`aur-input resize-y ${errors.content ? "border-red-400" : ""}`}
               />
-              {errors.content && <span className="block text-[10px] text-red-600 dark:text-red-400 font-medium">{errors.content}</span>}
+              {errors.content && <span className="block text-[10px] text-red-500 font-medium">{errors.content}</span>}
             </div>
           </div>
 
@@ -209,7 +234,7 @@ export default function BlogForm() {
 
             <div className="grid grid-cols-1 gap-4">
               <div className="space-y-1.5">
-                <label htmlFor="blog-author" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <label htmlFor="blog-author" className="block text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">
                   Author
                 </label>
                 <input
@@ -217,12 +242,12 @@ export default function BlogForm() {
                   type="text"
                   value={values.author}
                   onChange={(event) => setField("author", event.target.value)}
-                  className="w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-gray px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow"
+                  className="aur-input"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="blog-read-time" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <label htmlFor="blog-read-time" className="block text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">
                   Read Time
                 </label>
                 <input
@@ -231,12 +256,12 @@ export default function BlogForm() {
                   placeholder="6 min read"
                   value={values.readTime}
                   onChange={(event) => setField("readTime", event.target.value)}
-                  className="w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-gray px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow"
+                  className="aur-input"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="blog-publish-date" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <label htmlFor="blog-publish-date" className="block text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">
                   Publish Date
                 </label>
                 <input
@@ -244,12 +269,12 @@ export default function BlogForm() {
                   type="date"
                   value={values.publishDate}
                   onChange={(event) => setField("publishDate", event.target.value)}
-                  className="w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-gray px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow"
+                  className="aur-input"
                 />
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="blog-tags" className="block text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+                <label htmlFor="blog-tags" className="block text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">
                   Tags
                 </label>
                 <input
@@ -258,12 +283,12 @@ export default function BlogForm() {
                   placeholder="Admissions, Rankings, Asia"
                   value={values.tags}
                   onChange={(event) => setField("tags", event.target.value)}
-                  className="w-full border border-slate-200 dark:border-slate-800 bg-white dark:bg-cyber-gray px-4 py-2.5 text-sm text-slate-900 dark:text-white focus:outline-none focus:border-slate-900 dark:focus:border-cyber-yellow"
+                  className="aur-input"
                 />
                 {tagPreview.length > 0 && (
                   <div className="flex flex-wrap gap-1.5 pt-1">
                     {tagPreview.map((tag) => (
-                      <span key={tag} className="text-[10px] font-mono border border-slate-200 dark:border-cyber-border px-2 py-0.5 text-slate-600 dark:text-slate-300">
+                      <span key={tag} className="aur-chip">
                         {tag}
                       </span>
                     ))}
@@ -272,39 +297,46 @@ export default function BlogForm() {
               </div>
             </div>
 
-            <label className="flex items-center gap-2 border border-slate-200 dark:border-slate-800 px-3 py-2.5 text-xs font-semibold text-slate-700 dark:text-slate-300">
+            <label className="flex items-center gap-2 border border-[var(--aur-border)] px-4 py-3 rounded-xl bg-[var(--aur-surface-2)] text-xs font-semibold text-[var(--aur-text)] cursor-pointer hover:bg-[var(--aur-surface-hover)] transition-colors">
               <input
                 type="checkbox"
                 checked={values.featured}
                 onChange={(event) => setField("featured", event.target.checked)}
-                className="h-4 w-4 accent-slate-900"
+                className="h-4 w-4 accent-[var(--aur-text)] cursor-pointer"
               />
               Featured
             </label>
           </aside>
 
-          <div className="lg:col-span-2 pt-2 border-t border-slate-100 dark:border-slate-800 flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
+          <div className="lg:col-span-2 pt-6 border-t border-[var(--aur-border)] flex flex-col-reverse sm:flex-row sm:justify-end gap-3">
             <Link
               href="/"
-              className="border border-slate-200 dark:border-slate-800 bg-transparent text-slate-700 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-cyber-gray hover:text-slate-900 dark:hover:text-white text-xs font-semibold px-5 py-2.5 transition-colors uppercase tracking-wider inline-flex items-center justify-center"
+              className="aur-btn-ghost text-xs font-bold px-5 py-2.5 inline-flex items-center justify-center uppercase tracking-wider"
             >
               Cancel
             </Link>
             <button
               type="button"
               onClick={() => handleSubmit("Draft")}
-              className="border border-slate-300 dark:border-slate-700 text-slate-900 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-cyber-gray text-xs font-bold px-5 py-2.5 transition-colors uppercase tracking-wider inline-flex items-center justify-center gap-2"
+              className="aur-btn-ghost text-xs font-bold px-5 py-2.5 inline-flex items-center justify-center gap-2 uppercase tracking-wider"
             >
-              <FileText className="h-3.5 w-3.5" />
+              <FileText className="h-4 w-4" />
               Save Draft
             </button>
             <button
               type="button"
+              disabled={isSubmitting}
               onClick={() => handleSubmit("Published")}
-              className="bg-slate-900 text-white dark:bg-transparent dark:border-2 dark:border-cyber-yellow dark:text-cyber-yellow dark:hover:bg-cyber-yellow dark:hover:text-cyber-black hover:bg-slate-800 text-xs font-bold px-6 py-2.5 transition-all uppercase tracking-wider inline-flex items-center justify-center gap-2"
+              className="aur-btn-primary text-xs font-bold px-6 py-2.5 inline-flex items-center justify-center gap-2 uppercase tracking-wider disabled:opacity-50"
             >
-              {values.status === "Published" ? <Check className="h-3.5 w-3.5" /> : <Send className="h-3.5 w-3.5" />}
-              Publish
+              {isSubmitting ? (
+                <span className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : values.status === "Published" ? (
+                <Check className="h-4 w-4" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
+              {isSubmitting ? "Publishing..." : "Publish"}
             </button>
           </div>
         </form>

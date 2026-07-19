@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Crown, GraduationCap, BarChart3, Search, MessageCircle, Info, Check, X, ChevronDown, User, Mail, CreditCard, CalendarDays, Lock, BookOpen, ShieldCheck, AlertCircle } from "lucide-react";
+import { Crown, BarChart3, Search, MessageCircle, Check, X, ChevronDown, User, Mail, CreditCard, CalendarDays, Lock, ShieldCheck, AlertCircle, Building, Globe, Briefcase } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { API_BASE_URL } from "../lib/universities";
 
@@ -27,10 +27,12 @@ function ApplicationModal({
 }) {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
-    studentName: "",
-    educationLevel: "",
-    targetDegree: "",
-    email: "",
+    universityName: "",
+    country: "",
+    websiteUrl: "",
+    contactName: "",
+    contactEmail: "",
+    jobTitle: "",
     cardNumber: "",
     expiry: "",
     cvv: "",
@@ -45,24 +47,26 @@ function ApplicationModal({
   // Validation logic
   const validateStep1 = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.studentName.trim()) newErrors.studentName = "Full name is required";
-    if (!formData.educationLevel) newErrors.educationLevel = "Please select your current education level";
+    if (!formData.universityName.trim()) newErrors.universityName = "University name is required";
+    if (!formData.country.trim()) newErrors.country = "Country is required";
+    if (!formData.websiteUrl.trim()) newErrors.websiteUrl = "Website URL is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const validateStep2 = () => {
     const newErrors: Record<string, string> = {};
-    if (!formData.targetDegree) newErrors.targetDegree = "Please select a target degree";
+    if (!formData.contactName.trim()) newErrors.contactName = "Contact name is required";
+    if (!formData.jobTitle.trim()) newErrors.jobTitle = "Job title is required";
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!formData.email.trim() || !emailRegex.test(formData.email)) newErrors.email = "Valid email is required";
+    if (!formData.contactEmail.trim() || !emailRegex.test(formData.contactEmail)) newErrors.contactEmail = "Valid official email is required";
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const validateStep3 = () => {
-    // Only validate if they are selecting Pro (payment needed)
-    if (selectedTier !== "Pro Student") return true;
+    // Only validate if they are selecting Premium (payment needed)
+    if (selectedTier !== "Premium Institution") return true;
 
     const newErrors: Record<string, string> = {};
     if (formData.cardNumber.replace(/\s/g, '').length < 15) newErrors.cardNumber = "Valid card number required";
@@ -75,7 +79,7 @@ function ApplicationModal({
   const handleNext = () => {
     if (step === 1 && validateStep1()) setStep(2);
     else if (step === 2 && validateStep2()) {
-      if (selectedTier === "Pro Student") {
+      if (selectedTier === "Premium Institution") {
         setStep(3);
       } else {
         setStep(4); // Skip payment if Basic
@@ -85,7 +89,7 @@ function ApplicationModal({
   };
 
   const handleBack = () => {
-    if (step === 4 && selectedTier !== "Pro Student") {
+    if (step === 4 && selectedTier !== "Premium Institution") {
       setStep(2);
     } else {
       setStep(step - 1);
@@ -134,7 +138,7 @@ function ApplicationModal({
     onClose();
     setTimeout(() => {
       setStep(1);
-      setFormData({ studentName: "", educationLevel: "", targetDegree: "", email: "", cardNumber: "", expiry: "", cvv: "" });
+      setFormData({ universityName: "", country: "", websiteUrl: "", contactName: "", contactEmail: "", jobTitle: "", cardNumber: "", expiry: "", cvv: "" });
       setErrors({});
       setIsSuccess(false);
       setSubmitError(null);
@@ -161,7 +165,7 @@ function ApplicationModal({
             {/* Header */}
             <div className="p-6 border-b border-[var(--aur-border)] flex items-center justify-between">
               <div>
-                <h3 className="font-serif text-xl font-bold text-[var(--aur-text)]">Student Sign Up</h3>
+                <h3 className="font-serif text-xl font-bold text-[var(--aur-text)]">University Partner Application</h3>
                 <p className="text-xs text-[var(--aur-text-muted)] uppercase tracking-wider font-bold mt-1">
                   Plan: <span className="text-[var(--aur-text)]">{selectedTier}</span>
                   {selectedTierData && (
@@ -183,7 +187,7 @@ function ApplicationModal({
                   </div>
                   <h4 className="text-xl font-serif font-bold text-[var(--aur-text)] mb-2">Please Log In</h4>
                   <p className="text-[var(--aur-text-secondary)] mb-6 text-sm">
-                    You need an account to subscribe to a membership plan. Please log in or create an account first.
+                    You need an account to apply for a partnership plan. Please log in or create an account first.
                   </p>
                   <button onClick={handleClose} className="w-full py-3 px-4 bg-[var(--aur-text)] text-[var(--background)] rounded-xl font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-opacity">
                     Close
@@ -196,7 +200,7 @@ function ApplicationModal({
                   </div>
                   <h4 className="text-2xl font-serif font-bold text-[var(--aur-text)] mb-2">Welcome Aboard!</h4>
                   <p className="text-[var(--aur-text-secondary)] mb-6">
-                    Your {selectedTier} account has been successfully created. Check your email for next steps.
+                    Your {selectedTier} application has been successfully submitted. Check your official email for next steps.
                   </p>
                   <button onClick={handleClose} className="w-full py-3 px-4 bg-[var(--aur-text)] text-[var(--background)] rounded-xl font-bold uppercase tracking-widest text-xs hover:opacity-90 transition-opacity">
                     Go to Dashboard
@@ -211,100 +215,124 @@ function ApplicationModal({
                     ))}
                   </div>
 
-                  {/* Step 1 */}
+                  {/* Step 1: Institution Details */}
                   {step === 1 && (
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
                       <div>
-                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--aur-text-secondary)] mb-2">Full Name</label>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--aur-text-secondary)] mb-2">University Name</label>
+                        <div className="relative">
+                          <Building className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--aur-text-muted)]" />
+                          <input
+                            type="text"
+                            value={formData.universityName}
+                            onChange={(e) => { setFormData({ ...formData, universityName: e.target.value }); setErrors({ ...errors, universityName: "" }); }}
+                            className={`w-full bg-[var(--aur-surface-2)] border ${errors.universityName ? "border-red-500 focus:border-red-500" : "border-[var(--aur-border)] focus:border-[var(--aur-text)]"} rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--aur-text)] focus:outline-none transition-colors`}
+                            placeholder="e.g. National University"
+                          />
+                        </div>
+                        <AnimatePresence>
+                          {errors.universityName && <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-500 text-xs mt-1.5 font-medium">{errors.universityName}</motion.p>}
+                        </AnimatePresence>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--aur-text-secondary)] mb-2">Country</label>
+                        <div className="relative">
+                          <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--aur-text-muted)] z-10" />
+                          <input
+                            type="text"
+                            value={formData.country}
+                            onChange={(e) => { setFormData({ ...formData, country: e.target.value }); setErrors({ ...errors, country: "" }); }}
+                            className={`w-full bg-[var(--aur-surface-2)] border ${errors.country ? "border-red-500 focus:border-red-500" : "border-[var(--aur-border)] focus:border-[var(--aur-text)]"} rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--aur-text)] focus:outline-none transition-colors`}
+                            placeholder="e.g. Japan"
+                          />
+                        </div>
+                        <AnimatePresence>
+                          {errors.country && <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-500 text-xs mt-1.5 font-medium">{errors.country}</motion.p>}
+                        </AnimatePresence>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--aur-text-secondary)] mb-2">Website URL</label>
+                        <div className="relative">
+                          <Globe className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--aur-text-muted)]" />
+                          <input
+                            type="url"
+                            value={formData.websiteUrl}
+                            onChange={(e) => { setFormData({ ...formData, websiteUrl: e.target.value }); setErrors({ ...errors, websiteUrl: "" }); }}
+                            className={`w-full bg-[var(--aur-surface-2)] border ${errors.websiteUrl ? "border-red-500 focus:border-red-500" : "border-[var(--aur-border)] focus:border-[var(--aur-text)]"} rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--aur-text)] focus:outline-none transition-colors`}
+                            placeholder="https://www.university.edu"
+                          />
+                        </div>
+                        <AnimatePresence>
+                          {errors.websiteUrl && <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-500 text-xs mt-1.5 font-medium">{errors.websiteUrl}</motion.p>}
+                        </AnimatePresence>
+                      </div>
+                    </motion.div>
+                  )}
+
+                  {/* Step 2: Contact Details */}
+                  {step === 2 && (
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--aur-text-secondary)] mb-2">Contact Person Name</label>
                         <div className="relative">
                           <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--aur-text-muted)]" />
                           <input
                             type="text"
-                            value={formData.studentName}
-                            onChange={(e) => { setFormData({ ...formData, studentName: e.target.value }); setErrors({ ...errors, studentName: "" }); }}
-                            className={`w-full bg-[var(--aur-surface-2)] border ${errors.studentName ? "border-red-500 focus:border-red-500" : "border-[var(--aur-border)] focus:border-[var(--aur-text)]"} rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--aur-text)] focus:outline-none transition-colors`}
-                            placeholder="e.g. Jane Doe"
+                            value={formData.contactName}
+                            onChange={(e) => { setFormData({ ...formData, contactName: e.target.value }); setErrors({ ...errors, contactName: "" }); }}
+                            className={`w-full bg-[var(--aur-surface-2)] border ${errors.contactName ? "border-red-500 focus:border-red-500" : "border-[var(--aur-border)] focus:border-[var(--aur-text)]"} rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--aur-text)] focus:outline-none transition-colors`}
+                            placeholder="e.g. John Smith"
                           />
                         </div>
                         <AnimatePresence>
-                          {errors.studentName && <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-500 text-xs mt-1.5 font-medium">{errors.studentName}</motion.p>}
+                          {errors.contactName && <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-500 text-xs mt-1.5 font-medium">{errors.contactName}</motion.p>}
                         </AnimatePresence>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--aur-text-secondary)] mb-2">Current Education Level</label>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--aur-text-secondary)] mb-2">Job Title / Role</label>
                         <div className="relative">
-                          <BookOpen className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--aur-text-muted)] z-10" />
-                          <select
-                            value={formData.educationLevel}
-                            onChange={(e) => { setFormData({ ...formData, educationLevel: e.target.value }); setErrors({ ...errors, educationLevel: "" }); }}
-                            className={`w-full appearance-none bg-[var(--aur-surface-2)] border ${errors.educationLevel ? "border-red-500 focus:border-red-500" : "border-[var(--aur-border)] focus:border-[var(--aur-text)]"} rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--aur-text)] focus:outline-none transition-colors`}
-                          >
-                            <option value="" disabled>Select Level</option>
-                            <option value="High School">High School</option>
-                            <option value="Undergraduate">Undergraduate</option>
-                            <option value="Graduate">Graduate</option>
-                            <option value="Professional">Professional</option>
-                          </select>
-                          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--aur-text-muted)] pointer-events-none" />
+                          <Briefcase className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--aur-text-muted)]" />
+                          <input
+                            type="text"
+                            value={formData.jobTitle}
+                            onChange={(e) => { setFormData({ ...formData, jobTitle: e.target.value }); setErrors({ ...errors, jobTitle: "" }); }}
+                            className={`w-full bg-[var(--aur-surface-2)] border ${errors.jobTitle ? "border-red-500 focus:border-red-500" : "border-[var(--aur-border)] focus:border-[var(--aur-text)]"} rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--aur-text)] focus:outline-none transition-colors`}
+                            placeholder="e.g. Director of Admissions"
+                          />
                         </div>
                         <AnimatePresence>
-                          {errors.educationLevel && <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-500 text-xs mt-1.5 font-medium">{errors.educationLevel}</motion.p>}
-                        </AnimatePresence>
-                      </div>
-                    </motion.div>
-                  )}
-
-                  {/* Step 2 */}
-                  {step === 2 && (
-                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
-                      <div>
-                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--aur-text-secondary)] mb-2">Target Degree</label>
-                        <div className="relative">
-                          <GraduationCap className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--aur-text-muted)] z-10" />
-                          <select
-                            value={formData.targetDegree}
-                            onChange={(e) => { setFormData({ ...formData, targetDegree: e.target.value }); setErrors({ ...errors, targetDegree: "" }); }}
-                            className={`w-full appearance-none bg-[var(--aur-surface-2)] border ${errors.targetDegree ? "border-red-500 focus:border-red-500" : "border-[var(--aur-border)] focus:border-[var(--aur-text)]"} rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--aur-text)] focus:outline-none transition-colors`}
-                          >
-                            <option value="" disabled>Select Target Degree</option>
-                            <option value="Bachelors">Bachelors Degree</option>
-                            <option value="Masters">Masters Degree</option>
-                            <option value="PhD">PhD / Doctorate</option>
-                            <option value="Diploma">Diploma / Certificate</option>
-                          </select>
-                          <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--aur-text-muted)] pointer-events-none" />
-                        </div>
-                        <AnimatePresence>
-                          {errors.targetDegree && <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-500 text-xs mt-1.5 font-medium">{errors.targetDegree}</motion.p>}
+                          {errors.jobTitle && <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-500 text-xs mt-1.5 font-medium">{errors.jobTitle}</motion.p>}
                         </AnimatePresence>
                       </div>
 
                       <div>
-                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--aur-text-secondary)] mb-2">Personal Email</label>
+                        <label className="block text-xs font-bold uppercase tracking-widest text-[var(--aur-text-secondary)] mb-2">Official University Email</label>
                         <div className="relative">
                           <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--aur-text-muted)]" />
                           <input
                             type="email"
-                            value={formData.email}
-                            onChange={(e) => { setFormData({ ...formData, email: e.target.value }); setErrors({ ...errors, email: "" }); }}
-                            className={`w-full bg-[var(--aur-surface-2)] border ${errors.email ? "border-red-500 focus:border-red-500" : "border-[var(--aur-border)] focus:border-[var(--aur-text)]"} rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--aur-text)] focus:outline-none transition-colors`}
-                            placeholder="name@example.com"
+                            value={formData.contactEmail}
+                            onChange={(e) => { setFormData({ ...formData, contactEmail: e.target.value }); setErrors({ ...errors, contactEmail: "" }); }}
+                            className={`w-full bg-[var(--aur-surface-2)] border ${errors.contactEmail ? "border-red-500 focus:border-red-500" : "border-[var(--aur-border)] focus:border-[var(--aur-text)]"} rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--aur-text)] focus:outline-none transition-colors`}
+                            placeholder="name@university.edu"
                           />
                         </div>
                         <AnimatePresence>
-                          {errors.email && <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-500 text-xs mt-1.5 font-medium">{errors.email}</motion.p>}
+                          {errors.contactEmail && <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="text-red-500 text-xs mt-1.5 font-medium">{errors.contactEmail}</motion.p>}
                         </AnimatePresence>
                       </div>
                     </motion.div>
                   )}
 
-                  {/* Step 3: Payment (Pro Only) — cosmetic only, not processed by backend */}
+                  {/* Step 3: Payment (Premium Only) — cosmetic only, not processed by backend */}
                   {step === 3 && (
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
                       <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-lg p-3 mb-2">
                         <p className="text-xs text-amber-800 dark:text-amber-300">
-                          Demo mode: payment details are not processed or stored. Your subscription will be activated without an actual charge.
+                          Demo mode: payment details are not processed or stored. Your institutional subscription will be activated without an actual charge.
                         </p>
                       </div>
                       <div>
@@ -340,21 +368,21 @@ function ApplicationModal({
                               maxLength={5}
                               value={formData.expiry}
                               onChange={(e) => {
-  let digits = e.target.value.replace(/\D/g, "").slice(0, 4);
-  if (digits.length >= 1) {
-    let month = digits.slice(0, 2);
-    if (digits.length >= 2) {
-      const monthNum = parseInt(month, 10);
-      if (monthNum < 1) month = "01";
-      if (monthNum > 12) month = "12";
-    }
-    const year = digits.slice(2, 4);
-    setFormData({ ...formData, expiry: digits.length > 2 ? `${month}/${year}` : month });
-  } else {
-    setFormData({ ...formData, expiry: "" });
-  }
-  setErrors({ ...errors, expiry: "" });
-}}
+                                let digits = e.target.value.replace(/\D/g, "").slice(0, 4);
+                                if (digits.length >= 1) {
+                                  let month = digits.slice(0, 2);
+                                  if (digits.length >= 2) {
+                                    const monthNum = parseInt(month, 10);
+                                    if (monthNum < 1) month = "01";
+                                    if (monthNum > 12) month = "12";
+                                  }
+                                  const year = digits.slice(2, 4);
+                                  setFormData({ ...formData, expiry: digits.length > 2 ? `${month}/${year}` : month });
+                                } else {
+                                  setFormData({ ...formData, expiry: "" });
+                                }
+                                setErrors({ ...errors, expiry: "" });
+                              }}
                               className={`w-full bg-[var(--aur-surface-2)] border ${errors.expiry ? "border-red-500 focus:border-red-500" : "border-[var(--aur-border)] focus:border-[var(--aur-text)]"} rounded-xl py-3 pl-10 pr-4 text-sm text-[var(--aur-text)] focus:outline-none transition-colors`}
                               placeholder="MM/YY"
                             />
@@ -392,20 +420,28 @@ function ApplicationModal({
                         <h4 className="text-sm font-bold text-[var(--aur-text)] mb-3 uppercase tracking-widest">Review Details</h4>
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-[var(--aur-text-muted)]">Name</span>
-                            <span className="font-medium text-[var(--aur-text)] text-right">{formData.studentName}</span>
+                            <span className="text-[var(--aur-text-muted)]">Institution</span>
+                            <span className="font-medium text-[var(--aur-text)] text-right">{formData.universityName}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-[var(--aur-text-muted)]">Goal</span>
-                            <span className="font-medium text-[var(--aur-text)] text-right">{formData.targetDegree}</span>
+                            <span className="text-[var(--aur-text-muted)]">Country</span>
+                            <span className="font-medium text-[var(--aur-text)] text-right">{formData.country}</span>
+                          </div>
+                          <div className="flex justify-between mt-2 pt-2 border-t border-[var(--aur-border)]">
+                            <span className="text-[var(--aur-text-muted)]">Contact Name</span>
+                            <span className="font-medium text-[var(--aur-text)] text-right">{formData.contactName}</span>
                           </div>
                           <div className="flex justify-between">
+                            <span className="text-[var(--aur-text-muted)]">Role</span>
+                            <span className="font-medium text-[var(--aur-text)] text-right">{formData.jobTitle}</span>
+                          </div>
+                          <div className="flex justify-between mt-2 pt-2 border-t border-[var(--aur-border)]">
                             <span className="text-[var(--aur-text-muted)]">Plan</span>
                             <span className="font-medium text-[var(--aur-text)] text-right">
                               {selectedTier}{selectedTierData && ` — $${selectedTierData.price.toLocaleString()}/year`}
                             </span>
                           </div>
-                          {selectedTier === "Pro Student" && (
+                          {selectedTier === "Premium Institution" && (
                             <div className="flex justify-between">
                               <span className="text-[var(--aur-text-muted)]">Payment</span>
                               <span className="font-medium text-[var(--aur-text)] text-right">•••• {formData.cardNumber.slice(-4)}</span>
@@ -446,7 +482,7 @@ function ApplicationModal({
                 >
                   {isSubmitting ? (
                     <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity, duration: 1, ease: "linear" }} className="w-5 h-5 border-2 border-[var(--background)] border-t-transparent rounded-full" />
-                  ) : step === 4 ? "Complete Sign Up" : "Continue"}
+                  ) : step === 4 ? "Submit Application" : "Continue"}
                 </button>
               </div>
             )}
@@ -460,20 +496,20 @@ function ApplicationModal({
 // --- Comparison Matrix Component ---
 function FeatureComparisonMatrix() {
   const features = [
-    { name: "Access Official Rankings", guest: true, basic: true, pro: true },
-    { name: "Standard Search & Filters", guest: true, basic: true, pro: true },
-    { name: "Save Universities to List", guest: false, basic: true, pro: true },
-    { name: "Personalized University Matching", guest: false, basic: false, pro: true },
-    { name: "Admission Probability Predictor", guest: false, basic: false, pro: true },
-    { name: "Scholarships Database Access", guest: false, basic: false, pro: true },
-    { name: "Direct Alumni Chat", guest: false, basic: false, pro: true },
+    { name: "Standard Profile Listing", guest: true, basic: true, pro: true },
+    { name: "Verified Institution Badge", guest: false, basic: true, pro: true },
+    { name: "Institutional Data Update Submissions", guest: false, basic: true, pro: true },
+    { name: "Priority in Search Results (Boost Rank Visibility)", guest: false, basic: false, pro: true },
+    { name: "Student Intent & Analytics Dashboard", guest: false, basic: false, pro: true },
+    { name: "Featured University Profile", guest: false, basic: false, pro: true },
+    { name: "Direct Student Messaging & Lead Generation", guest: false, basic: false, pro: true },
   ];
 
   return (
     <div className="max-w-4xl mx-auto mt-24 px-4 md:px-0">
       <div className="text-center mb-10">
-        <h3 className="font-serif text-3xl font-bold text-[var(--aur-text)] mb-3">Compare Plans</h3>
-        <p className="text-[var(--aur-text-secondary)]">Discover the right toolkit for your academic journey.</p>
+        <h3 className="font-serif text-3xl font-bold text-[var(--aur-text)] mb-3">Compare Partner Plans</h3>
+        <p className="text-[var(--aur-text-secondary)]">Discover the right toolkit to boost your university's global reach.</p>
       </div>
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
@@ -482,7 +518,7 @@ function FeatureComparisonMatrix() {
               <th className="p-4 border-b border-[var(--aur-border)] text-[var(--aur-text-secondary)] font-bold uppercase tracking-widest text-xs w-2/5">Feature</th>
               <th className="p-4 border-b border-[var(--aur-border)] text-center text-[var(--aur-text)] font-bold text-lg">Guest</th>
               <th className="p-4 border-b border-[var(--aur-border)] text-center text-[var(--aur-text)] font-bold text-lg">Basic</th>
-              <th className="p-4 border-b border-[var(--aur-border)] text-center text-[var(--aur-text)] font-bold text-lg bg-[var(--aur-surface-2)] rounded-t-xl">Pro</th>
+              <th className="p-4 border-b border-[var(--aur-border)] text-center text-[var(--aur-text)] font-bold text-lg bg-[var(--aur-surface-2)] rounded-t-xl">Premium</th>
             </tr>
           </thead>
           <tbody>
@@ -511,20 +547,20 @@ function FeatureComparisonMatrix() {
 function FAQSection() {
   const faqs = [
     {
-      q: "Does Pro Student guarantee university admission?",
-      a: "No. The Admission Probability Predictor is an AI-driven tool based on historical data and current trends, but it does not guarantee admission to any institution."
+      q: "Does Premium guarantee a higher rank?",
+      a: "While it does not alter our objective ranking methodology, Premium significantly boosts your visibility and highlighting in search results, helping you attract more top-tier students."
     },
     {
-      q: "How does the Personalized Matching work?",
-      a: "We analyze your academic background, test scores, target degree, and preferences to recommend institutions where you have the strongest fit and highest probability of success."
+      q: "Who can apply for an institutional membership?",
+      a: "Official representatives (e.g., Deans, Admissions Officers, or Marketing Directors) of recognized universities in Asia."
     },
     {
-      q: "Can I cancel my Pro Student subscription anytime?",
-      a: "Yes! You can cancel your subscription at any time. You will continue to have access to Pro features until the end of your billing cycle."
+      q: "Can I cancel my Premium Institution subscription anytime?",
+      a: "Yes! You can cancel your subscription at any time. You will continue to have access to Premium features until the end of your billing cycle."
     },
     {
-      q: "What is included in the Direct Alumni Chat?",
-      a: "Pro students can securely message verified alumni from participating institutions to ask about campus life, academic rigor, and post-graduation outcomes."
+      q: "What is included in the Student Intent & Analytics Dashboard?",
+      a: "You get access to anonymized data showing search trends, how often your university is viewed, and insights into prospective students' preferences to aid your recruitment efforts."
     }
   ];
 
@@ -567,7 +603,7 @@ function FAQSection() {
 // --- Main Membership Component ---
 export default function Membership() {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [selectedTier, setSelectedTier] = useState("Basic Student");
+  const [selectedTier, setSelectedTier] = useState("Basic Institution");
   const [selectedTierData, setSelectedTierData] = useState<MembershipTierData | null>(null);
 
   const [tiers, setTiers] = useState<MembershipTierData[]>([]);
@@ -609,34 +645,16 @@ export default function Membership() {
         {/* Header */}
         <div className="mb-12 text-center">
           <h1 className="font-serif text-4xl md:text-5xl font-bold text-[var(--aur-text)] mb-4">
-            Student Portal Access
+            University Partner Portal
           </h1>
           <p className="text-lg text-[var(--aur-text-secondary)] max-w-2xl mx-auto px-4">
-            Unlock advanced university matching, admission predictions, and tools to navigate your academic journey.
+            Boost your institution's visibility, attract top global talent, and access advanced analytics.
           </p>
         </div>
 
-        {/* Disclaimer Alert */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2 }}
-          className="mb-16 bg-[var(--aur-surface-2)] border border-[var(--aur-border)] rounded-2xl p-6 flex gap-4 max-w-4xl mx-auto mx-4 md:mx-auto"
-        >
-          <div className="shrink-0 mt-0.5 text-[var(--aur-text)]">
-            <Info className="w-6 h-6" />
-          </div>
-          <div>
-            <h3 className="font-bold text-[var(--aur-text)] mb-1 uppercase tracking-wider text-xs">For Students & Applicants</h3>
-            <p className="text-sm text-[var(--aur-text-secondary)] leading-relaxed">
-              These plans are designed for students. University partner accounts are coming soon.
-            </p>
-          </div>
-        </motion.div>
-
         {/* Tiers */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto px-4 md:px-0">
-          {/* Tier 1: Basic Student */}
+          {/* Tier 1: Basic Institution */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -644,15 +662,15 @@ export default function Membership() {
             className="bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-3xl p-8 shadow-[var(--aur-shadow-sm)] flex flex-col relative"
           >
             <div className="mb-6">
-              <h2 className="text-2xl font-serif font-bold text-[var(--aur-text)]">Basic Student</h2>
-              <p className="text-[var(--aur-text-muted)] text-sm mt-2">Essential access to explore global rankings.</p>
+              <h2 className="text-2xl font-serif font-bold text-[var(--aur-text)]">Basic Institution</h2>
+              <p className="text-[var(--aur-text-muted)] text-sm mt-2">Essential visibility for recognized universities.</p>
             </div>
             <div className="text-3xl font-bold font-mono text-[var(--aur-text)] mb-8">
               {tiersLoading ? "..." : `$${basicTier?.price.toLocaleString() ?? "999"}`}<span className="text-sm text-[var(--aur-text-muted)] font-sans"> / year</span>
             </div>
 
             <ul className="space-y-5 mb-8 flex-1">
-              {(basicTier?.benefits ?? ["Profile Verification Badge", "Institutional Data Update Submissions"]).map((benefit) => (
+              {(basicTier?.benefits ?? ["Profile Verification Badge", "Institutional Data Update Submissions", "Standard Search Listing"]).map((benefit) => (
                 <li key={benefit} className="flex items-start gap-4">
                  <ShieldCheck className="w-5 h-5 text-[var(--aur-text-muted)] shrink-0 mt-0.5" />
                   <span className="text-sm font-medium text-[var(--aur-text-secondary)]">{benefit}</span>
@@ -661,15 +679,15 @@ export default function Membership() {
             </ul>
 
             <button
-              onClick={() => openApplication("Basic Student", basicTier)}
+              onClick={() => openApplication("Basic Institution", basicTier)}
               disabled={tiersLoading || !basicTier}
               className="w-full py-4 px-6 rounded-xl border border-[var(--aur-border-strong)] bg-transparent hover:bg-[var(--aur-surface-hover)] text-[var(--aur-text)] font-bold text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {tiersLoading ? "Loading..." : `Subscribe — $${basicTier?.price.toLocaleString() ?? "999"}/year`}
+              {tiersLoading ? "Loading..." : `Apply — $${basicTier?.price.toLocaleString() ?? "999"}/year`}
             </button>
           </motion.div>
 
-          {/* Tier 2: Premium / Pro Student */}
+          {/* Tier 2: Premium Institution */}
           <motion.div
             initial={{ opacity: 0, x: 30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -684,39 +702,39 @@ export default function Membership() {
             </div>
             <div className="mb-6">
               <h2 className="text-2xl font-serif font-bold text-[var(--background)] flex items-center gap-2">
-                Pro Student <Crown className="w-5 h-5" />
+                Premium Institution <Crown className="w-5 h-5" />
               </h2>
-              <p className="text-[var(--background)]/70 text-sm mt-2">AI predictions and premium tools to secure your future.</p>
+              <p className="text-[var(--background)]/70 text-sm mt-2">Maximum exposure and powerful recruitment tools.</p>
             </div>
             <div className="text-3xl font-bold font-mono text-[var(--background)] mb-8">
-              {tiersLoading ? "..." : `$${premiumTier?.price.toLocaleString() ?? "2,999"}`}<span className="text-sm text-[var(--background)]/70 font-sans"> / year</span>
+              {tiersLoading ? "..." : `$${premiumTier?.price.toLocaleString() ?? "4,999"}`}<span className="text-sm text-[var(--background)]/70 font-sans"> / year</span>
             </div>
 
             <ul className="space-y-5 mb-8 flex-1">
               <li className="flex items-start gap-4">
                 <Search className="w-5 h-5 text-[var(--background)]/70 shrink-0 mt-0.5" />
-                <span className="text-sm font-medium text-[var(--background)]/90">Personalized University Matching</span>
+                <span className="text-sm font-medium text-[var(--background)]/90">Priority in Search Results (Boost Rank Visibility)</span>
               </li>
               <li className="flex items-start gap-4">
                 <BarChart3 className="w-5 h-5 text-[var(--background)]/70 shrink-0 mt-0.5" />
-                <span className="text-sm font-medium text-[var(--background)]/90">Admission Probability Predictor</span>
+                <span className="text-sm font-medium text-[var(--background)]/90">Student Intent & Analytics Dashboard</span>
               </li>
               <li className="flex items-start gap-4">
-                <GraduationCap className="w-5 h-5 text-[var(--background)]/70 shrink-0 mt-0.5" />
-                <span className="text-sm font-medium text-[var(--background)]/90">Scholarship Opportunities Database</span>
+                <Building className="w-5 h-5 text-[var(--background)]/70 shrink-0 mt-0.5" />
+                <span className="text-sm font-medium text-[var(--background)]/90">Featured University Profile</span>
               </li>
               <li className="flex items-start gap-4">
                 <MessageCircle className="w-5 h-5 text-[var(--background)]/70 shrink-0 mt-0.5" />
-                <span className="text-sm font-medium text-[var(--background)]/90">Direct Alumni Chat Access</span>
+                <span className="text-sm font-medium text-[var(--background)]/90">Direct Student Messaging & Lead Generation</span>
               </li>
             </ul>
 
             <button
-              onClick={() => openApplication("Pro Student", premiumTier)}
+              onClick={() => openApplication("Premium Institution", premiumTier)}
               disabled={tiersLoading || !premiumTier}
               className="w-full py-4 px-6 rounded-xl bg-[var(--background)] hover:opacity-90 text-[var(--aur-text)] font-bold text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] dark:shadow-[0_0_20px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {tiersLoading ? "Loading..." : "Upgrade to Pro"}
+              {tiersLoading ? "Loading..." : "Apply for Premium"}
             </button>
           </motion.div>
         </div>

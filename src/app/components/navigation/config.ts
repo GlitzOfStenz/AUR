@@ -10,6 +10,7 @@ import {
   Calendar,
   Award,
   BadgeCheck,
+  FileText,
 } from "lucide-react";
 
 export interface NavItem {
@@ -81,6 +82,13 @@ export const SIDEBAR_ITEMS: NavItem[] = [
     label: "Settings",
     view: "settings",
     icon: Settings,
+  },
+  {
+    id: "create-blog",
+    label: "Create Blog",
+    view: "create-blog",
+    icon: FileText,
+    badge: "New",
   },
 ];
 
