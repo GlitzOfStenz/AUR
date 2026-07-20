@@ -202,7 +202,7 @@ useEffect(() => {
       <div className="flex-grow flex w-full">
         
         {/* Collapsible Left Sidebar — shown on non-home views */}
-        {showSidebar && <Sidebar />}
+        {/* {showSidebar && <Sidebar />} */}
 
         {/* Main Content Area — Full Width */}
         <main
