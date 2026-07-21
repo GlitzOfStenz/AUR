@@ -20,9 +20,7 @@
 ### Google Cloud Console must have
 - Authorized redirect URI: `https://aur-38ce.onrender.com/auth/google/callback`
 - Authorized JS origin: `https://aur-tau.vercel.app`
-
-GitHub OAuth: still decorative (button has no onClick). Needs GitHub app credentials.
-
+GitHub OAuth: Removed from frontend UI (Google is the sole OAuth provider).
 
 
 

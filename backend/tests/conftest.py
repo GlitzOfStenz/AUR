@@ -33,8 +33,11 @@ async def init_db():
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
     yield
-    async with test_engine.begin() as conn:
-        await conn.run_sync(Base.metadata.drop_all)
+    try:
+        async with test_engine.begin() as conn:
+            await conn.run_sync(Base.metadata.drop_all)
+    except Exception:
+        pass
 
 async def override_get_db():
     async with TestAsyncSessionLocal() as session:

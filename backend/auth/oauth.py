@@ -53,7 +53,15 @@ async def find_or_create_oauth_user(db: AsyncSession, email: str, first_name: st
 
 @router.get("/google/login")
 async def google_login(request: Request):
-    redirect_uri = request.url_for("google_callback")
+    if not os.getenv("GOOGLE_CLIENT_ID") or not os.getenv("GOOGLE_CLIENT_SECRET"):
+        from fastapi import HTTPException
+        raise HTTPException(
+            status_code=500,
+            detail="Google OAuth client credentials are not configured on the backend server environment."
+        )
+    redirect_uri = str(request.url_for("google_callback"))
+    if redirect_uri.startswith("http://") and "localhost" not in redirect_uri and "127.0.0.1" not in redirect_uri:
+        redirect_uri = redirect_uri.replace("http://", "https://", 1)
     return await oauth.google.authorize_redirect(request, redirect_uri)
 
 

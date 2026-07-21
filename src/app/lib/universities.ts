@@ -1,7 +1,7 @@
 import type { University } from "../data";
 
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_AUR_API_BASE_URL ?? "http://127.0.0.1:8000";
+  process.env.NEXT_PUBLIC_AUR_API_BASE_URL ?? "https://aur-38ce.onrender.com";
 
 const FALLBACK_CAMPUS_PHOTOS = [
   "https://images.unsplash.com/photo-1562774053-f5a02f6da861?auto=format&fit=crop&w=800&q=80",
