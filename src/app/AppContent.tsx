@@ -186,6 +186,7 @@ useEffect(() => {
 
   const handleUniversitySelect = (uniId: string) => {
     setSelectedUniId(uniId);
+    handleViewChange("university-profile");
   };
 
   const handleBackToRankings = () => {
@@ -243,8 +244,6 @@ useEffect(() => {
       router.push("?view=login&mode=login");
     }
   };
-
-  const showSidebar = view !== "home" && view !== "login" && view !== "admin";
 
   return (
     <div className={`${view === "home" ? "bg-gradient-to-b from-amber-50/50 via-white to-blue-50 dark:bg-none dark:bg-cyber-black" : "aur-page"} flex min-h-screen flex-col transition-colors duration-300`}>

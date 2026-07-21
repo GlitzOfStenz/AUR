@@ -22,10 +22,12 @@ export default function AppLayout({ children }: AppLayoutProps) {
     handleRemoveCompare,
     handleClearCompare,
     setSelectedUniId,
+    handleViewChange,
   } = useSidebar();
 
   const handleUniversitySelect = (uniId: string) => {
     setSelectedUniId(uniId);
+    handleViewChange("university-profile");
   };
 
   return (
