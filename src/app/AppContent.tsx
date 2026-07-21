@@ -200,7 +200,50 @@ useEffect(() => {
   const savedUniversities = universities.filter((u) => savedUniIds.includes(u.id));
 
   // Show sidebar for non-home views
-  const showSidebar = view !== "home" && view !== "login";
+  const showSidebar = view !== "home" && view !== "login" && view !== "admin";
+  useEffect(() => {
+    const syncAuth = () => {
+      setIsAuthenticated(Boolean(sessionStorage.getItem("aur_access_token")));
+      setAuthReady(true);
+    };
+
+    syncAuth();
+    window.addEventListener("aur-auth-change", syncAuth);
+    return () => window.removeEventListener("aur-auth-change", syncAuth);
+  }, []);
+
+  useEffect(() => {
+    if (authReady && !isAuthenticated && activeView !== "home" && activeView !== "login") {
+      router.replace("?view=home");
+    }
+  }, [activeView, authReady, isAuthenticated, router]);
+
+  const openAuth = (mode: "login" | "signup") => {
+    router.push(`?view=login&mode=${mode}`);
+  };
+
+  const handleSignOut = async () => {
+    const refreshToken = sessionStorage.getItem("aur_refresh_token");
+
+    try {
+      if (refreshToken) {
+        await fetch(`${API_BASE_URL}/auth/logout`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refresh_token: refreshToken }),
+        });
+      }
+    } catch {
+      // Local session cleanup must still complete if the API is unavailable.
+    } finally {
+      sessionStorage.removeItem("aur_access_token");
+      sessionStorage.removeItem("aur_refresh_token");
+      localStorage.removeItem("aur_logged_in");
+      window.dispatchEvent(new Event("aur-auth-change"));
+      router.push("?view=login&mode=login");
+    }
+  };
+
   useEffect(() => {
     const syncAuth = () => {
       setIsAuthenticated(Boolean(sessionStorage.getItem("aur_access_token")));
@@ -249,7 +292,6 @@ useEffect(() => {
   return (
     <div className={`${view === "home" ? "bg-gradient-to-b from-amber-50/50 via-white to-blue-50 dark:bg-none dark:bg-cyber-black" : "aur-page"} flex min-h-screen flex-col transition-colors duration-300`}>
       {/* Top Navigation Bar */}
-      {view !== "login" && <Navbar />}
       {view !== "login" && view !== "admin" && (
         <Navbar
           isAuthenticated={isAuthenticated}
