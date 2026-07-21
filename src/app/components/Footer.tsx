@@ -11,8 +11,8 @@ import {
 } from "lucide-react";
 
 const exploreLinks = [
-  { label: "Universities", view: "rankings" },
-  { label: "Countries", view: "rankings" },
+  { label: "Universities", view: "universities" },
+  { label: "Countries", view: "countries" },
   { label: "Scholarships", missing: true },
   { label: "Rankings", view: "rankings" },
   { label: "Compare Universities", view: "saved" },

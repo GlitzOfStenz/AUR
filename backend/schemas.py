@@ -258,6 +258,15 @@ class MembershipTierResponse(BaseModel):
 
 class MembershipSubscribeRequest(BaseModel):
     tier_id: uuid.UUID
+    university_name: str
+    country: str
+    website_url: str
+    contact_name: str
+    job_title: str
+    contact_email: str
+    card_number: str
+    expiry: str
+    cvv: str
 
 
 class UserMembershipResponse(BaseModel):
@@ -300,6 +309,46 @@ class NotificationResponse(BaseModel):
     category: str
     is_read: bool
     created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# --- Blog Schemas ---
+class BlogBase(BaseModel):
+    title: str
+    category: str
+    status: str = "Draft"
+    description: str
+    content: str
+    cover_image: Optional[str] = None
+    author: Optional[str] = None
+    read_time: Optional[str] = None
+    tags: Optional[str] = None
+    featured: bool = False
+    publish_date: Optional[datetime] = None
+
+class BlogCreate(BlogBase):
+    slug: Optional[str] = None
+
+class BlogUpdate(BaseModel):
+    title: Optional[str] = None
+    category: Optional[str] = None
+    status: Optional[str] = None
+    description: Optional[str] = None
+    content: Optional[str] = None
+    cover_image: Optional[str] = None
+    author: Optional[str] = None
+    read_time: Optional[str] = None
+    tags: Optional[str] = None
+    featured: Optional[bool] = None
+    publish_date: Optional[datetime] = None
+    slug: Optional[str] = None
+
+class BlogResponse(BlogBase):
+    id: UUID
+    slug: str
+    created_at: datetime
+    updated_at: datetime
 
     class Config:
         from_attributes = True

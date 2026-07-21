@@ -497,7 +497,12 @@ export default function Homepage({
     "/university_images/China/Tsinghua University image.jpg",
     "/university_images/Singapore/National University of Singapore image.jpg",
     "/university_images/Hong-kong/The University of Hong Kong image.jpg",
-    "/university_images/South-Korea/KAIST image.jpg"
+    "/university_images/South-Korea/KAIST image.jpg",
+    "/hero/hero_new_1.png",
+    "/hero/hero_new_2.jpg",
+    "/hero/hero_new_3.png",
+    "/hero/hero_new_4.png",
+    "/hero/hero_new_5.jpg"
   ], []);
   const [currentHeroBg, setCurrentHeroBg] = useState(0);
 
@@ -1097,8 +1102,8 @@ export default function Homepage({
             </div>
 
             {[
-              { title: "Platform", links: [["Rankings Engine", "rankings"], ["Discovery Hub", "home"], ["Analytics", "analytics"], ["Compare Institutions", "home"]] },
-              { title: "Resources", links: [["Methodology", "methodology"], ["Reports", "home"], ["Insights", "home"], ["News & Updates", "home"]] },
+              { title: "Platform", links: [["Rankings Engine", "rankings"], ["Discovery Hub", "universities"], ["Analytics", "analytics"], ["Compare Institutions", "saved"]] },
+              { title: "Resources", links: [["Methodology", "methodology"], ["Reports", "analytics"], ["Insights", "home"], ["News & Updates", "events"]] },
               { title: "Company", links: [["About Us", "home"], ["Careers", "home"], ["Contact", "settings"], ["Privacy Policy", "settings"]] },
             ].map((col) => (
               <div key={col.title}>
@@ -1109,7 +1114,7 @@ export default function Homepage({
                       <button
                         type="button"
                         onClick={() => onViewChange(view)}
-                        className="text-sm text-blue-100/70 hover:text-white hover:translate-x-1 transition-all flex items-center gap-2"
+                        className="text-sm text-left justify-start text-blue-100/70 hover:text-white hover:translate-x-1 transition-all flex items-center gap-2 w-full"
                       >
                         {label}
                       </button>

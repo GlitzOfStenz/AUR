@@ -5,9 +5,9 @@ from typing import List
 from uuid import UUID
 import re
 
-from ..database.engine import get_db
-from ..database.models import Blog
-from ..schemas import BlogCreate, BlogUpdate, BlogResponse
+from database.connections import get_db
+from database.models import Blog
+from schemas import BlogCreate, BlogUpdate, BlogResponse
 
 router = APIRouter(
     prefix="/blogs",

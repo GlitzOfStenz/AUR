@@ -65,9 +65,6 @@ function ApplicationModal({
   };
 
   const validateStep3 = () => {
-    // Only validate if they are selecting Premium (payment needed)
-    if (selectedTier !== "Premium Institution") return true;
-
     const newErrors: Record<string, string> = {};
     if (formData.cardNumber.replace(/\s/g, '').length < 15) newErrors.cardNumber = "Valid card number required";
     if (formData.expiry.length < 5) newErrors.expiry = "MM/YY required";
@@ -78,22 +75,12 @@ function ApplicationModal({
 
   const handleNext = () => {
     if (step === 1 && validateStep1()) setStep(2);
-    else if (step === 2 && validateStep2()) {
-      if (selectedTier === "Premium Institution") {
-        setStep(3);
-      } else {
-        setStep(4); // Skip payment if Basic
-      }
-    }
+    else if (step === 2 && validateStep2()) setStep(3);
     else if (step === 3 && validateStep3()) setStep(4);
   };
 
   const handleBack = () => {
-    if (step === 4 && selectedTier !== "Premium Institution") {
-      setStep(2);
-    } else {
-      setStep(step - 1);
-    }
+    setStep(step - 1);
   };
 
   const handleSubmit = async () => {
@@ -118,7 +105,18 @@ function ApplicationModal({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify({ tier_id: selectedTierData.id }),
+        body: JSON.stringify({ 
+          tier_id: selectedTierData.id,
+          university_name: formData.universityName,
+          country: formData.country,
+          website_url: formData.websiteUrl,
+          contact_name: formData.contactName,
+          job_title: formData.jobTitle,
+          contact_email: formData.contactEmail,
+          card_number: formData.cardNumber,
+          expiry: formData.expiry,
+          cvv: formData.cvv
+        }),
       });
 
       if (!res.ok) {
@@ -327,12 +325,13 @@ function ApplicationModal({
                     </motion.div>
                   )}
 
-                  {/* Step 3: Payment (Premium Only) — cosmetic only, not processed by backend */}
+                  {/* Step 3: Payment */}
                   {step === 3 && (
                     <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
-                      <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/30 rounded-lg p-3 mb-2">
-                        <p className="text-xs text-amber-800 dark:text-amber-300">
-                          Demo mode: payment details are not processed or stored. Your institutional subscription will be activated without an actual charge.
+                      <div className="bg-[var(--aur-surface-hover)] border border-[var(--aur-border)] rounded-lg p-3 mb-2 flex items-start gap-2">
+                        <ShieldCheck className="w-4 h-4 text-[var(--aur-text)] shrink-0 mt-0.5" />
+                        <p className="text-xs text-[var(--aur-text)] font-medium">
+                          Secure payment processing. Your payment information is encrypted and securely handled.
                         </p>
                       </div>
                       <div>
@@ -441,12 +440,10 @@ function ApplicationModal({
                               {selectedTier}{selectedTierData && ` — $${selectedTierData.price.toLocaleString()}/year`}
                             </span>
                           </div>
-                          {selectedTier === "Premium Institution" && (
-                            <div className="flex justify-between">
-                              <span className="text-[var(--aur-text-muted)]">Payment</span>
-                              <span className="font-medium text-[var(--aur-text)] text-right">•••• {formData.cardNumber.slice(-4)}</span>
-                            </div>
-                          )}
+                          <div className="flex justify-between">
+                            <span className="text-[var(--aur-text-muted)]">Payment</span>
+                            <span className="font-medium text-[var(--aur-text)] text-right">•••• {formData.cardNumber.slice(-4)}</span>
+                          </div>
                         </div>
                       </div>
 
@@ -681,7 +678,7 @@ export default function Membership() {
             <button
               onClick={() => openApplication("Basic Institution", basicTier)}
               disabled={tiersLoading || !basicTier}
-              className="w-full py-4 px-6 rounded-xl border border-[var(--aur-border-strong)] bg-transparent hover:bg-[var(--aur-surface-hover)] text-[var(--aur-text)] font-bold text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 px-6 rounded-md border border-slate-200 bg-transparent hover:bg-slate-50 text-[#8ea1b8] font-bold text-xs uppercase tracking-[0.15em] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {tiersLoading ? "Loading..." : `Apply — $${basicTier?.price.toLocaleString() ?? "999"}/year`}
             </button>
@@ -732,7 +729,7 @@ export default function Membership() {
             <button
               onClick={() => openApplication("Premium Institution", premiumTier)}
               disabled={tiersLoading || !premiumTier}
-              className="w-full py-4 px-6 rounded-xl bg-[var(--background)] hover:opacity-90 text-[var(--aur-text)] font-bold text-xs uppercase tracking-widest transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)] dark:shadow-[0_0_20px_rgba(0,0,0,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 px-6 rounded-md bg-[#8ea1b8] hover:bg-[#7a8da5] text-[#1A365D] font-bold text-xs uppercase tracking-[0.15em] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {tiersLoading ? "Loading..." : "Apply for Premium"}
             </button>

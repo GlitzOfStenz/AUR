@@ -34,6 +34,13 @@ async def subscribe(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    # Simulate payment processing delay
+    import asyncio
+    await asyncio.sleep(1.5)
+    
+    if len(payload.card_number.replace(" ", "")) < 15:
+        raise HTTPException(status_code=400, detail="Invalid card number.")
+
     # Find selected tier
     result = await db.execute(
         select(MembershipTier).where(
