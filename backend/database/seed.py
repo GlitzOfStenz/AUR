@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from database.connections import AsyncSessionLocal, redis_client
-from database.models import RankingScore, University, MembershipTier
+from database.models import RankingScore, University
 
 # need to change after the original data is added
 DATA_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "qs_asia_2026.xlsx")
