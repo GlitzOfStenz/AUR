@@ -21,7 +21,7 @@ database_url = os.getenv(
 )
 
 database_url = database_url.replace("postgresql+asyncpg", "postgresql+psycopg2")
-
+database_url = database_url.replace("ssl=require", "sslmode=require")
 config.set_main_option("sqlalchemy.url", database_url)
 
 # logging

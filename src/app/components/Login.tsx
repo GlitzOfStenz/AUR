@@ -159,14 +159,10 @@ export default function Login() {
     setLoading(true);
 
     try {
-      // Split full name into first/last for backend, which expects both separately
-      const [firstName, ...rest] = name.trim().split(" ");
-      const lastName = rest.join(" ") || firstName;
-
       const endpoint = isLogin ? `${API_BASE_URL}/auth/login` : `${API_BASE_URL}/auth/register`;
       const payload = isLogin
         ? { email: email.trim(), password }
-        : { first_name: firstName, last_name: lastName, email: email.trim(), password };
+        : { full_name: name.trim(), email: email.trim(), password };
 
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000);

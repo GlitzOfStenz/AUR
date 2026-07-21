@@ -5,39 +5,14 @@ import { X, Bot, Send, Sparkles, Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 
 import { useSidebar } from "./navigation/SidebarContext";
+import { API_BASE_URL } from "../lib/universities";
 
-// ─── Types & Mock Intelligence ────────────────────────────────────────────────
+// ─── Types ────────────────────────────────────────────────────────────────
 
 interface Message {
   id: string;
   role: "user" | "assistant";
   content: string;
-}
-
-const MOCK_RESPONSES: Record<string, string> = {
-  default:
-    "I can help you explore university rankings, compare institutions, and understand academic metrics across Asia. What would you like to know?",
-  ranking:
-    "Asia's top-ranked universities include Tsinghua University (China), University of Tokyo (Japan), and National University of Singapore — ranked on citations, research output, employability, and international diversity.",
-  medical:
-    "For MBBS programs in Asia, Uzbekistan, China, and Russia are popular destinations. Many offer English-medium programs at significantly lower tuition than Western countries.",
-  compare:
-    "Use the Comparison Suite (dock at the bottom) to select up to 4 universities side-by-side and view detailed metric breakdowns for citations, research, and employability.",
-  cost:
-    "Tuition ranges from ~$2,000/year in Uzbekistan to $40,000+/year in Singapore and Japan. The Rankings Engine includes a tuition filter to help you search by budget.",
-};
-
-function getMockResponse(query: string): string {
-  const q = query.toLowerCase();
-  if (q.includes("rank") || q.includes("top") || q.includes("best"))
-    return MOCK_RESPONSES.ranking;
-  if (q.includes("medical") || q.includes("mbbs") || q.includes("medicine"))
-    return MOCK_RESPONSES.medical;
-  if (q.includes("compare") || q.includes("comparison") || q.includes("vs"))
-    return MOCK_RESPONSES.compare;
-  if (q.includes("cost") || q.includes("tuition") || q.includes("fee") || q.includes("price"))
-    return MOCK_RESPONSES.cost;
-  return MOCK_RESPONSES.default;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -92,7 +67,7 @@ export default function FloatingChatAssistant() {
     setIsChatOpen(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isThinking) return;
     const userMsg: Message = { id: `u-${Date.now()}`, role: "user", content: input.trim() };
@@ -100,13 +75,36 @@ export default function FloatingChatAssistant() {
     setMessages((prev) => [...prev, userMsg]);
     setInput("");
     setIsThinking(true);
-    setTimeout(() => {
+
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/chat`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: query }),
+      });
+      const data = await res.json().catch(() => ({}));
       setIsThinking(false);
       setMessages((prev) => [
         ...prev,
-        { id: `a-${Date.now()}`, role: "assistant", content: getMockResponse(query) },
+        {
+          id: `a-${Date.now()}`,
+          role: "assistant",
+          content: res.ok
+            ? data.reply
+            : data.detail || "Sorry, the chat service is unavailable right now.",
+        },
       ]);
-    }, 900 + Math.random() * 500);
+    } catch (err) {
+      setIsThinking(false);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `a-${Date.now()}`,
+          role: "assistant",
+          content: "Sorry, I couldn't reach the server. Please try again.",
+        },
+      ]);
+    }
   };
 
   // ─── Theme Tokens ─────────────────────────────────────────────────────────
@@ -168,7 +166,7 @@ export default function FloatingChatAssistant() {
                 </div>
                 <div>
                   <p className={`text-[11px] font-bold uppercase tracking-widest ${"text-slate-900"}`}>
-                    AI Rankings Assistant
+                    AUR Helping Hand
                   </p>
                   <p className={`text-[9px] font-mono ${muted}`}>
                     {isThinking ? "Analyzing…" : "Drag · Swirl · Ask anything"}
@@ -317,7 +315,7 @@ export default function FloatingChatAssistant() {
               key="chat-trigger"
               onClick={() => setIsChatOpen(true)}
               className="shrink-0 h-14 w-14 rounded-full bg-black dark:bg-white text-white dark:text-black shadow-[0_0_20px_rgba(0,0,0,0.6)] dark:shadow-[0_0_20px_rgba(255,255,255,0.7)] hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] dark:hover:shadow-[0_0_30px_rgba(255,255,255,0.9)] flex items-center justify-center relative hover:scale-105 transition-all"
-              title="Open AI Rankings Assistant"
+              title="Open AUR Helping Hand"
             >
               <Bot className="h-6 w-6 pointer-events-none" />
               {/* Pulsing ring only on home */}

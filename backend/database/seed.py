@@ -1,4 +1,3 @@
-#  python -m backend.database.seed
 
 import os
 import asyncio
