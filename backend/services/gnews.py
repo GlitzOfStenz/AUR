@@ -95,11 +95,14 @@ async def fetch_external_news(query: str = "higher education Asia university", l
             response = await client.get(GNEWS_BASE_URL, params=params)
             response.raise_for_status()
             payload = response.json()
-    except Exception:
+    except Exception as e:
+        print(f"GNEWS ERROR: {type(e).__name__}: {e}")
         return []
 
     raw_articles = payload.get("articles", [])
+    print(f"GNEWS RAW COUNT: {len(raw_articles)}")
     safe_relevant_articles = filter_articles(raw_articles)
+    print(f"GNEWS FILTERED COUNT: {len(safe_relevant_articles)}")
 
     results = []
     for article in safe_relevant_articles[:limit]:
