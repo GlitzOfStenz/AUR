@@ -469,6 +469,7 @@ interface HomepageProps {
   onUniversitySelect: (id: string) => void;
   onArticleSelect: (article: Article) => void;
   onViewChange: (view: string) => void;
+  isAuthenticated?: boolean;
 }
 
 export default function Homepage({
@@ -476,7 +477,19 @@ export default function Homepage({
   onUniversitySelect,
   onArticleSelect,
   onViewChange,
+  isAuthenticated = false,
 }: HomepageProps) {
+  const handleProtectedViewChange = useCallback(
+    (targetView: string) => {
+      if (!isAuthenticated && targetView !== "home" && targetView !== "login") {
+        onViewChange("login");
+      } else {
+        onViewChange(targetView);
+      }
+    },
+    [isAuthenticated, onViewChange]
+  );
+
   const { universities } = useUniversityData();
   const { searchQuery, setSearchQuery } = useSidebar();
   const [suggestions, setSuggestions] = useState<{ universities: University[]; articles: Article[] }>({
@@ -571,11 +584,11 @@ export default function Homepage({
         setShowSuggestions(false);
       } else {
         onSearchSubmit(searchQuery);
-        onViewChange("rankings");
+        handleProtectedViewChange("rankings");
         setShowSuggestions(false);
       }
     },
-    [onArticleSelect, onSearchSubmit, onUniversitySelect, onViewChange, searchQuery]
+    [handleProtectedViewChange, onArticleSelect, onSearchSubmit, onUniversitySelect, searchQuery]
   );
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -830,7 +843,7 @@ export default function Homepage({
                 onClick={() => {
                   setSearchQuery(tag);
                   onSearchSubmit(tag);
-                  onViewChange("rankings");
+                  handleProtectedViewChange("rankings");
                 }}
                 className="text-[10px] px-2.5 py-1 rounded-full border border-blue-200 bg-white text-slate-600 hover:border-amber-400 hover:bg-amber-50 hover:text-amber-900 transition-colors"
               >
@@ -849,7 +862,7 @@ export default function Homepage({
             <span className="ref-label">Rankings Engine</span>
             <h2 className="text-2xl font-bold mt-1">Live Top 10 Universities</h2>
           </div>
-          <button type="button" className="ref-btn-primary text-[11px]" onClick={() => onViewChange("rankings")}>
+          <button type="button" className="ref-btn-primary text-[11px]" onClick={() => handleProtectedViewChange("rankings")}>
             Analyze All Universities
             <ChevronRight className="h-4 w-4" />
           </button>
@@ -1051,10 +1064,10 @@ export default function Homepage({
               Access live rankings, institutional analytics, and regional insights trusted across Asia.
             </p>
             <div className="flex flex-wrap gap-3 justify-center">
-              <button type="button" className="bg-white hover:bg-slate-100 text-[#1A365D] font-bold rounded-lg px-8 py-3.5 text-sm transition-colors" onClick={() => onViewChange("rankings")}>
+              <button type="button" className="bg-white hover:bg-slate-100 text-[#1A365D] font-bold rounded-lg px-8 py-3.5 text-sm transition-colors" onClick={() => handleProtectedViewChange("rankings")}>
                 Explore Rankings
               </button>
-              <button type="button" className="bg-transparent border-2 border-white text-white hover:bg-white/10 font-bold rounded-lg px-8 py-3.5 text-sm transition-colors" onClick={() => onViewChange("settings")}>
+              <button type="button" className="bg-transparent border-2 border-white text-white hover:bg-white/10 font-bold rounded-lg px-8 py-3.5 text-sm transition-colors" onClick={() => handleProtectedViewChange("settings")}>
                 Request Institutional Access
               </button>
             </div>
@@ -1113,7 +1126,7 @@ export default function Homepage({
                     <li key={label}>
                       <button
                         type="button"
-                        onClick={() => onViewChange(view)}
+                        onClick={() => handleProtectedViewChange(view)}
                         className="text-sm text-left justify-start text-blue-100/70 hover:text-white hover:translate-x-1 transition-all flex items-center gap-2 w-full"
                       >
                         {label}

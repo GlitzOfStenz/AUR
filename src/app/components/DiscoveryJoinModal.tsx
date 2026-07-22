@@ -1,18 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, X } from "lucide-react";
 
 const PROMPT_DELAY_MS = 5_000;
 
 interface DiscoveryJoinModalProps {
   onLogIn: () => void;
   onSignUp: () => void;
+  onClose?: () => void;
 }
 
 export default function DiscoveryJoinModal({
   onLogIn,
   onSignUp,
+  onClose,
 }: DiscoveryJoinModalProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -33,12 +35,18 @@ export default function DiscoveryJoinModal({
     };
   }, []);
 
+  const handleClose = () => {
+    setIsOpen(false);
+    onClose?.();
+  };
+
   if (!isOpen) return null;
 
   return (
     <div
       className="fixed inset-0 z-[100] flex items-end justify-center bg-[#071a2f]/55 p-3 backdrop-blur-[3px] sm:items-center sm:p-6"
       role="presentation"
+      onClick={handleClose}
     >
       <section
         role="dialog"
@@ -46,7 +54,18 @@ export default function DiscoveryJoinModal({
         aria-labelledby="discovery-join-title"
         aria-describedby="discovery-join-description"
         className="relative w-full max-w-lg overflow-hidden border border-amber-200/80 bg-white shadow-[0_28px_80px_rgba(7,26,47,0.32)]"
+        onClick={(e) => e.stopPropagation()}
       >
+        {/* Close (✕) Button */}
+        <button
+          type="button"
+          onClick={handleClose}
+          aria-label="Close popup"
+          className="absolute top-4 right-4 z-10 p-1.5 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500"
+        >
+          <X className="h-5 w-5" aria-hidden="true" />
+        </button>
+
         <div className="h-1.5 bg-gradient-to-r from-[#d8a12e] via-amber-400 to-[#1a365d]" />
         <div className="px-6 pb-6 pt-8 sm:px-9 sm:pb-9 sm:pt-10">
           <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-amber-700">
