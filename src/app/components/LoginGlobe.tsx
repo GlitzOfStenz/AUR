@@ -76,7 +76,7 @@ export default function LoginGlobe() {
           ref={globeRef}
           width={dimensions.width}
           height={dimensions.height}
-          backgroundColor="rgba(0,0,0,0)"
+          backgroundColor="rgba(127, 86, 217, 0)"
           showAtmosphere={false}
           showGlobe={false}
           polygonsData={countries.features}
@@ -90,3 +90,5 @@ export default function LoginGlobe() {
     </div>
   );
 }
+
+

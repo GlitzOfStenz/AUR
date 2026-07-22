@@ -6,7 +6,7 @@ from contextlib import asynccontextmanager
 from routers import faculty_student_awards
 
 
-from database.connections import close_db, close_redis
+from database.connections import close_db, close_redis, init_db
 from routers import universities, rankings, countries, search
 from routers.auth import router as auth_router
 from routers.users import router as users_router
@@ -23,6 +23,7 @@ from routers import notifications
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    await init_db()
     yield
     await close_db()
     await close_redis()

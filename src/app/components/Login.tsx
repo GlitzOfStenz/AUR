@@ -97,10 +97,10 @@ function GoogleIcon() {
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────
-export default function Login() {
+export default function Login({ initialMode = "login" }: { initialMode?: "login" | "signup" }) {
   const { handleViewChange} = useSidebar();
 
-  const [isLogin, setIsLogin]             = useState(true);
+  const [isLogin, setIsLogin]             = useState(initialMode === "login");
   const [dir, setDir]                     = useState(1);
   const [email, setEmail]                 = useState("");
   const [password, setPassword]           = useState("");
@@ -179,7 +179,7 @@ export default function Login() {
         if (response.status === 401) throw new Error("Invalid credentials. Please try again.");
         if (response.status === 403) throw new Error("Account locked or access denied.");
         if (response.status === 429) throw new Error("Too many attempts. Please try again later.");
-        throw new Error(errorData.message || "An error occurred during authentication.");
+        throw new Error(errorData.detail || errorData.message || "An error occurred during authentication.");
       }
 
       const data = await response.json();
@@ -187,6 +187,7 @@ export default function Login() {
       // Store tokens (sessionStorage used here; swap to HttpOnly cookies server-side later for better security)
       sessionStorage.setItem("aur_access_token", data.access_token);
       sessionStorage.setItem("aur_refresh_token", data.refresh_token);
+      window.dispatchEvent(new Event("aur-auth-change"));
       localStorage.setItem("aur_logged_in", "true");
 
       handleViewChange("home");
@@ -215,7 +216,7 @@ export default function Login() {
         <div className="absolute inset-0 z-0 overflow-hidden">
           <CanvasRevealEffect
             animationSpeed={3}
-            containerClassName="bg-black"
+            containerClassName="bg-cyber-black"
             colors={[
               [255, 255, 255],
               [255, 255, 255],
@@ -225,11 +226,11 @@ export default function Login() {
             showGradient={false}
           />
           {/* Radial vignette so center stays dark and readable */}
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(0,0,0,0.85)_0%,_transparent_70%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(127, 86, 217, 0.85)_0%,_transparent_70%)]" />
           {/* Top fade */}
-          <div className="absolute top-0 left-0 right-0 h-1/4 bg-gradient-to-b from-black to-transparent" />
+          <div className="absolute top-0 left-0 right-0 h-1/4 bg-gradient-to-b from-cyber-black to-transparent" />
           {/* Bottom fade */}
-          <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-black to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-cyber-black to-transparent" />
         </div>
       <div className="lp-bg-grid relative z-10"/>
 

@@ -19,7 +19,7 @@ type NotificationItem = {
   created_at: string;
 };
 
-type CurrentUser = {
+type AuthenticatedUser = {
   id: string;
   email: string;
   first_name: string;
@@ -27,7 +27,19 @@ type CurrentUser = {
   role: string;
 };
 
-export default function Navbar() {
+interface NavbarProps {
+  isAuthenticated?: boolean;
+  onLogIn?: () => void;
+  onSignUp?: () => void;
+  onSignOut?: () => void;
+}
+
+export default function Navbar({
+  isAuthenticated = true,
+  onLogIn,
+  onSignUp,
+  onSignOut,
+}: NavbarProps) {
   const { showToast } = useToast();
   const {
     isMobileOpen,
@@ -42,15 +54,45 @@ export default function Navbar() {
 
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotifMenu, setShowNotifMenu] = useState(false);
+  const [currentUser, setCurrentUser] = useState<AuthenticatedUser | null>(null);
 
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [notifLoading, setNotifLoading] = useState(true);
 
-  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
-  const [userLoading, setUserLoading] = useState(true);
-
   const profileRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+
+  // Fetch the real logged-in user's profile
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const controller = new AbortController();
+
+    async function fetchCurrentUser() {
+      const token = sessionStorage.getItem("aur_access_token");
+      if (!token) return;
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/users/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+          signal: controller.signal,
+        });
+        if (!response.ok) throw new Error("Failed to fetch signed-in user");
+        setCurrentUser(await response.json());
+      } catch (error) {
+        if (error instanceof DOMException && error.name === "AbortError") return;
+        console.error("Unable to load signed-in user:", error);
+        setCurrentUser(null);
+      }
+    }
+
+    fetchCurrentUser();
+    window.addEventListener("aur-profile-change", fetchCurrentUser);
+    return () => {
+      controller.abort();
+      window.removeEventListener("aur-profile-change", fetchCurrentUser);
+    };
+  }, [isAuthenticated]);
 
   // Click outside menus to close
   useEffect(() => {
@@ -66,49 +108,31 @@ export default function Navbar() {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Fetch the real logged-in user's profile
-  useEffect(() => {
-    async function fetchCurrentUser() {
-      try {
-        const token = sessionStorage.getItem("aur_access_token");
-        if (!token) {
-          setUserLoading(false);
-          return;
-        }
-        const res = await fetch(`${API_BASE_URL}/users/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        if (!res.ok) throw new Error("Failed to fetch current user");
-        const data = await res.json();
-        setCurrentUser(data);
-      } catch (err) {
-        console.error("Error fetching current user:", err);
-      } finally {
-        setUserLoading(false);
-      }
-    }
-    fetchCurrentUser();
-  }, []);
-
   // Fetch real notifications from backend
   useEffect(() => {
-  async function fetchNotifications() {
-    try {
+    async function fetchNotifications() {
       const token = sessionStorage.getItem("aur_access_token");
-const res = await fetch(`${API_BASE_URL}/api/notifications`, {
-  headers: token ? { Authorization: `Bearer ${token}` } : {},
-});
-      if (!res.ok) throw new Error("Failed to fetch notifications");
-      const data = await res.json();
-      setNotifications(data);
-    } catch (err) {
-      console.error("Error fetching notifications:", err);
-    } finally {
-      setNotifLoading(false);
+      if (!token) {
+        setNotifications([]);
+        setNotifLoading(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/notifications`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch notifications");
+        const data = await res.json();
+        setNotifications(data);
+      } catch {
+        setNotifications([]);
+      } finally {
+        setNotifLoading(false);
+      }
     }
-  }
-  fetchNotifications();
-}, [showNotifMenu]);
+    fetchNotifications();
+  }, [showNotifMenu]);
 
   function timeAgo(dateString: string) {
     const diffMs = Date.now() - new Date(dateString).getTime();
@@ -135,16 +159,12 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
   const unreadCount = notifications.filter((n) => !n.is_read).length;
 
   const displayName = currentUser
-    ? `${currentUser.first_name} ${currentUser.last_name}`.trim()
-    : userLoading
-    ? "Loading..."
-    : "Guest";
+    ? [currentUser.first_name, currentUser.last_name === "-" ? "" : currentUser.last_name].filter(Boolean).join(" ")
+    : "Loading profile...";
 
-  const displayEmail = currentUser ? currentUser.email : "";
-
-  const avatarInitials = currentUser
-    ? `${currentUser.first_name?.[0] ?? ""}${currentUser.last_name?.[0] ?? ""}`.toUpperCase() || "U"
-    : "U";
+  const initials = currentUser
+    ? `${currentUser.first_name[0] ?? ""}${currentUser.last_name !== "-" ? currentUser.last_name[0] ?? "" : ""}`.toUpperCase()
+    : "...";
 
   return (
     <header
@@ -210,8 +230,27 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
           {/* ── Action icons ── */}
           <div className="flex items-center gap-1">
 
+            {!isAuthenticated && (
+              <div className="hidden items-center gap-1 sm:flex">
+                <button
+                  type="button"
+                  onClick={onLogIn}
+                  className="relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white/80 transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                >
+                  Log In
+                </button>
+                <button
+                  type="button"
+                  onClick={onSignUp}
+                  className="relative px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white/80 transition-all duration-300 hover:text-white after:absolute after:bottom-0 after:left-0 after:h-0.5 after:w-full after:origin-left after:scale-x-0 after:bg-white after:transition-transform after:duration-300 hover:after:scale-x-100"
+                >
+                  Sign Up
+                </button>
+              </div>
+            )}
+
             {/* Notification bell */}
-            <div className="relative" ref={notifRef}>
+            {isAuthenticated && <div className="relative" ref={notifRef}>
               <button
                 type="button"
                 onClick={() => setShowNotifMenu(!showNotifMenu)}
@@ -265,13 +304,13 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                   </div>
                 </div>
               )}
-            </div>
+            </div>}
 
             {/* Divider */}
-            <div className="h-6 w-px bg-white/20 mx-1 hidden sm:block" />
+            {isAuthenticated && <div className="h-6 w-px bg-white/20 mx-1 hidden sm:block" />}
 
             {/* Profile avatar */}
-            <div className="relative" ref={profileRef}>
+            {isAuthenticated && <div className="relative" ref={profileRef}>
               <button
                 type="button"
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
@@ -279,7 +318,7 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                 className="flex items-center gap-1.5 focus:outline-none group"
               >
                 <div className="h-8 w-8 rounded-none bg-white flex items-center justify-center text-[#1A365D] text-[11px] font-bold tracking-wide transition-transform duration-200 group-hover:scale-105">
-                  {avatarInitials}
+                  {initials}
                 </div>
                 <ChevronDown className="h-3 w-3 text-white/80 group-hover:text-white transition-colors hidden sm:block" />
               </button>
@@ -288,11 +327,11 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                 <div className="absolute right-0 top-full mt-2 w-52 rounded-none border border-[var(--aur-border)] bg-[var(--aur-surface)] shadow-xl py-1.5 z-50">
                   <div className="px-4 py-3 border-b border-[var(--aur-border)]">
                     <span className="block font-bold text-[var(--aur-text)] text-sm">{displayName}</span>
-                    <span className="block text-[10px] text-[var(--aur-text-muted)] mt-0.5">{displayEmail}</span>
+                    <span className="block text-[10px] text-[var(--aur-text-muted)] mt-0.5 break-all">{currentUser?.email ?? "Fetching account details"}</span>
                   </div>
                   {[
-                    { label: "My Profile", icon: User, action: () => {} },
-                    { label: "Admin Console", icon: Shield, action: () => handleViewChange("admin") },
+                    { label: "My Profile", icon: User, action: () => handleViewChange("profile") },
+                    ...(currentUser?.role === "admin" ? [{ label: "Admin Console", icon: Shield, action: () => handleViewChange("admin") }] : []),
                     { label: "Settings", icon: Shield, action: () => handleViewChange("settings") },
                   ].map((item) => (
                     <button
@@ -310,8 +349,9 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                       sessionStorage.removeItem("aur_access_token");
                       sessionStorage.removeItem("aur_refresh_token");
                       localStorage.removeItem("aur_logged_in");
-                      handleViewChange("login");
+                      setCurrentUser(null);
                       setShowProfileMenu(false);
+                      onSignOut?.();
                     }}
                     className="w-full text-left px-4 py-2.5 text-xs text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center gap-2.5 transition-colors"
                   >
@@ -320,7 +360,7 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
                   </button>
                 </div>
               )}
-            </div>
+            </div>}
 
             {/* Mobile hamburger */}
             <button

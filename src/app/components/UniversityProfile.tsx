@@ -77,7 +77,6 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
             className="object-cover opacity-90"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/90 via-[#000000]/40 to-transparent" />
           
           {/* Content inside banner */}
           <div className="absolute bottom-16 left-0 right-0 px-8 sm:px-12 flex flex-col md:flex-row items-center md:items-end gap-8 text-white">
@@ -103,12 +102,12 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
               <div className="flex flex-wrap justify-center gap-3 mt-6 md:mt-0">
                 <button 
                   onClick={() => onToggleSave(universityId)}
-                  className={`${isShortlisted ? "bg-red-500 text-white" : "bg-black/50 hover:bg-black/70 text-white border border-white/20"} font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg backdrop-blur-sm`}>
+                  className={`${isShortlisted ? "bg-red-500 text-white" : "bg-cyber-black/50 hover:bg-cyber-black/70 text-white border border-white/20"} font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg backdrop-blur-sm`}>
                   <Bookmark className={`h-4 w-4 ${isShortlisted ? "fill-current" : ""}`} /> {isShortlisted ? "Saved" : "Save"}
                 </button>
                 <button 
                   onClick={() => onViewChange("rankings")}
-                  className="bg-black/50 hover:bg-black/70 text-white border border-white/20 font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg backdrop-blur-sm">
+                  className="bg-cyber-black/50 hover:bg-cyber-black/70 text-white border border-white/20 font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg backdrop-blur-sm">
                   <Square className="h-4 w-4" /> Compare
                 </button>
               </div>
@@ -548,3 +547,5 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
     </div>
   );
 }
+
+

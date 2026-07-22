@@ -69,7 +69,7 @@ export default function BlogImageUpload({ value, error, onChange }: BlogImageUpl
             type="button"
             onClick={() => onChange("")}
             aria-label="Remove cover image"
-            className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 p-1.5 text-white transition-colors rounded-full"
+            className="absolute top-2 right-2 bg-cyber-black/60 hover:bg-cyber-black/80 p-1.5 text-white transition-colors rounded-full"
           >
             <X className="h-3.5 w-3.5" />
           </button>
@@ -78,3 +78,4 @@ export default function BlogImageUpload({ value, error, onChange }: BlogImageUpl
     </div>
   );
 }
+

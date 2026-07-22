@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import redis.asyncio as aioredis
 from dotenv import load_dotenv
 from typing import AsyncGenerator
@@ -8,20 +9,16 @@ from database.models import Base
 
 load_dotenv()
 
-DATABASE_URL = os.getenv(
-    "DATABASE_URL",
-    "postgresql+asyncpg://postgres:password@localhost:5432/university_db"
-)
+DEFAULT_SQLITE_PATH = Path(__file__).resolve().parent.parent / "university_db.sqlite"
+DATABASE_URL = os.getenv("DATABASE_URL", f"sqlite+aiosqlite:///{DEFAULT_SQLITE_PATH.as_posix()}")
 REDIS_URL = os.getenv("REDIS_URL", "redis://localhost:6379")
 
 # PostgreSQL async engine
-engine = create_async_engine(
-    DATABASE_URL,
-    echo=True,
-    pool_size=10,
-    max_overflow=20,
-    pool_pre_ping=True
-)
+engine_options = {"echo": True, "pool_pre_ping": True}
+if not DATABASE_URL.startswith("sqlite"):
+    engine_options.update(pool_size=10, max_overflow=20)
+
+engine = create_async_engine(DATABASE_URL, **engine_options)
 
 # Session factory
 AsyncSessionLocal = sessionmaker(
@@ -36,6 +33,10 @@ redis_client = aioredis.from_url(REDIS_URL, decode_responses=True)
 # Lifecycle helpers
 async def close_db() -> None:
     await engine.dispose()
+
+async def init_db() -> None:
+    async with engine.begin() as connection:
+        await connection.run_sync(Base.metadata.create_all)
 
 async def close_redis() -> None:
     try:

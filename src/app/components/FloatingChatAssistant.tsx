@@ -297,14 +297,14 @@ export default function FloatingChatAssistant() {
               <div
                 className={[
                   "relative px-3.5 py-2.5 rounded-2xl text-[11px] font-bold shadow-xl transition-transform hover:scale-105 pointer-events-none mr-2",
-                  "bg-white border border-black/10 text-black shadow-black/10",
+                  "bg-white border border-cyber-black/10 text-cyber-black shadow-cyber-black/10",
                 ].join(" ")}
               >
                 👋 Come talk to me!
                 <div
                   className={[
                     "absolute right-4 -bottom-1.5 w-3.5 h-3.5 rotate-45 border-r border-b",
-                    "bg-white border-black/10",
+                    "bg-white border-cyber-black/10",
                   ].join(" ")}
                 />
               </div>
@@ -314,13 +314,13 @@ export default function FloatingChatAssistant() {
             <button
               key="chat-trigger"
               onClick={() => setIsChatOpen(true)}
-              className="shrink-0 h-14 w-14 rounded-full bg-black dark:bg-white text-white dark:text-black shadow-[0_0_20px_rgba(0,0,0,0.6)] dark:shadow-[0_0_20px_rgba(255,255,255,0.7)] hover:shadow-[0_0_30px_rgba(0,0,0,0.8)] dark:hover:shadow-[0_0_30px_rgba(255,255,255,0.9)] flex items-center justify-center relative hover:scale-105 transition-all"
+              className="shrink-0 h-14 w-14 rounded-full bg-cyber-black dark:bg-white text-white dark:text-cyber-black shadow-[0_0_20px_rgba(127, 86, 217, 0.6)] dark:shadow-[0_0_20px_rgba(255,255,255,0.7)] hover:shadow-[0_0_30px_rgba(127, 86, 217, 0.8)] dark:hover:shadow-[0_0_30px_rgba(255,255,255,0.9)] flex items-center justify-center relative hover:scale-105 transition-all"
               title="Open AUR Helping Hand"
             >
               <Bot className="h-6 w-6 pointer-events-none" />
               {/* Pulsing ring only on home */}
               {activeView === "home" && (
-                <span className="absolute inset-0 rounded-full animate-ping bg-black/20 dark:bg-white/20 pointer-events-none" />
+                <span className="absolute inset-0 rounded-full animate-ping bg-cyber-black/20 dark:bg-white/20 pointer-events-none" />
               )}
             </button>
           </motion.div>
@@ -329,3 +329,5 @@ export default function FloatingChatAssistant() {
     </>
   );
 }
+
+

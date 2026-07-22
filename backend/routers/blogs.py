@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
 from typing import List
 from uuid import UUID
@@ -21,14 +22,14 @@ def generate_slug(title: str) -> str:
     return slug.strip('-')
 
 @router.post("/", response_model=BlogResponse, status_code=201)
-def create_blog(blog: BlogCreate, db: Session = Depends(get_db)):
+async def create_blog(blog: BlogCreate, db: AsyncSession = Depends(get_db)):
     """
     Create a new blog post.
     """
     slug = generate_slug(blog.title)
     
     # Check if a blog with this slug already exists to prevent duplicate slugs
-    existing = db.query(Blog).filter(Blog.slug == slug).first()
+    existing = await db.scalar(select(Blog).where(Blog.slug == slug))
     if existing:
         # Append a unique suffix if slug exists (simple implementation)
         slug = f"{slug}-{blog.publish_date or 'draft'}"
@@ -40,38 +41,38 @@ def create_blog(blog: BlogCreate, db: Session = Depends(get_db)):
     
     db.add(db_blog)
     try:
-        db.commit()
-        db.refresh(db_blog)
+        await db.commit()
+        await db.refresh(db_blog)
     except IntegrityError:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(status_code=400, detail="Error creating blog post. Possible duplicate slug.")
         
     return db_blog
 
 @router.get("/", response_model=List[BlogResponse])
-def read_blogs(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
+async def read_blogs(skip: int = 0, limit: int = 100, db: AsyncSession = Depends(get_db)):
     """
     Retrieve all blog posts.
     """
-    blogs = db.query(Blog).offset(skip).limit(limit).all()
-    return blogs
+    result = await db.scalars(select(Blog).offset(skip).limit(limit))
+    return result.all()
 
 @router.get("/{blog_id}", response_model=BlogResponse)
-def read_blog(blog_id: UUID, db: Session = Depends(get_db)):
+async def read_blog(blog_id: UUID, db: AsyncSession = Depends(get_db)):
     """
     Retrieve a specific blog post by its UUID.
     """
-    blog = db.query(Blog).filter(Blog.id == blog_id).first()
+    blog = await db.get(Blog, blog_id)
     if blog is None:
         raise HTTPException(status_code=404, detail="Blog not found")
     return blog
 
 @router.put("/{blog_id}", response_model=BlogResponse)
-def update_blog(blog_id: UUID, blog_update: BlogUpdate, db: Session = Depends(get_db)):
+async def update_blog(blog_id: UUID, blog_update: BlogUpdate, db: AsyncSession = Depends(get_db)):
     """
     Update a specific blog post.
     """
-    db_blog = db.query(Blog).filter(Blog.id == blog_id).first()
+    db_blog = await db.get(Blog, blog_id)
     if db_blog is None:
         raise HTTPException(status_code=404, detail="Blog not found")
         
@@ -85,23 +86,23 @@ def update_blog(blog_id: UUID, blog_update: BlogUpdate, db: Session = Depends(ge
         setattr(db_blog, key, value)
         
     try:
-        db.commit()
-        db.refresh(db_blog)
+        await db.commit()
+        await db.refresh(db_blog)
     except IntegrityError:
-        db.rollback()
+        await db.rollback()
         raise HTTPException(status_code=400, detail="Error updating blog post.")
         
     return db_blog
 
 @router.delete("/{blog_id}")
-def delete_blog(blog_id: UUID, db: Session = Depends(get_db)):
+async def delete_blog(blog_id: UUID, db: AsyncSession = Depends(get_db)):
     """
     Delete a specific blog post.
     """
-    db_blog = db.query(Blog).filter(Blog.id == blog_id).first()
+    db_blog = await db.get(Blog, blog_id)
     if db_blog is None:
         raise HTTPException(status_code=404, detail="Blog not found")
         
-    db.delete(db_blog)
-    db.commit()
+    await db.delete(db_blog)
+    await db.commit()
     return {"ok": True, "message": "Blog deleted successfully"}

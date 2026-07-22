@@ -5,9 +5,19 @@ import { useSidebar } from "../navigation/SidebarContext";
 import { SIDEBAR_ITEMS, NavItem } from "../navigation/config";
 import FilterPanel from "../filters/FilterPanel";
 
-import { X, SlidersHorizontal, Home, Trophy, Settings, Bookmark } from "lucide-react";
+import { X, SlidersHorizontal, Home, Trophy, Settings, LogIn, UserPlus } from "lucide-react";
 
-export default function MobileMenu() {
+interface MobileMenuProps {
+  isAuthenticated?: boolean;
+  onLogIn?: () => void;
+  onSignUp?: () => void;
+}
+
+export default function MobileMenu({
+  isAuthenticated = true,
+  onLogIn,
+  onSignUp,
+}: MobileMenuProps) {
   const focusRing =
     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-600 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-cyber-yellow dark:focus-visible:ring-offset-cyber-black";
   const {
@@ -98,7 +108,7 @@ export default function MobileMenu() {
               <div className="flex-1 overflow-y-auto p-4 space-y-4">
                 {activeTab === "menu" ? (
                   <nav className="space-y-1">
-                    {SIDEBAR_ITEMS.map((item) => {
+                    {SIDEBAR_ITEMS.filter((item) => isAuthenticated || item.view === "home").map((item) => {
                       const Icon = item.icon;
                       const isActive = activeView === item.view;
                       return (
@@ -143,7 +153,7 @@ export default function MobileMenu() {
       <nav
         className="md:hidden fixed bottom-0 left-0 right-0 h-16 border-t z-40 transition-colors duration-200 bg-[var(--aur-surface)]/95 border-[var(--aur-border)] text-[var(--aur-text-muted)] pb-safe-bottom backdrop-blur-md"
       >
-        <div className="h-full grid grid-cols-4 items-center max-w-lg mx-auto">
+        <div className={`h-full grid ${isAuthenticated ? "grid-cols-4" : "grid-cols-3"} items-center max-w-lg mx-auto`}>
           {/* Item 1: Discovery Hub */}
           <button
             type="button"
@@ -158,6 +168,7 @@ export default function MobileMenu() {
             <span className="text-[8px] font-bold uppercase tracking-wider">Overview</span>
           </button>
 
+          {isAuthenticated ? <>
           {/* Item 2: Prestige Rankings */}
           <button
             type="button"
@@ -198,6 +209,17 @@ export default function MobileMenu() {
             <Settings className="h-4.5 w-4.5 mb-1" />
             <span className="text-[8px] font-bold uppercase tracking-wider">Settings</span>
           </button>
+
+          </> : <>
+            <button type="button" onClick={onLogIn} className={`flex h-full flex-col items-center justify-center ${focusRing}`}>
+              <LogIn className="mb-1 h-4.5 w-4.5" />
+              <span className="text-[8px] font-bold uppercase tracking-wider">Log In</span>
+            </button>
+            <button type="button" onClick={onSignUp} className={`flex h-full flex-col items-center justify-center ${focusRing}`}>
+              <UserPlus className="mb-1 h-4.5 w-4.5" />
+              <span className="text-[8px] font-bold uppercase tracking-wider">Sign Up</span>
+            </button>
+          </>}
 
         </div>
       </nav>

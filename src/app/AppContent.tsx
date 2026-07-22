@@ -14,26 +14,28 @@ import UniversityProfile from "./components/UniversityProfile";
 import Footer from "./components/Footer";
 import FloatingChatAssistant from "./components/FloatingChatAssistant";
 import AnalyticsDashboard from "./components/AnalyticsDashboard";
-import AdminConsole from "./components/AdminConsole";
 import Login from "./components/Login";
 import UserDashboard from "./components/UserDashboard";
 import UniversitiesList from "./components/UniversitiesList";
+// import Methodology from "./components/Methodology";
 import Methodology from "./components/Methodology";
 import EventsAndAwards from "./components/EventsAndAwards";
 import FacultyStudentAwards from "./components/FacultyStudentAwards";
-import Membership from "./components/Membership";
 import BlogForm from "./components/blog/BlogForm";
 import { useSidebar } from "./components/navigation/SidebarContext";
 import { useUniversityData } from "./components/data/UniversityDataProvider";
 import { Article, MOCK_UNIVERSITIES } from "./data";
 import { Bookmark, ShieldAlert } from "lucide-react";
-import Sidebar from "./components/sidebar/Sidebar";
 import { API_BASE_URL } from "./lib/universities";
+import DiscoveryJoinModal from "./components/DiscoveryJoinModal";
+import ProfileSection from "./components/ProfileSection";
 
 export default function AppContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { universities } = useUniversityData();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authReady, setAuthReady] = useState(false);
 
   const {
     activeView,
@@ -44,7 +46,6 @@ export default function AppContent() {
     handleToggleCompare,
     handleRemoveCompare,
     handleClearCompare,
-    isCollapsed,
     searchQuery,
     setSearchQuery,
   } = useSidebar();
@@ -99,9 +100,12 @@ function getAuthHeaders() {
 // Load university directory (slug name -> real UUID) once
 useEffect(() => {
   fetch(`${API_BASE_URL}/api/universities/directory`)
-    .then((res) => res.json())
+    .then((res) => {
+      if (!res.ok) throw new Error("University directory unavailable");
+      return res.json();
+    })
     .then((data) => setUniDirectory(data))
-    .catch((err) => console.error("Failed to load university directory", err));
+    .catch(() => setUniDirectory([]));
 }, []);
 
 // Load real bookmarks on mount (only if logged in)
@@ -130,7 +134,9 @@ useEffect(() => {
     .catch((err) => console.error("Failed to load bookmarks", err));
 }, [uniDirectory, universities]);
   // Derived state from URL (synced with context)
-  const view = activeView;
+  const view = !isAuthenticated && activeView !== "home" && activeView !== "login"
+    ? "home"
+    : activeView;
   const id = selectedUniId;
 
   // A key to force AnimatePresence re-mount on view change
@@ -192,24 +198,69 @@ useEffect(() => {
   // Get selected universities for Saved view
   const savedUniversities = universities.filter((u) => savedUniIds.includes(u.id));
 
-  // Show sidebar for non-home views
-  const showSidebar = view !== "home" && view !== "login" && view !== "admin";
+  useEffect(() => {
+    const syncAuth = () => {
+      setIsAuthenticated(Boolean(sessionStorage.getItem("aur_access_token")));
+      setAuthReady(true);
+    };
+
+    syncAuth();
+    window.addEventListener("aur-auth-change", syncAuth);
+    return () => window.removeEventListener("aur-auth-change", syncAuth);
+  }, []);
+
+  useEffect(() => {
+    if (authReady && !isAuthenticated && activeView !== "home" && activeView !== "login") {
+      router.replace("?view=home");
+    }
+  }, [activeView, authReady, isAuthenticated, router]);
+
+  const openAuth = (mode: "login" | "signup") => {
+    router.push(`?view=login&mode=${mode}`);
+  };
+
+  const handleSignOut = async () => {
+    const refreshToken = sessionStorage.getItem("aur_refresh_token");
+
+    try {
+      if (refreshToken) {
+        await fetch(`${API_BASE_URL}/auth/logout`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ refresh_token: refreshToken }),
+        });
+      }
+    } catch {
+      // Local session cleanup must still complete if the API is unavailable.
+    } finally {
+      sessionStorage.removeItem("aur_access_token");
+      sessionStorage.removeItem("aur_refresh_token");
+      localStorage.removeItem("aur_logged_in");
+      window.dispatchEvent(new Event("aur-auth-change"));
+      router.push("?view=login&mode=login");
+    }
+  };
+
+
 
   return (
     <div className={`${view === "home" ? "bg-gradient-to-b from-amber-50/50 via-white to-blue-50 dark:bg-none dark:bg-cyber-black" : "aur-page"} flex min-h-screen flex-col transition-colors duration-300`}>
       {/* Top Navigation Bar */}
-      {view !== "login" && view !== "admin" && <Navbar />}
+      {view !== "login" && view !== "admin" && (
+        <Navbar
+          isAuthenticated={isAuthenticated}
+          onLogIn={() => openAuth("login")}
+          onSignUp={() => openAuth("signup")}
+          onSignOut={handleSignOut}
+        />
+      )}
 
       {/* Main Core Layout */}
-      <div className="flex-grow flex w-full">
-        
-        {/* Collapsible Left Sidebar — shown on non-home views */}
-        {showSidebar && <Sidebar />}
-
+      <div className="flex w-full grow">
         {/* Main Content Area — Full Width */}
         <main
           className={`flex-1 flex flex-col min-w-0 pb-20 md:pb-0 ${
-            view === "home" || view === "login" || view === "admin" ? "p-0" : "px-4 pt-4 lg:px-8 lg:pt-8"
+            view === "home" || view === "login" ? "p-0" : "px-4 pt-4 lg:px-8 lg:pt-8"
           }`}
           style={{ isolation: "isolate" }}
         >
@@ -228,15 +279,6 @@ useEffect(() => {
               onUniversitySelect={handleUniversitySelect}
               onArticleSelect={handleArticleSelect}
               onViewChange={handleViewChange}
-            />
-          )}
-
-          {view === "universities" && (
-            <UniversitiesList
-              onUniversitySelect={handleUniversitySelect}
-              onViewChange={handleViewChange}
-              savedUniIds={savedUniIds}
-              onToggleSave={handleToggleSave}
             />
           )}
 
@@ -273,10 +315,7 @@ useEffect(() => {
           {view === "analytics" && <AnalyticsDashboard />}
 
           {/* Methodology */}
-          {view === "methodology" && <Methodology />}
-
-          {/* Membership */}
-          {view === "membership" && <Membership />}
+          {/* {view === "methodology" && <Methodology />} */}
 
           {/* Events & Awards */}
           {view === "events" && <EventsAndAwards />}
@@ -284,11 +323,12 @@ useEffect(() => {
           {/* Faculty & Student Awards */}
           {view === "faculty-awards" && <FacultyStudentAwards />}
 
-          {/* Admin Console */}
-          {view === "admin" && <AdminConsole />}
-
           {/* Login View */}
-          {view === "login" && <Login />}
+          {view === "login" && (
+            <Login initialMode={searchParams.get("mode") === "signup" ? "signup" : "login"} />
+          )}
+
+          {view === "profile" && <ProfileSection />}
 
           {/* User Dashboard (Combines Saved & Settings) */}
           {view === "settings" && (
@@ -312,7 +352,7 @@ useEffect(() => {
                   window.location.reload();
                 }
               }}
-              onSignOut={() => handleViewChange("login")}
+              onSignOut={handleSignOut}
             />
           )}
 
@@ -325,9 +365,16 @@ useEffect(() => {
       </div>
 
       {/* Mobile Responsive Navigation Drawer & Bottom Bar */}
-      {view !== "login" && view !== "admin" && <MobileMenu />}
-
+      {view !== "login" && <MobileMenu />}
       {view !== "login" && view !== "admin" && (
+        <MobileMenu
+          isAuthenticated={isAuthenticated}
+          onLogIn={() => openAuth("login")}
+          onSignUp={() => openAuth("signup")}
+        />
+      )}
+
+      {view !== "login" && (
         <ComparisonDock
           selectedIds={selectedUniIds}
           onRemove={handleRemoveCompare}
@@ -336,7 +383,14 @@ useEffect(() => {
         />
       )}
 
-      {view !== "login" && view !== "admin" && <FloatingChatAssistant />}
+      {view !== "login" && <FloatingChatAssistant />}
+
+      {authReady && !isAuthenticated && view === "home" && (
+        <DiscoveryJoinModal
+          onLogIn={() => openAuth("login")}
+          onSignUp={() => openAuth("signup")}
+        />
+      )}
 
 
     </div>

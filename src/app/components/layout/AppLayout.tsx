@@ -1,9 +1,7 @@
 "use client";
 
 import React from "react";
-import { usePathname } from "next/navigation";
 import Navbar from "../navbar/Navbar";
-import Sidebar from "../sidebar/Sidebar";
 import MobileMenu from "../mobile/MobileMenu";
 import FloatingChatAssistant from "../FloatingChatAssistant";
 import ComparisonDock from "../ComparisonDock";
@@ -14,9 +12,6 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children }: AppLayoutProps) {
-  const pathname = usePathname();
-  const showSidebar = pathname !== "/";
-
   const {
     selectedUniIds,
     handleRemoveCompare,
@@ -36,10 +31,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
       <Navbar />
 
       {/* Main Core Layout */}
-      <div className={`flex-grow flex w-full mx-auto ${showSidebar ? "max-w-7xl px-0 sm:px-4 lg:px-8" : "max-w-none px-0"}`}>
-        {/* Collapsible Left Sidebar */}
-        {showSidebar && <Sidebar />}
-
+      <div className="flex w-full grow mx-auto max-w-none px-0">
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col min-w-0 p-4 pb-20 md:pb-6">
           {children}

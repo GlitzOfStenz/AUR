@@ -452,7 +452,7 @@ export default function FilterPanel() {
           cursor: pointer;
           -webkit-appearance: none;
           margin-top: -5px;
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+          box-shadow: 0 1px 3px rgba(127, 86, 217, 0.3);
           transition: transform 0.1s ease;
         }
 
@@ -467,3 +467,5 @@ export default function FilterPanel() {
     </div>
   );
 }
+
+

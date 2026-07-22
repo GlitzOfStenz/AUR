@@ -3,7 +3,7 @@
 @theme {
 
   /* Extremely Premium Matte Palette */
-  --color-matte-black: #050505;
+  --color-matte-black: #7F56D9;
   --color-matte-dark: #0a0a0a;
   --color-matte-surface: #121212;
   --color-matte-surface-2: #1a1a1a;
@@ -13,7 +13,7 @@
   /* Legacy aliases mapped to sophisticated neutrals */
   --color-cyber-yellow: #e5e5e5;
   --color-cyber-yellow-bright: #ffffff;
-  --color-cyber-black: #000000;
+  --color-cyber-black: #7F56D9;
   --color-cyber-dark: #0a0a0a;
   --color-cyber-gray: #121212;
   --color-cyber-border: rgba(255, 255, 255, 0.08);
@@ -161,7 +161,7 @@ button {
   color: var(--aur-text);
   border-radius: 10px;
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.02);
+  box-shadow: inset 0 1px 2px rgba(127, 86, 217, 0.02);
 }
 
 .aur-input:focus {
@@ -239,7 +239,7 @@ button {
   background: var(--aur-text);
   color: var(--background);
   transform: scale(1.04) translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgba(127, 86, 217, 0.1);
 }
 
 .aur-btn-ghost--active {
@@ -535,7 +535,7 @@ button {
   background: var(--aur-surface-2);
   border: 1px solid var(--aur-border);
   border-radius: 8px;
-  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.02);
+  box-shadow: inset 0 1px 1px rgba(127, 86, 217, 0.02);
 }
 
 .aur-focus-ring:focus-visible {
@@ -727,3 +727,5 @@ img {
 :focus:not(:focus-visible) {
   outline: none;
 }
+
+

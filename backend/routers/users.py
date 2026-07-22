@@ -1,6 +1,6 @@
 from uuid import UUID
 from fastapi import APIRouter, Depends, HTTPException, status
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, field_validator
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
@@ -16,6 +16,9 @@ class UserMeResponse(BaseModel):
     first_name: str
     last_name: str
     role: str
+    country: str = ""
+    profile_role: str = "Student"
+    profile_photo: str | None = None
 
     class Config:
         from_attributes = True
@@ -23,7 +26,72 @@ class UserMeResponse(BaseModel):
 
 @router.get("/me", response_model=UserMeResponse)
 async def get_me(current_user: User = Depends(get_current_user)):
-    return current_user
+    return _profile_response(current_user)
+
+
+class UserProfileUpdate(BaseModel):
+    name: str = Field(min_length=1, max_length=100)
+    country: str = Field(min_length=1, max_length=100)
+    profile_role: str
+    profile_photo: str | None = Field(default=None, max_length=3_000_000)
+
+    @field_validator("name", "country")
+    @classmethod
+    def strip_required_text(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("Field cannot be blank")
+        return value
+
+    @field_validator("profile_role")
+    @classmethod
+    def validate_profile_role(cls, value: str) -> str:
+        if value not in {"Student", "Faculty"}:
+            raise ValueError("Role must be Student or Faculty")
+        return value
+
+    @field_validator("profile_photo")
+    @classmethod
+    def validate_profile_photo(cls, value: str | None) -> str | None:
+        allowed = ("data:image/jpeg;base64,", "data:image/png;base64,", "data:image/webp;base64,")
+        if value and not value.startswith(allowed):
+            raise ValueError("Profile photo must be a JPEG, PNG, or WebP image")
+        return value
+
+
+def _profile_response(user: User) -> dict:
+    preferences = user.preferences or {}
+    return {
+        "id": user.id,
+        "email": user.email,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "role": user.role,
+        "country": preferences.get("country", ""),
+        "profile_role": preferences.get("profile_role", "Student"),
+        "profile_photo": preferences.get("profile_photo"),
+    }
+
+
+@router.patch("/me", response_model=UserMeResponse)
+async def update_me(
+    body: UserProfileUpdate,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    name_parts = body.name.split(maxsplit=1)
+    current_user.first_name = name_parts[0]
+    current_user.last_name = name_parts[1] if len(name_parts) > 1 else "-"
+    current_user.preferences = {
+        **(current_user.preferences or {}),
+        "country": body.country,
+        "profile_role": body.profile_role,
+        "profile_photo": body.profile_photo,
+    }
+    db.add(current_user)
+    await db.commit()
+    await db.refresh(current_user)
+    return _profile_response(current_user)
 
 class BookmarkCreate(BaseModel):
     university_id: UUID

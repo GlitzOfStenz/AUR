@@ -108,7 +108,7 @@
   -webkit-backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 0px; /* Make them boxy to match your new tables */
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 8px 32px rgba(127, 86, 217, 0.2);
 }
 .lp-chip-1 { top: 15%;  left: 5%; }
 .lp-chip-2 { top: 45%;  right: -5%; }
@@ -577,4 +577,6 @@
   .lp-map-wrapper { max-width: 320px; }
   .lp-chip { display: none; }
 }
+
+
 

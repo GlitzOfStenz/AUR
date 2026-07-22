@@ -102,7 +102,7 @@ export default function InteractiveGlobe({ universities, onUniversitySelect }: G
   return (
     <div ref={containerRef} className="w-full h-full min-h-[450px] relative rounded-3xl overflow-hidden border border-slate-800 shadow-2xl bg-[#030712] flex items-center justify-center">
       {/* Deep space radial gradient overlay */}
-      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,_rgba(30,58,138,0.15)_0%,_transparent_100%)] pointer-events-none" />
+      <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_center,_rgba(127, 86, 217,0.15)_0%,_transparent_100%)] pointer-events-none" />
 
       {/* The 3D WebGL Globe */}
       <div className="relative z-10 w-full h-full flex items-center justify-center">
@@ -110,7 +110,7 @@ export default function InteractiveGlobe({ universities, onUniversitySelect }: G
           ref={globeRef}
           width={dimensions.width}
           height={dimensions.height}
-          backgroundColor="rgba(0,0,0,0)"
+          backgroundColor="rgba(127, 86, 217, 0)"
           globeImageUrl="https://unpkg.com/three-globe/example/img/earth-night.jpg"
           bumpImageUrl="https://unpkg.com/three-globe/example/img/earth-topology.png"
           atmosphereColor="#3b82f6"
@@ -163,3 +163,5 @@ export default function InteractiveGlobe({ universities, onUniversitySelect }: G
     </div>
   );
 }
+
+

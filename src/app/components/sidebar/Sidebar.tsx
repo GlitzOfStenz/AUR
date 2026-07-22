@@ -6,7 +6,13 @@ import { useSidebar } from "../navigation/SidebarContext";
 import { SIDEBAR_ITEMS, NavItem } from "../navigation/config";
 
 
-export default function Sidebar() {
+interface SidebarProps {
+  isAuthenticated?: boolean;
+}
+
+export default function Sidebar({
+  isAuthenticated = true,
+}: SidebarProps) {
   const {
     isCollapsed,
     setIsCollapsed,
@@ -43,7 +49,7 @@ export default function Sidebar() {
     >
       {/* 1. Sidebar Links Section */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 flex flex-col justify-center space-y-1.5 scrollbar-thin">
-        {SIDEBAR_ITEMS.map((item) => {
+        {SIDEBAR_ITEMS.filter((item) => isAuthenticated || item.view === "home").map((item) => {
           const Icon = item.icon;
           const isActive = isItemActive(item);
 
@@ -98,7 +104,6 @@ export default function Sidebar() {
             </div>
           );
         })}
-
 
       </div>
 

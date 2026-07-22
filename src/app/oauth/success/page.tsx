@@ -1,21 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
-/**
- * /oauth/success
- *
- * The backend redirects here after a successful Google OAuth login:
- *   https://aur-38ce.onrender.com/auth/google/callback
- *     → 302 → https://aur-tau.vercel.app/oauth/success?access_token=...&refresh_token=...
- *
- * This page:
- *  1. Reads the tokens from the URL
- *  2. Persists them exactly the same way the email/password Login does
- *  3. Redirects to the home view
- */
-export default function OAuthSuccess() {
+function OAuthSuccessContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [status, setStatus] = useState<"processing" | "error">("processing");
@@ -163,5 +151,13 @@ export default function OAuthSuccess() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function OAuthSuccess() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <OAuthSuccessContent />
+    </Suspense>
   );
 }

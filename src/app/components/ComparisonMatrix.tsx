@@ -122,7 +122,7 @@ export default function ComparisonMatrix() {
             <div className="mt-8 flex items-center justify-end border-t border-slate-100 pt-6">
               <button
                 onClick={applyFilters}
-                className="inline-flex items-center justify-center px-5 py-2 bg-slate-900 hover:bg-black text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors"
+                className="inline-flex items-center justify-center px-5 py-2 bg-slate-900 hover:bg-cyber-black text-white text-sm font-medium rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-slate-900 transition-colors"
               >
                 <Search className="w-4 h-4 mr-2" />
                 Apply Filters
@@ -208,7 +208,7 @@ export default function ComparisonMatrix() {
             <table className="w-full text-sm text-left">
               <thead>
                 <tr>
-                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap sticky left-0 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">University Name</th>
+                  <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap sticky left-0 z-10 shadow-[2px_0_5px_-2px_rgba(127, 86, 217, 0.1)]">University Name</th>
                   <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Overall Score</th>
                   <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Founded</th>
                   <th className="px-6 py-4 border-b border-slate-200 bg-slate-50 font-semibold text-slate-800 whitespace-nowrap">Tuition Fee</th>
@@ -225,7 +225,7 @@ export default function ComparisonMatrix() {
               <tbody className="divide-y divide-slate-200">
                 {selectedUnis.map(u => (
                   <tr key={u.id} className="hover:bg-slate-50 transition-colors group">
-                    <td className="px-6 py-4 border-r border-slate-200 bg-white group-hover:bg-slate-50 sticky left-0 z-10 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
+                    <td className="px-6 py-4 border-r border-slate-200 bg-white group-hover:bg-slate-50 sticky left-0 z-10 shadow-[2px_0_5px_-2px_rgba(127, 86, 217, 0.1)]">
                       <h3 className="font-bold text-slate-900 text-base min-w-[14rem]">{u.name}</h3>
                       <p className="text-slate-500 text-xs mt-1">{u.location}</p>
                     </td>
@@ -263,3 +263,4 @@ export default function ComparisonMatrix() {
     </div>
   );
 }
+
