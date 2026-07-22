@@ -606,15 +606,17 @@
 
 @media (max-width: 480px) {
   .ref-home form {
-    flex-direction: column;
+    flex-direction: row;
+    border-radius: 10px;
   }
   .ref-home form input[type="search"] {
-    min-height: 3rem;
+    min-height: 2.75rem;
+    font-size: 0.8rem;
   }
   .ref-home form .ref-btn-primary {
-    width: 100%;
     justify-content: center;
     border-radius: 0;
+    padding: 0 0.875rem;
   }
 }
 

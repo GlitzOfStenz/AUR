@@ -68,8 +68,8 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
       </div>
 
       {/* Hero Section */}
-      <div className="relative mb-24 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-6">
-        <div className="relative h-[380px] w-full rounded-3xl overflow-hidden bg-[var(--aur-surface-2)] shadow-[var(--aur-shadow)]">
+      <div className="relative mb-8 md:mb-24 max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8 mt-4 sm:mt-6">
+        <div className="relative min-h-[360px] md:h-[420px] w-full rounded-2xl sm:rounded-3xl overflow-hidden bg-[var(--aur-surface-2)] shadow-[var(--aur-shadow)] flex flex-col justify-end p-6 sm:p-8 md:p-12">
           <Image
             src={uni.campusPhoto}
             alt={`${uni.name} Campus`}
@@ -77,10 +77,11 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
             className="object-cover opacity-90"
             priority
           />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#000000]/90 via-[#000000]/50 to-transparent pointer-events-none" />
           
           {/* Content inside banner */}
-          <div className="absolute bottom-16 left-0 right-0 px-8 sm:px-12 flex flex-col md:flex-row items-center md:items-end gap-8 text-white">
-            <div className="h-32 w-32 bg-[var(--aur-surface)] rounded-2xl shadow-2xl border-4 border-white/10 overflow-hidden shrink-0 flex items-center justify-center">
+          <div className="relative z-10 flex flex-col md:flex-row items-center md:items-end gap-4 sm:gap-6 md:gap-8 text-white w-full">
+            <div className="h-20 w-20 sm:h-28 sm:w-28 md:h-32 md:w-32 bg-[var(--aur-surface)] rounded-2xl shadow-2xl border-2 sm:border-4 border-white/10 overflow-hidden shrink-0 flex items-center justify-center">
                <Image
                  src={uni.logo || uni.campusPhoto}
                  alt={`${uni.name} Logo`}
@@ -89,25 +90,25 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
                  className="object-cover w-full h-full opacity-80 mix-blend-luminosity"
                />
             </div>
-            <div className="flex-grow flex flex-col md:flex-row justify-between items-center md:items-end w-full pb-2">
-              <div className="text-center md:text-left">
-                <h1 className="text-3xl md:text-5xl lg:text-6xl font-bold font-serif tracking-tight mb-3 text-white drop-shadow-md">
+            <div className="flex-grow flex flex-col md:flex-row justify-between items-center md:items-end w-full pb-1 sm:pb-2">
+              <div className="text-center md:text-left min-w-0 max-w-full">
+                <h1 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold font-serif tracking-tight mb-2 sm:mb-3 text-white drop-shadow-md break-words">
                   {uni.name}
                 </h1>
-                <div className="flex items-center gap-2 text-sm text-white/80 justify-center md:justify-start font-medium">
-                  <MapPin className="h-4 w-4 opacity-80" />
-                  {uni.location}
+                <div className="flex items-center gap-2 text-xs sm:text-sm text-white/80 justify-center md:justify-start font-medium">
+                  <MapPin className="h-4 w-4 opacity-80 shrink-0" />
+                  <span>{uni.location}</span>
                 </div>
               </div>
-              <div className="flex flex-wrap justify-center gap-3 mt-6 md:mt-0">
+              <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mt-4 sm:mt-6 md:mt-0 shrink-0">
                 <button 
                   onClick={() => onToggleSave(universityId)}
-                  className={`${isShortlisted ? "bg-red-500 text-white" : "bg-cyber-black/50 hover:bg-cyber-black/70 text-white border border-white/20"} font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg backdrop-blur-sm`}>
+                  className={`${isShortlisted ? "bg-red-500 text-white" : "bg-cyber-black/50 hover:bg-cyber-black/70 text-white border border-white/20"} font-bold px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-[10px] sm:text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg backdrop-blur-sm`}>
                   <Bookmark className={`h-4 w-4 ${isShortlisted ? "fill-current" : ""}`} /> {isShortlisted ? "Saved" : "Save"}
                 </button>
                 <button 
                   onClick={() => onViewChange("rankings")}
-                  className="bg-cyber-black/50 hover:bg-cyber-black/70 text-white border border-white/20 font-bold px-5 py-3 rounded-xl text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg backdrop-blur-sm">
+                  className="bg-cyber-black/50 hover:bg-cyber-black/70 text-white border border-white/20 font-bold px-4 sm:px-5 py-2.5 sm:py-3 rounded-xl text-[10px] sm:text-xs uppercase tracking-wider flex items-center gap-2 transition-all shadow-lg backdrop-blur-sm">
                   <Square className="h-4 w-4" /> Compare
                 </button>
               </div>
@@ -115,22 +116,22 @@ export default function UniversityProfile({ universityId, onBack, onViewChange, 
           </div>
         </div>
 
-        {/* 3 Overlapping Stat Cards */}
-        <div className="absolute -bottom-12 left-0 right-0 px-10 sm:px-16 grid grid-cols-1 md:grid-cols-3 gap-6">
-           <div className="bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-2xl p-6 shadow-[var(--aur-shadow)] flex flex-col items-center justify-center text-center transform transition-transform hover:-translate-y-1">
-             <span className="text-3xl lg:text-4xl font-serif font-bold text-[var(--aur-text)] mb-2">
-                #={uni.history[0] || uni.qsSubjectRankings?.[0]?.worldRank || 587}
+        {/* 3 Stat Cards — In-flow on mobile, absolute overlap on desktop */}
+        <div className="mt-4 sm:mt-6 md:mt-0 md:absolute md:-bottom-12 md:left-0 md:right-0 px-0 sm:px-4 md:px-10 lg:px-16 grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 md:gap-6 z-20">
+           <div className="bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-2xl p-4 sm:p-6 shadow-[var(--aur-shadow-sm)] md:shadow-[var(--aur-shadow)] flex flex-col items-center justify-center text-center transform transition-transform hover:-translate-y-1">
+             <span className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-[var(--aur-text)] mb-1 sm:mb-2">
+                #{uni.history[0] || uni.qsSubjectRankings?.[0]?.worldRank || 587}
              </span>
              <span className="text-[10px] uppercase tracking-widest text-[var(--aur-text-muted)] font-bold">QS World Rank</span>
            </div>
-           <div className="bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-2xl p-6 shadow-[var(--aur-shadow)] flex flex-col items-center justify-center text-center transform transition-transform hover:-translate-y-1">
-             <span className="text-3xl lg:text-4xl font-serif font-bold text-[var(--aur-text)] mb-2">
+           <div className="bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-2xl p-4 sm:p-6 shadow-[var(--aur-shadow-sm)] md:shadow-[var(--aur-shadow)] flex flex-col items-center justify-center text-center transform transition-transform hover:-translate-y-1">
+             <span className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-[var(--aur-text)] mb-1 sm:mb-2">
                 {uni.subjects.length * 15}
              </span>
              <span className="text-[10px] uppercase tracking-widest text-[var(--aur-text-muted)] font-bold">Total Programmes</span>
            </div>
-           <div className="bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-2xl p-6 shadow-[var(--aur-shadow)] flex flex-col items-center justify-center text-center transform transition-transform hover:-translate-y-1">
-             <span className="text-3xl lg:text-4xl font-serif font-bold text-[var(--aur-text)] mb-2">
+           <div className="bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-2xl p-4 sm:p-6 shadow-[var(--aur-shadow-sm)] md:shadow-[var(--aur-shadow)] flex flex-col items-center justify-center text-center transform transition-transform hover:-translate-y-1">
+             <span className="text-2xl sm:text-3xl lg:text-4xl font-serif font-bold text-[var(--aur-text)] mb-1 sm:mb-2">
                 {uni.intlStudents || 12}%
              </span>
              <span className="text-[10px] uppercase tracking-widest text-[var(--aur-text-muted)] font-bold">Intl Students</span>

@@ -57,20 +57,20 @@ export default function ComparisonDock({
   return (
     <>
       {/* 1. Global Sticky Floating Dock (Bottom-6 on desktop, bottom-20 on mobile) */}
-      <div className="fixed bottom-20 md:bottom-6 left-1/2 z-40 w-full max-w-2xl -translate-x-1/2 px-4 font-sans select-none">
+      <div className="fixed bottom-20 md:bottom-6 left-1/2 z-40 w-[calc(100%-1.5rem)] max-w-2xl -translate-x-1/2 px-2 sm:px-4 font-sans select-none">
         <div className="aur-panel border-slate-900/10 dark:border-cyber-yellow/20 p-3 sm:p-4 flex items-center justify-between">
           <div className="flex items-center space-x-2 sm:space-x-4 truncate">
             {/* Action Icon */}
-            <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center border border-slate-905 bg-slate-50 text-slate-800">
+            <div className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 items-center justify-center border border-slate-900/10 dark:border-cyber-yellow/20 bg-slate-50 dark:bg-cyber-gray text-slate-800 dark:text-slate-100">
               <Shuffle className="h-4 sm:h-4.5 w-4 sm:w-4.5" />
             </div>
 
             {/* Micro Badge & Selected Counter */}
             <div className="truncate">
-              <span className="inline-block text-[9px] uppercase font-bold tracking-widest text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-xs">
+              <span className="inline-block text-[9px] uppercase font-bold tracking-widest text-amber-700 dark:text-cyber-yellow bg-amber-50 dark:bg-cyber-yellow/10 border border-amber-200 dark:border-cyber-yellow/20 px-1.5 py-0.5 rounded-xs">
                 Comparison Suite
               </span>
-              <div className="text-[10px] sm:text-xs font-bold text-slate-900 mt-0.5 truncate">
+              <div className="text-[10px] sm:text-xs font-bold text-slate-900 dark:text-slate-100 mt-0.5 truncate">
                 Comparing {selectedUnis.length} of 4 Universities
               </div>
             </div>
@@ -80,7 +80,7 @@ export default function ComparisonDock({
               {selectedUnis.map((uni) => (
                 <span
                   key={uni.id}
-                  className="inline-flex items-center text-[10px] font-bold border border-slate-200 bg-slate-50 text-slate-800 px-2 py-1"
+                  className="inline-flex items-center text-[10px] font-bold border border-slate-200 dark:border-cyber-border bg-slate-50 dark:bg-cyber-gray text-slate-800 dark:text-slate-200 px-2 py-1"
                 >
                   <span className="truncate max-w-[80px]">{uni.name.split(" ")[0]}</span>
                   <button
@@ -101,14 +101,14 @@ export default function ComparisonDock({
             <button
               type="button"
               onClick={onClearAll}
-              className={`text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-slate-500 hover:text-slate-900 transition-colors ${focusRing}`}
+              className={`text-[9px] sm:text-[10px] uppercase font-bold tracking-wider text-slate-500 hover:text-slate-900 dark:hover:text-slate-100 transition-colors ${focusRing}`}
             >
               Clear
             </button>
             <button
               type="button"
               onClick={() => setIsExpanded(true)}
-              className={`inline-flex items-center justify-center border border-slate-900 bg-slate-900 px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-white hover:bg-slate-800 transition-colors ${focusRing}`}
+              className={`inline-flex items-center justify-center border border-slate-900 dark:border-cyber-yellow bg-slate-900 dark:bg-cyber-yellow px-3 sm:px-4 py-1.5 sm:py-2 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-white dark:text-cyber-black hover:bg-slate-800 dark:hover:opacity-90 transition-colors ${focusRing}`}
             >
               Compare
               <ArrowRight className="ml-1.5 h-3.5 w-3.5" />
@@ -122,14 +122,14 @@ export default function ComparisonDock({
         <div className="fixed inset-0 z-50 overflow-hidden font-sans">
           {/* Backdrop */}
           <div
-            className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs transition-opacity"
+            className="absolute inset-0 bg-slate-950/70 backdrop-blur-xs transition-opacity"
             onClick={() => setIsExpanded(false)}
           />
 
-          <div className="fixed inset-y-10 inset-x-4 md:inset-x-12 lg:inset-x-24 bg-white border border-slate-950 flex flex-col justify-between shadow-2xl z-50">
+          <div className="fixed inset-y-4 inset-x-2 sm:inset-y-10 sm:inset-x-4 md:inset-x-12 lg:inset-x-24 bg-[var(--aur-surface)] border border-[var(--aur-border)] rounded-2xl flex flex-col justify-between shadow-2xl z-50 overflow-hidden">
             
             {/* Matrix Header */}
-            <div className="p-6 border-b border-slate-200 bg-white">
+            <div className="p-4 sm:p-6 border-b border-[var(--aur-border)] bg-[var(--aur-surface)]">
               <div className="flex items-center justify-between">
                 <div>
                   <span className="text-[10px] uppercase font-bold tracking-widest text-amber-700">
@@ -180,17 +180,17 @@ export default function ComparisonDock({
 
                 {/* University Data Cards columns */}
                 {selectedUnis.map((uni) => (
-                  <div key={uni.id} className="border border-slate-200 bg-white p-5 shadow-sm flex flex-col justify-between">
+                  <div key={uni.id} className="aur-card p-4 sm:p-5 flex flex-col justify-between">
                     <div>
                       {/* Name & Region */}
-                      <div className="border-b border-slate-100 pb-4 mb-6">
+                      <div className="border-b border-[var(--aur-border)] pb-4 mb-6">
                         <div className="flex justify-between items-start">
                           <h4 
                             onClick={() => {
                               onUniversitySelect(uni.id);
                               setIsExpanded(false);
                             }}
-                            className="font-sans text-sm font-bold text-slate-900 hover:text-amber-700 cursor-pointer transition-colors leading-tight truncate"
+                            className="font-sans text-sm font-bold text-[var(--aur-text)] hover:text-amber-600 dark:hover:text-cyber-yellow cursor-pointer transition-colors leading-tight truncate"
                           >
                             {uni.name}
                           </h4>
@@ -198,20 +198,20 @@ export default function ComparisonDock({
                             type="button"
                             onClick={() => onRemove(uni.id)}
                             aria-label={`Remove ${uni.name} from comparison`}
-                            className={`text-slate-400 hover:text-red-600 ml-2 ${focusRing}`}
+                            className={`text-[var(--aur-text-muted)] hover:text-red-600 ml-2 ${focusRing}`}
                           >
                             <Trash className="h-3.5 w-3.5" />
                           </button>
                         </div>
-                        <span className="text-[10px] text-slate-400 font-mono block mt-1 font-semibold uppercase">
+                        <span className="text-[10px] text-[var(--aur-text-muted)] font-mono block mt-1 font-semibold uppercase">
                           {uni.location}
                         </span>
                       </div>
 
                       {/* Rank Indicator */}
                       <div className="mb-6 flex items-baseline space-x-2">
-                        <span className="text-2xl font-serif font-bold text-slate-900">#{uni.history[0]}</span>
-                        <span className="text-[9px] text-slate-400 uppercase tracking-widest font-bold">Asia Standing</span>
+                        <span className="text-2xl font-serif font-bold text-[var(--aur-text)]">#{uni.history[0]}</span>
+                        <span className="text-[9px] text-[var(--aur-text-muted)] uppercase tracking-widest font-bold">Asia Standing</span>
                       </div>
 
                       {/* Dynamic Fill Meters (Tailwind visual progress) */}
@@ -224,22 +224,22 @@ export default function ComparisonDock({
                       </div>
 
                       {/* Metadata Table */}
-                      <div className="mt-8 pt-6 border-t border-slate-100 space-y-2.5 text-xs text-slate-600">
+                      <div className="mt-8 pt-6 border-t border-[var(--aur-border)] space-y-2.5 text-xs text-[var(--aur-text-secondary)]">
                         <div className="flex justify-between">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Programs:</span>
-                          <span className="text-slate-800 text-right truncate max-w-[150px]">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">Programs:</span>
+                          <span className="text-[var(--aur-text)] text-right truncate max-w-[150px]">
                             {uni.subjects.join(", ")}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Languages:</span>
-                          <span className="text-slate-800 text-right truncate max-w-[150px]">
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">Languages:</span>
+                          <span className="text-[var(--aur-text)] text-right truncate max-w-[150px]">
                             {uni.languages.join(", ")}
                           </span>
                         </div>
                         <div className="flex justify-between">
-                          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Tuition Est:</span>
-                          <span className="font-mono text-slate-900 font-semibold">{uni.tuition}</span>
+                          <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--aur-text-muted)]">Tuition Est:</span>
+                          <span className="font-mono text-[var(--aur-text)] font-semibold">{uni.tuition}</span>
                         </div>
                       </div>
                     </div>
@@ -251,7 +251,7 @@ export default function ComparisonDock({
                           onUniversitySelect(uni.id);
                           setIsExpanded(false);
                         }}
-                        className={`w-full text-center border border-slate-900 py-2 text-[10px] font-bold uppercase tracking-widest hover:bg-slate-50 transition-colors ${focusRing}`}
+                        className={`w-full text-center border border-[var(--aur-text)] py-2 text-[10px] font-bold uppercase tracking-widest text-[var(--aur-text)] hover:bg-[var(--aur-surface-hover)] transition-colors rounded-lg ${focusRing}`}
                       >
                         Deep-Dive Profile
                       </button>
@@ -262,18 +262,18 @@ export default function ComparisonDock({
             </div>
 
             {/* Matrix Footer controls */}
-            <div className="p-6 border-t border-slate-200 bg-white flex items-center justify-between">
+            <div className="p-4 sm:p-6 border-t border-[var(--aur-border)] bg-[var(--aur-surface)] flex items-center justify-between">
               <button
                 type="button"
                 onClick={onClearAll}
-                className={`text-xs font-bold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors ${focusRing}`}
+                className={`text-xs font-bold uppercase tracking-wider text-[var(--aur-text-muted)] hover:text-[var(--aur-text)] transition-colors ${focusRing}`}
               >
                 Clear All Matches
               </button>
               <button
                 type="button"
                 onClick={() => setIsExpanded(false)}
-                className={`bg-slate-900 text-white text-xs font-bold uppercase tracking-wider px-6 py-2.5 hover:bg-slate-800 transition-colors border border-slate-900 ${focusRing}`}
+                className={`aur-btn-primary px-5 sm:px-6 py-2 sm:py-2.5 ${focusRing}`}
               >
                 Return to Analysis
               </button>

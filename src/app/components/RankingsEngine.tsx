@@ -794,8 +794,8 @@ export default function RankingsEngine({
       {isWeightsDrawerOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden font-sans">
           <div className="absolute inset-0 bg-cyber-black/60 backdrop-blur-xs transition-opacity" onClick={() => setIsWeightsDrawerOpen(false)} />
-          <div className="fixed inset-y-0 right-0 pl-10 max-w-full flex">
-            <div className="w-screen max-w-md bg-[var(--aur-surface)] border-l border-[var(--aur-border)] flex flex-col justify-between shadow-2xl">
+          <div className="fixed inset-y-0 right-0 p-0 sm:pl-10 max-w-full flex">
+            <div className="w-full max-w-md bg-[var(--aur-surface)] border-l border-[var(--aur-border)] flex flex-col justify-between shadow-2xl">
               
               {/* Drawer Header */}
               <div className="p-6 border-b border-[var(--aur-border)]">

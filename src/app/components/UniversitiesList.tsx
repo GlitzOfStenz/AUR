@@ -154,7 +154,7 @@ export default function UniversitiesList({
         <h3 className="font-serif text-xl font-bold text-[var(--aur-text)] mb-4">
           Browse by Region
         </h3>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3">
           {REGION_STATS.map((region) => {
             const isSelected = selectedRegion === region.region;
             return (

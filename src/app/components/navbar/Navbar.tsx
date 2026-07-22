@@ -187,7 +187,7 @@ const res = await fetch(`${API_BASE_URL}/api/notifications`, {
 
           {/* ── Navigation Links - Desktop ── */}
           <nav className="hidden lg:flex space-x-1 items-center">
-            {TOP_NAV_LINKS.map((link) => {
+            {TOP_NAV_LINKS.filter(link => isAuthenticated || link.view === "home").map((link) => {
               const isActive = activeView === link.view;
 
               if (link.view === "news") {

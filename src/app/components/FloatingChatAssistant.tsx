@@ -132,8 +132,8 @@ export default function FloatingChatAssistant() {
             drag
             dragMomentum={false}
             className={[
-              "fixed bottom-24 right-6 z-50",
-              "w-80 sm:w-[360px]",
+              "fixed bottom-20 md:bottom-24 right-3 sm:right-6 z-50",
+              "max-w-[calc(100vw-1.5rem)] w-80 sm:w-[360px]",
               "flex flex-col rounded-xl overflow-hidden",
               "border",
               border,
@@ -286,7 +286,7 @@ export default function FloatingChatAssistant() {
           <motion.div
             drag
             dragMomentum={false}
-            className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-2 cursor-grab active:cursor-grabbing"
+            className="fixed bottom-20 right-4 md:bottom-6 md:right-6 z-50 flex flex-col items-end gap-2 cursor-grab active:cursor-grabbing"
             style={{
               opacity: isIdle ? 1 : 0,
               pointerEvents: isIdle ? "auto" : "none",

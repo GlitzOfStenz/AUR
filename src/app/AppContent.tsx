@@ -185,6 +185,7 @@ useEffect(() => {
 
   const handleUniversitySelect = (uniId: string) => {
     setSelectedUniId(uniId);
+    handleViewChange("university-profile");
   };
 
   const handleBackToRankings = () => {
@@ -240,7 +241,6 @@ useEffect(() => {
       router.push("?view=login&mode=login");
     }
   };
-
 
 
   return (

@@ -90,8 +90,8 @@ export default function AdminConsole() {
       <div className="flex-1 flex flex-col lg:flex-row w-full max-w-7xl mx-auto px-4 lg:px-8 py-8 gap-8">
         
         {/* Left Sidebar Navigation */}
-        <aside className="lg:w-64 flex-shrink-0">
-          <nav className="space-y-1">
+        <aside className="w-full lg:w-64 flex-shrink-0">
+          <nav className="flex flex-row lg:flex-col gap-2 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 shrink-0">
             {[
               { id: "overview", label: "Live Telemetry", icon: Activity },
               { id: "users", label: "User Directory", icon: Users },
@@ -101,14 +101,14 @@ export default function AdminConsole() {
               <button
                 key={item.id}
                 onClick={() => setActiveTab(item.id as any)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${
+                className={`flex items-center gap-3 px-4 py-3 rounded-xl text-xs sm:text-sm font-bold transition-all whitespace-nowrap lg:whitespace-normal shrink-0 ${
                   activeTab === item.id 
                     ? "bg-[var(--aur-text)] text-[var(--background)] shadow-md" 
                     : "text-[var(--aur-text-secondary)] hover:bg-[var(--aur-surface-hover)] hover:text-[var(--aur-text)]"
                 }`}
               >
-                <item.icon className="h-4 w-4" />
-                {item.label}
+                <item.icon className="h-4 w-4 shrink-0" />
+                <span>{item.label}</span>
               </button>
             ))}
           </nav>
