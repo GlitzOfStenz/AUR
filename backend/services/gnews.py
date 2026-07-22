@@ -100,9 +100,7 @@ async def fetch_external_news(query: str = "higher education Asia university", l
         return []
 
     raw_articles = payload.get("articles", [])
-    print(f"GNEWS RAW COUNT: {len(raw_articles)}")
     safe_relevant_articles = filter_articles(raw_articles)
-    print(f"GNEWS FILTERED COUNT: {len(safe_relevant_articles)}")
 
     results = []
     for article in safe_relevant_articles[:limit]:
