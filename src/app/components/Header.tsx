@@ -71,7 +71,13 @@ export default function Header({ currentView, onViewChange }: HeaderProps) {
             <span className="hidden lg:inline-flex items-center rounded border border-slate-200 px-2 py-0.5 text-[10px] font-medium text-slate-500 uppercase tracking-widest bg-slate-50">
               Data: 2026 AUDITED
             </span>
-            <div className="border-l border-slate-200 pl-4">
+            <div className="border-l border-slate-200 pl-4 flex items-center space-x-4">
+              <a 
+                href="/admin/login" 
+                className="text-[10px] font-semibold uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors"
+              >
+                Admin Console
+              </a>
               <button 
                 onClick={() => onViewChange("rankings")}
                 className="inline-flex items-center justify-center border border-slate-900 bg-slate-900 px-4 py-2 text-xs font-semibold uppercase tracking-wider text-white hover:bg-slate-800 transition-all duration-150"
@@ -103,6 +109,13 @@ export default function Header({ currentView, onViewChange }: HeaderProps) {
           <BarChart2 className="h-4 w-4 mb-0.5" />
           Rankings
         </button>
+        <a
+          href="/admin/login"
+          className="flex flex-col items-center text-[10px] uppercase tracking-wider font-semibold text-slate-500"
+        >
+          <HelpCircle className="h-4 w-4 mb-0.5" />
+          Admin
+        </a>
       </div>
     </header>
   );
