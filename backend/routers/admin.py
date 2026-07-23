@@ -20,6 +20,8 @@ import shutil
 import subprocess
 import sys
 import json
+from services.cloudinary import upload_university_logo, upload_campus_photo
+from uuid import UUID as PyUUID
 
 from database.models import (
     Event,
@@ -747,3 +749,71 @@ async def events_dashboard(
         "winners": winners,
         "rejected": rejected,
     }
+
+# Image upload endpoints
+
+ALLOWED_IMAGE_TYPES = {"image/jpeg", "image/png", "image/webp", "image/svg+xml"}
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5MB
+ 
+ 
+@router.post("/universities/{university_id}/logo", tags=["admin", "images"])
+async def upload_logo(
+    university_id: PyUUID,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+    _: dict = Depends(require_admin),
+):
+
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail=f"Unsupported file type: {file.content_type}. Use JPEG, PNG, WebP, or SVG.")
+ 
+    contents = await file.read()
+    if len(contents) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=400, detail="File too large. Max size is 5MB.")
+ 
+    result = await db.execute(select(University).where(University.id == university_id))
+    uni = result.scalar_one_or_none()
+    if not uni:
+        raise HTTPException(status_code=404, detail="University not found.")
+ 
+    try:
+        url = upload_university_logo(contents, uni.slug, file.filename or uni.slug)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Cloudinary upload failed: {str(e)}")
+ 
+    uni.logo_url = url
+    await db.commit()
+ 
+    return {"university_id": str(university_id), "logo_url": url}
+ 
+ 
+@router.post("/universities/{university_id}/campus-photo", tags=["admin", "images"])
+async def upload_campus_photo_endpoint(
+    university_id: PyUUID,
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+    _: dict = Depends(require_admin),
+):
+
+    if file.content_type not in ALLOWED_IMAGE_TYPES:
+        raise HTTPException(status_code=400, detail=f"Unsupported file type: {file.content_type}.")
+ 
+    contents = await file.read()
+    if len(contents) > MAX_FILE_SIZE:
+        raise HTTPException(status_code=400, detail="File too large. Max size is 5MB.")
+ 
+    result = await db.execute(select(University).where(University.id == university_id))
+    uni = result.scalar_one_or_none()
+    if not uni:
+        raise HTTPException(status_code=404, detail="University not found.")
+ 
+    try:
+        url = upload_campus_photo(contents, uni.slug)
+    except Exception as e:
+        raise HTTPException(status_code=502, detail=f"Cloudinary upload failed: {str(e)}")
+ 
+    uni.campus_photo = url
+    await db.commit()
+ 
+    return {"university_id": str(university_id), "campus_photo_url": url}
+
