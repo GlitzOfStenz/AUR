@@ -135,7 +135,7 @@ useEffect(() => {
 }, [uniDirectory, universities]);
   // Derived state from URL (synced with context)
   const view = !isAuthenticated && activeView !== "home" && activeView !== "login"
-    ? "home"
+    ? "login"
     : activeView;
   const id = selectedUniId;
 
@@ -212,7 +212,7 @@ useEffect(() => {
 
   useEffect(() => {
     if (authReady && !isAuthenticated && activeView !== "home" && activeView !== "login") {
-      router.replace("?view=home");
+      router.replace("?view=login&mode=login");
     }
   }, [activeView, authReady, isAuthenticated, router]);
 
@@ -279,6 +279,7 @@ useEffect(() => {
               onUniversitySelect={handleUniversitySelect}
               onArticleSelect={handleArticleSelect}
               onViewChange={handleViewChange}
+              isAuthenticated={isAuthenticated}
             />
           )}
 
