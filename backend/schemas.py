@@ -332,3 +332,30 @@ class BlogResponse(BlogBase):
 
     class Config:
         from_attributes = True
+
+class AdminLoginRequest(BaseModel):
+    email: EmailStr
+    password: str
+
+
+class AdminLoginResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+    token_type: str = "bearer"
+
+
+class AdminVerifyResponse(BaseModel):
+    id: UUID
+    first_name: str
+    last_name: str
+    email: EmailStr
+    role: str
+
+    class Config:
+        from_attributes = True        
+
+class UniversityRegisterRequest(BaseModel):
+    name: str
+    registration_code: str
+    ranking_score: float
+    description: str     
