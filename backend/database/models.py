@@ -117,6 +117,7 @@ class University(Base):
     description = Column(Text)
     website_url = Column(String(300))
     campus_photo = Column(String(300))
+    logo_url = Column(String(500))
     has_medicine = Column(Boolean)
     has_scholarship = Column(Boolean)
 
