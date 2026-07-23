@@ -1,37 +1,52 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
 from schemas import RankingsResponse
+from database.connections import get_db
+from database.models import University as UniversityModel
+from routers.universities import serialize, get_latest_year
 
 router = APIRouter(prefix="/api/rankings", tags=["Rankings"])
 
-def get_data():
-    from data_loader import UNIVERSITIES
-    return UNIVERSITIES
+VALID_METRICS = [
+    "overall", "citations", "employability", "teaching",
+    "academicReputation", "employerReputation", "intlStudents",
+    "papersPerFaculty", "staffWithPhd", "intlFaculty"
+]
+
 
 @router.get("/", response_model=RankingsResponse)
-def get_rankings(
+async def get_rankings(
     top: int = Query(100, ge=1, le=1533),
-    metric: str = Query("overall"),  # overall, citations, employability, etc.
+    metric: str = Query("overall"),
     country: str = Query(None),
+    db: AsyncSession = Depends(get_db),
 ):
-    data = get_data()
+    latest_year = await get_latest_year(db)
+    prev_year = latest_year - 1
 
+    query = select(UniversityModel)
     if country:
-        data = [u for u in data if u["location"].lower() == country.lower()]
+        query = query.where(UniversityModel.country.ilike(country))
 
-    # Sort by chosen metric
-    valid_metrics = [
-        "overall", "citations", "employability", "teaching",
-        "academicReputation", "employerReputation", "intlStudents",
-        "papersPerFaculty", "staffWithPhd", "intlFaculty"
-    ]
-    if metric not in valid_metrics:
+    result = await db.execute(query)
+    unis = result.scalars().all()
+
+    data = []
+    for uni in unis:
+        current = next((rs for rs in uni.ranking_scores if rs.year == latest_year), None)
+        previous = next((rs for rs in uni.ranking_scores if rs.year == prev_year), None)
+        data.append(serialize(uni, current, previous))
+
+    if metric not in VALID_METRICS:
         metric = "overall"
 
     data = sorted(data, key=lambda u: u.get(metric) or 0, reverse=True)
+    data = data[:top]
 
     return {
         "metric": metric,
-        "total": len(data[:top]),
-        "data": data[:top]
+        "total": len(data),
+        "data": data,
     }
