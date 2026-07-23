@@ -154,7 +154,7 @@ export default function MobileMenu({
         className="md:hidden fixed bottom-0 left-0 right-0 h-16 border-t z-40 transition-colors duration-200 bg-[var(--aur-surface)]/95 border-[var(--aur-border)] text-[var(--aur-text-muted)] pb-safe-bottom backdrop-blur-md"
       >
         <div className={`h-full grid ${isAuthenticated ? "grid-cols-4" : "grid-cols-3"} items-center max-w-lg mx-auto`}>
-          {/* Item 1: Discovery Hub */}
+          {/* Item 1: Home */}
           <button
             type="button"
             onClick={() => handleViewChange("home")}
@@ -165,7 +165,7 @@ export default function MobileMenu({
             } ${focusRing}`}
           >
             <Home className="h-4.5 w-4.5 mb-1" />
-            <span className="text-[8px] font-bold uppercase tracking-wider">Overview</span>
+            <span className="text-[8px] font-bold uppercase tracking-wider">Home</span>
           </button>
 
           {isAuthenticated ? <>

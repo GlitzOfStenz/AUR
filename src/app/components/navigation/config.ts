@@ -9,7 +9,7 @@ import {
   BookOpen,
   Calendar,
   Award,
-  FileText,
+  BadgeCheck,
 } from "lucide-react";
 
 export interface NavItem {
@@ -76,17 +76,10 @@ export const SIDEBAR_ITEMS: NavItem[] = [
     view: "settings",
     icon: Settings,
   },
-  {
-    id: "create-blog",
-    label: "Create Blog",
-    view: "create-blog",
-    icon: FileText,
-    badge: "New",
-  },
 ];
 
 export const TOP_NAV_LINKS = [
-  { label: "Discovery Hub", view: "home" },
+  { label: "Home", view: "home" },
   { label: "Institution Directory", view: "universities" },
   { label: "Rankings Engine", view: "rankings" },
   // { label: "Methodology", view: "methodology" },

@@ -86,7 +86,7 @@ function BlogDetailsContent() {
             className="inline-flex items-center justify-center border border-slate-900 dark:border-cyber-yellow bg-slate-900 dark:bg-transparent px-5 py-2.5 text-xs font-semibold uppercase tracking-wider text-white dark:text-cyber-yellow hover:bg-slate-800 dark:hover:bg-cyber-yellow dark:hover:text-cyber-black transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5 mr-2" />
-            Back to Discovery Hub
+            Back to Home
           </Link>
         </div>
       </AppLayout>

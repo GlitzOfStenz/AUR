@@ -300,8 +300,6 @@ useEffect(() => {
           )}
 
 
-          {activeView === "create-blog" && <BlogForm />}
-      
           {activeView === "university-profile" && selectedUniId && (
             <UniversityProfile 
               universityId={selectedUniId} 

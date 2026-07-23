@@ -2,7 +2,6 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
-import Link from "next/link";
 import { motion } from "framer-motion";
 import NewsFlashWidget from "./NewsFlashWidget";
 import Image from "next/image";
@@ -24,12 +23,9 @@ import {
   LineChart,
   Activity,
   Mail,
-  Plus,
 } from "lucide-react";
 import { FEATURED_ARTICLES, University, Article } from "../data";
-import { INSIGHTS } from "../data/insights";
 import { getPublishedStoredBlogs, storedBlogToArticle } from "../lib/blog-storage";
-import InsightCard from "./insights/InsightCard";
 import { useUniversityData } from "./data/UniversityDataProvider";
 import { useSidebar } from "./navigation/SidebarContext";
 import "./home/ref-home.css";
@@ -983,32 +979,6 @@ export default function Homepage({
       {/* ── News Flash ── */}
       <RevealSection className="ref-section pt-0">
         <NewsFlashWidget />
-      </RevealSection>
-
-
-      {/* ── Discovery Hub ── */}
-      <RevealSection className="ref-section pt-0">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between mb-4">
-          <div>
-            <span className="ref-label">Discovery Hub</span>
-            <h2 className="text-2xl font-bold mt-1">Insights &amp; Analysis</h2>
-          </div>
-          <Link href="/blogs/create" className="ref-btn-outline text-[11px] uppercase tracking-wider justify-center">
-            <Plus className="h-3.5 w-3.5" />
-            Create Blog
-          </Link>
-        </div>
-        <div className="mb-4 border-b border-[var(--ref-border)] pb-3">
-          <h3 className="text-xs font-bold uppercase tracking-wider text-[#1A365D]">Featured Insights</h3>
-        </div>
-        <div className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {INSIGHTS.slice(0, 3).map((insight) => <InsightCard key={insight.id} insight={insight} />)}
-        </div>
-        <div className="mt-7 flex justify-center">
-          <Link href="/insights" className="ref-btn-outline px-6 text-[11px] uppercase tracking-wider">
-            More Insights <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-          </Link>
-        </div>
       </RevealSection>
 
 

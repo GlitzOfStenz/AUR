@@ -42,7 +42,7 @@ export default function Header({ currentView, onViewChange }: HeaderProps) {
               }`}
             >
               <Compass className="mr-2 h-4 w-4" />
-              Discovery Hub
+              Home
             </button>
 
             <button

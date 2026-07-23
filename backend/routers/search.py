@@ -1,28 +1,45 @@
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, Depends, Query
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, or_
 
 from schemas import SearchResponse
+from database.connections import get_db
+from database.models import University as UniversityModel
+from routers.universities import serialize, get_latest_year
 
 router = APIRouter(prefix="/api/search", tags=["Search"])
 
-def get_data():
-    from data_loader import UNIVERSITIES
-    return UNIVERSITIES
 
 @router.get("/", response_model=SearchResponse)
-def search_universities(
+async def search_universities(
     q: str = Query(..., min_length=1),
-    limit: int = Query(10, ge=1, le=50)
+    limit: int = Query(10, ge=1, le=50),
+    db: AsyncSession = Depends(get_db),
 ):
-    data = get_data()
-    q_lower = q.lower()
+    latest_year = await get_latest_year(db)
+    prev_year = latest_year - 1
 
-    results = [
-        u for u in data
-        if q_lower in u["name"].lower() or q_lower in u["location"].lower()
-    ]
+    pattern = f"%{q}%"
+    result = await db.execute(
+        select(UniversityModel)
+        .where(
+            or_(
+                UniversityModel.name.ilike(pattern),
+                UniversityModel.country.ilike(pattern),
+            )
+        )
+        .limit(limit)
+    )
+    unis = result.scalars().all()
+
+    data = []
+    for uni in unis:
+        current = next((rs for rs in uni.ranking_scores if rs.year == latest_year), None)
+        previous = next((rs for rs in uni.ranking_scores if rs.year == prev_year), None)
+        data.append(serialize(uni, current, previous))
 
     return {
         "query": q,
-        "total": len(results),
-        "data": results[:limit]
+        "total": len(data),
+        "data": data,
     }
